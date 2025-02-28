@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="nwes.passwordmanager.MainPageController"
+            prefHeight="650" prefWidth="750"
+            minHeight="450" minWidth="550">
+    <left>
+        <VBox alignment="TOP_LEFT"
+              prefWidth="165"
+              spacing="10"
+              fillWidth="true"
+              style="-fx-background-color: lightgray; -fx-border-color: black; -fx-border-width: 2px;"
+        >
+            <Button text="Add"/>
+            <Button text="Generate Password"/>
+            <Button text="Show List"/>
+            <Button text="Settings"/>
+            <Button text="Logs"/>
+        </VBox>
+    </left>
+    <center>
+        <StackPane alignment="CENTER_RIGHT"
+                   prefWidth="330"
+                   style="-fx-background-color: lightblue; -fx-border-color: black; -fx-border-width: 2px;"
+        />
+    </center>
+
+
+</BorderPane>

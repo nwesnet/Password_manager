@@ -18,7 +18,7 @@
     <Label fx:id="welcomeText" text="Welcome"/>
     <TextField fx:id="usernameField" promptText="User name"/>
     <PasswordField fx:id="passwordField" promptText="Password"/>
-    <Button text="login" onAction="#onLoginButtonClick"/>
+    <Button fx:id="loginButton" text="login" onAction="#onLoginButtonClick"/>
     <Button text="create account" onAction="#onCreateAccountButtonClick"/>
 
     <padding>
