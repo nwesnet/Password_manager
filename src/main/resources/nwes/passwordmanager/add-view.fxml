@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<BorderPane xmlns="http://javafx.com/javafx"
+      fx:id="BPAdd"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="nwes.passwordmanager.AddController"
+      prefHeight="400.0" prefWidth="600.0"
+      >
+    <top>
+        <ComboBox fx:id="selectDataType">
+
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Account"/>
+                    <String fx:value="Link"/>
+                    <String fx:value="Card"/>
+                    <String fx:value="Wallet"/>
+                    <String fx:value="Text"/>
+                </FXCollections>
+            </items>
+
+            <value>
+                <String fx:value="Account"/>
+            </value>
+        </ComboBox>
+    </top>
+    <center>
+        <VBox fx:id="vbAdd"
+              alignment="CENTER"
+              spacing="10"
+
+        >
+
+        </VBox>
+    </center>
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+</BorderPane>
