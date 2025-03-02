@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="nwes.passwordmanager.GeneratePasswordController"
+      spacing="10"
+      HBox.hgrow="ALWAYS"
+      prefHeight="280" prefWidth="460">
+    <HBox alignment="TOP_LEFT"
+          spacing="5"
+          prefWidth="Infinity"
+          HBox.hgrow="ALWAYS"
+    >
+        <Slider fx:id="sliderBar"
+                prefWidth="350"
+                blockIncrement="1"
+                minorTickCount="5"
+                showTickLabels="true" showTickMarks="true" snapToTicks="true"
+                majorTickUnit="6"
+                max="24"/>
+        <TextField fx:id="textFieldSlider"
+                   maxWidth="50"
+                   prefColumnCount="4"/>
+
+    </HBox>
+    <VBox alignment="TOP_LEFT"
+          spacing="5"
+    >
+        <CheckBox fx:id="cbNumbers" text="Numbers: 0-9"/>
+        <CheckBox fx:id="cbUppercase" text="Uppercase: A-Z"/>
+        <CheckBox fx:id="cbLowercase" text="Lowercase: a-z"/>
+        <CheckBox fx:id="cbSymbols" text="Symbols: ~`!@#$%^&amp;*()_-+={[}]|\\:;&quot;&lt;&gt;,.?"/>
+    </VBox>
+    <HBox alignment="CENTER_LEFT"
+          spacing="5"
+    >
+        <TextField fx:id="passwordField" prefWidth="250"/>
+        <Button fx:id="generatePasswordButton" text="Generate" onAction="#onGeneratePasswordClick"/>
+        <Button fx:id="copyButton" text="Copy" onAction="#onCopyPasswordClick"/>
+
+    </HBox>
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+</VBox>

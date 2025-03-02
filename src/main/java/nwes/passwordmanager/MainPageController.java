@@ -33,4 +33,17 @@ public class MainPageController {
             e.printStackTrace();
         }
     }
+    @FXML
+    protected void onGeneratePasswordClick(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("genpsswd-view.fxml"));
+            Scene genpsswdScene = new Scene(fxmlLoader.load());
+            Stage genpsswdStage = new Stage();
+            genpsswdStage.setTitle("Generate password");
+            genpsswdStage.setScene(genpsswdScene);
+            genpsswdStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

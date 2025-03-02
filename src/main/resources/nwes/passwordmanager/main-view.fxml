@@ -19,7 +19,7 @@
               style="-fx-background-color: lightgray; -fx-border-color: black; -fx-border-width: 2px;"
         >
             <Button text="Add" onAction="#onAddButtonClick"/>
-            <Button text="Generate Password"/>
+            <Button text="Generate Password" onAction="#onGeneratePasswordClick"/>
             <Button text="Show List"/>
             <Button text="Settings"/>
             <Button text="Logs"/>
