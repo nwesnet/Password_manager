@@ -28,8 +28,7 @@
     <center>
         <StackPane alignment="CENTER_RIGHT"
                    prefWidth="330"
-                   style="-fx-background-color: lightblue; -fx-border-color: black; -fx-border-width: 2px;"
-        />
+                   style="-fx-background-color: lightblue; -fx-border-color: black; -fx-border-width: 2px;"/>
     </center>
 
 

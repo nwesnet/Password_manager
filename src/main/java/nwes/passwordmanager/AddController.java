@@ -13,6 +13,7 @@ public class AddController {
     private BorderPane BPAdd;
     @FXML
     private VBox vbAdd;
+    private TextField usernameField;
     @FXML
     public void initialize(){
         selectDataType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)->{
@@ -42,12 +43,12 @@ public class AddController {
     private void showAccountForm(){
         vbAdd.getChildren().clear();
         Label label = new Label("account");
-        TextField usernameField = new TextField();
+        usernameField = new TextField();
         PasswordField passwordField = new PasswordField();
         HBox hb = new HBox();
-        Button addButton = new Button("Add");
+        Button saveButton = new Button("Save");
         Button cancelButton = new Button("Cancel");
-        hb.getChildren().addAll(addButton,cancelButton);
+        hb.getChildren().addAll(saveButton,cancelButton);
         vbAdd.getChildren().addAll(label,usernameField,passwordField,hb);
     }
     private void showLinkForm(){
@@ -69,5 +70,10 @@ public class AddController {
         vbAdd.getChildren().clear();
         Label label = new Label("text");
         vbAdd.getChildren().addAll(label);
+    }
+    protected void onSaveButtonClick() {
+        DatabaseManager dm = new DatabaseManager();
+        String username = usernameField.getText();
+        dm.writeAccountTodb(username);
     }
 }

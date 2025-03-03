@@ -13,6 +13,7 @@ public class Main extends Application{
     }
     @Override
     public void start(Stage stage) throws Exception {
+        DatabaseManager.connectAndInitialize();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Password manager");
