@@ -16,11 +16,26 @@ public class AddController {
     private BorderPane BPAdd;
     @FXML
     private VBox vbAdd;
-    private TextField resourceField;
-    private TextField usernameField;
-    private PasswordField passwordField;
+
+    private TextField accountResourceField;
+    private TextField accountUsernameField;
+    private PasswordField accountPasswordField;
     private Button saveButton;
     private Button cancelButton;
+
+    private TextField linkField;
+
+    private TextField cardResourceField;
+    private TextField cardNumberField;
+    private TextField cardDateField;
+    private TextField cardCVVField;
+    private TextField cardNameField;
+    private TextField cardTypePayField;
+
+    private TextField walletResourceField;
+    private TextArea walletWordsField;
+    private PasswordField walletPasswordField;
+
     @FXML
     public void initialize(){
         selectDataType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)->{
@@ -52,9 +67,9 @@ public class AddController {
         Label resourceLabel = new Label("Resource");
         Label usrenameLabel = new Label("Username");
         Label passwordLabel = new Label("Password");
-        resourceField = new TextField();
-        usernameField = new TextField();
-        passwordField = new PasswordField();
+        accountResourceField = new TextField();
+        accountUsernameField = new TextField();
+        accountPasswordField = new PasswordField();
         HBox hbResource = new HBox();
         HBox hbUsername = new HBox();
         HBox hbPassword = new HBox();
@@ -63,26 +78,80 @@ public class AddController {
         saveButton.setOnAction(e -> onSaveButtonClick());
         cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> onCancelButtonClick());
-        hbResource.getChildren().addAll(resourceLabel, resourceField);
-        hbUsername.getChildren().addAll(usrenameLabel, usernameField);
-        hbPassword.getChildren().addAll(passwordLabel, passwordField);
+        hbResource.getChildren().addAll(resourceLabel, accountResourceField);
+        hbUsername.getChildren().addAll(usrenameLabel, accountUsernameField);
+        hbPassword.getChildren().addAll(passwordLabel, accountPasswordField);
         hbButtons.getChildren().addAll(saveButton, cancelButton);
         vbAdd.getChildren().addAll(hbResource, hbUsername, hbPassword, hbButtons);
     }
     private void showLinkForm(){
         vbAdd.getChildren().clear();
         Label label = new Label("link");
-        vbAdd.getChildren().addAll(label);
+        linkField = new TextField();
+        HBox hbLink = new HBox();
+        hbLink.getChildren().addAll(label, linkField);
+        vbAdd.getChildren().addAll(hbLink);
     }
     private void showCardForm(){
+        // I clear the vbox that I use for flexible interface
         vbAdd.getChildren().clear();
-        Label label = new Label("card");
-        vbAdd.getChildren().addAll(label);
+        // I create the labels for all fields
+        Label resourceLabel = new Label("Resource");
+        Label numberLabel = new Label("Number");
+        Label dateLabel = new Label("Date");
+        Label CVVLabel = new Label("CVV");
+        Label nameLabel = new Label("Name");
+        Label typepayLabel = new Label("Pay system");
+        // I define the fields and set up it
+        cardResourceField = new TextField();
+
+        cardNumberField = new TextField();
+        cardNumberField.setPrefColumnCount(24);
+
+        cardDateField = new TextField();
+
+        cardCVVField = new TextField();
+
+        cardNameField = new TextField();
+        cardNameField.setPrefColumnCount(24);
+
+        cardTypePayField = new TextField();
+
+        // I create HBox for all fields and buttons to make layout looks better
+        HBox hbResource = new HBox(5);
+        hbResource.getChildren().addAll(resourceLabel, cardResourceField);
+        HBox hbNumber = new HBox(5);
+        hbNumber.getChildren().addAll(numberLabel, cardNumberField);
+        HBox hbDateAndCVV = new HBox(40);
+        hbDateAndCVV.getChildren().addAll(dateLabel, cardDateField, CVVLabel, cardCVVField);
+        HBox hbName = new HBox(5);
+        hbName.getChildren().addAll(nameLabel, cardNameField);
+        HBox hbTypepay = new HBox(5);
+        hbTypepay.getChildren().addAll(typepayLabel, cardTypePayField);
+        HBox hbButtons = new HBox(5);
+        hbButtons.getChildren().addAll(saveButton, cancelButton);
+        // I add the items in VBox
+        vbAdd.getChildren().addAll(hbResource, hbNumber, hbDateAndCVV, hbName, hbTypepay);
     }
     private void showWalletForm(){
         vbAdd.getChildren().clear();
-        Label label = new Label("wallet");
-        vbAdd.getChildren().addAll(label);
+
+        Label resourceLabel = new Label("Resource");
+        Label wordsLabel = new Label("12 words");
+        Label passwordLabel = new Label("Pin");
+
+        walletResourceField = new TextField();
+        walletWordsField = new TextArea();
+        walletPasswordField = new PasswordField();
+
+        HBox hbResource = new HBox(5);
+        hbResource.getChildren().addAll(resourceLabel, walletResourceField);
+        HBox hbWords = new HBox(5);
+        hbWords.getChildren().addAll(wordsLabel, walletWordsField);
+        HBox hbPassword = new HBox(5);
+        hbPassword.getChildren().addAll(passwordLabel, walletPasswordField);
+
+        vbAdd.getChildren().addAll(hbResource, hbWords, hbPassword);
     }
     private void showTextForm(){
         vbAdd.getChildren().clear();
@@ -91,9 +160,9 @@ public class AddController {
     }
     private void onSaveButtonClick() {
         DatabaseManager dm = new DatabaseManager();
-        String resource = resourceField.getText();
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String resource = accountResourceField.getText();
+        String username = accountUsernameField.getText();
+        String password = accountPasswordField.getText();
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
             dm.writeAccountTodb(resource, username, password, date);
