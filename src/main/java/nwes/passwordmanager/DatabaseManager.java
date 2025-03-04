@@ -94,9 +94,9 @@ public class DatabaseManager {
                 String resource = rs.getString("resource");
                 String username = rs.getString("login");
                 String password = rs.getString("password");
-                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added"));
+//                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added"));
 
-                accounts.add(new Account(resource, username, password, dateAdded));
+                accounts.add(new Account(resource, username, password, LocalDateTime.now()));
             }
 
         } catch (Exception e) {

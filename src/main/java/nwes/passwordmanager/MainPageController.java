@@ -2,11 +2,14 @@ package nwes.passwordmanager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.List;
 
 public class MainPageController {
     @FXML
@@ -72,6 +75,19 @@ public class MainPageController {
         showListVisible = !showListVisible;
         if (showListVisible){
             showListVBox.setVisible(true);
+            DatabaseManager dbManager = new DatabaseManager();
+            List<Account> accounts = dbManager.getAllAccounts();
+            if (accounts.isEmpty()){
+                Label emptyMessage = new Label("You didn't add any account yet.");
+                showListVBox.getChildren().add(emptyMessage);
+                for (Account account : accounts) {
+                    System.out.println(account);
+                }
+            } else {
+                for (Account account : accounts) {
+                    DisplayAccountsDetails(account, dbManager);
+                }
+            }
         } else {
             showListVBox.setVisible(false);
         }
@@ -84,5 +100,28 @@ public class MainPageController {
         } else {
             settingsVBox.setVisible(false);
         }
+    }
+    private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
+        VBox vb = new VBox(5);
+        vb.setPadding(new Insets(6));
+
+        Label resourceLabel = new Label("Resource" + account.getResource());
+        Label loginLabel = new Label("Login:        ");
+        TextField loginField = new TextField(account.getUsername());
+        loginField.setPrefColumnCount(16);
+        loginField.setEditable(false);
+        HBox hbLogin = new HBox(5);
+        hbLogin.getChildren().addAll(loginLabel, loginField);
+
+        Label passwordLabel = new Label("Password: ");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setText(account.getPassword());
+        passwordField.setPrefColumnCount(16);
+        passwordField.setEditable(false);
+        HBox hbPassword = new HBox(5);
+        hbPassword.getChildren().addAll(passwordLabel, passwordField);
+
+        vb.getChildren().addAll(resourceLabel, hbLogin, hbPassword);
+        showListVBox.getChildren().add(vb);
     }
 }
