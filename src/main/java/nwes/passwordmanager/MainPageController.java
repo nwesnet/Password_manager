@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -20,6 +21,9 @@ public class MainPageController {
     private Button logs;
     @FXML
     private VBox leftVBox;
+    @FXML
+    private ScrollPane logsScrollPane;
+    private boolean logsVisible = false;
     @FXML
     protected void onAddButtonClick(){
         try {
@@ -45,5 +49,15 @@ public class MainPageController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @FXML
+    protected void onLogsButtonClick() {
+        logsVisible = !logsVisible;
+        if (logsVisible){
+            logsScrollPane.setVisible(true);
+        } else {
+            logsScrollPane.setVisible(false);
+        }
+
     }
 }
