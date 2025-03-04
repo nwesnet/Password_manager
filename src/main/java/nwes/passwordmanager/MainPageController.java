@@ -23,6 +23,13 @@ public class MainPageController {
     private VBox leftVBox;
     @FXML
     private ScrollPane logsScrollPane;
+    @FXML
+    private VBox settingsVBox;
+    @FXML
+    private VBox showListVBox;
+
+    private boolean showListVisible = false;
+    private boolean settingsVisible = false;
     private boolean logsVisible = false;
     @FXML
     protected void onAddButtonClick(){
@@ -59,5 +66,23 @@ public class MainPageController {
             logsScrollPane.setVisible(false);
         }
 
+    }
+    @FXML
+    protected void onShowListButtonClick(){
+        showListVisible = !showListVisible;
+        if (showListVisible){
+            showListVBox.setVisible(true);
+        } else {
+            showListVBox.setVisible(false);
+        }
+    }
+    @FXML
+    protected void onSettingsButtonClick(){
+        settingsVisible = !settingsVisible;
+        if (settingsVisible){
+            settingsVBox.setVisible(true);
+        } else {
+            settingsVBox.setVisible(false);
+        }
     }
 }
