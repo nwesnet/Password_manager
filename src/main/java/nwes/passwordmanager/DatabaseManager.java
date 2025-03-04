@@ -2,30 +2,39 @@ package nwes.passwordmanager;
 
 import java.sql.*;
 
+import java.time.LocalDateTime;
+
 public class DatabaseManager {
-    private static final String DB_URL = "jdbc:sqlite:passwords.db";
-    private static final String ENCRYPTION_KEY = "your_secret_password";
+    private static final String DB_URL = "jdbc:sqlite:passwords.db";  // Standard SQLite database
 
-    public static void connectAndInitialize() {
+    /**
+     * Creates a new SQLite database and initializes tables.
+     */
+    public static void initializeDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL);
-            Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
 
-            stmt.execute("PRAGMA key = '" + ENCRYPTION_KEY + "';");
-            stmt.execute("PRAGMA cipher_memory_security = ON;");
-            createTable(stmt);
+            // ✅ Create tables inside the SQLite database
+            createTables(stmt);
 
-            System.out.print("Database initialized and tables are ready!");
-        } catch (Exception e) {
-            System.out.println("❌ SQLCipher Connection Error: " + e.getMessage());
+            System.out.println("✅ Database initialized successfully!");
+
+        } catch (SQLException e) {
+            System.out.println("❌ SQLite Error: " + e.getMessage());
         }
     }
-    private static void createTable(Statement stmt) throws SQLException {
-        stmt.execute("CREATE TABLE IF NOT EXISTS Account ("
+
+    /**
+     * Creates necessary tables inside the database.
+     */
+    private static void createTables(Statement stmt) throws SQLException {
+        stmt.execute("CREATE TABLE IF NOT EXISTS Accounts ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "resource TEXT NOT NULL, "
                 + "login TEXT NOT NULL, "
                 + "password TEXT NOT NULL, "
                 + "date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
+
         stmt.execute("CREATE TABLE IF NOT EXISTS Cards ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "resource TEXT NOT NULL, "
@@ -47,30 +56,30 @@ public class DatabaseManager {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "resource TEXT NOT NULL);");
     }
-    public void writeAccountTodb(String username) {
-        String sql = "INSERT INTO Accounts (resource, login, password) VALUES (?, ?, ?)";
+
+    /**
+     * Inserts a new account into the database.
+     */
+    public void writeAccountTodb(String resource, String username, String password, LocalDateTime date) {
+        String sql = "INSERT INTO Accounts (resource, login, password, date_added) VALUES (?, ?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            // 🔐 Apply SQLCipher encryption key
-            conn.createStatement().execute("PRAGMA key = '" + ENCRYPTION_KEY + "';");
-
-            // Sample values for testing
-            String resource = "TestResource";
-            String password = "TestPassword123";
 
             // 🔹 Set the values dynamically
             pstmt.setString(1, resource);  // resource
             pstmt.setString(2, username);  // login (username)
             pstmt.setString(3, password);  // password
+            pstmt.setTimestamp(4, Timestamp.valueOf(date)); // ✅ Store as TIMESTAMP
 
             // ✅ Execute the insert query
             pstmt.executeUpdate();
-            System.out.println("✅ Account successfully inserted: " + username);
+            System.out.println("✅ Account successfully inserted: " + username + "on" + date);
 
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
         }
     }
-
 }
+
+

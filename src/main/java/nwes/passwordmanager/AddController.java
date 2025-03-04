@@ -5,6 +5,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.time.LocalDateTime;
 
 public class AddController {
     @FXML
@@ -13,7 +16,11 @@ public class AddController {
     private BorderPane BPAdd;
     @FXML
     private VBox vbAdd;
+    private TextField resourceField;
     private TextField usernameField;
+    private PasswordField passwordField;
+    private Button saveButton;
+    private Button cancelButton;
     @FXML
     public void initialize(){
         selectDataType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)->{
@@ -42,14 +49,25 @@ public class AddController {
     }
     private void showAccountForm(){
         vbAdd.getChildren().clear();
-        Label label = new Label("account");
+        Label resourceLabel = new Label("Resource");
+        Label usrenameLabel = new Label("Username");
+        Label passwordLabel = new Label("Password");
+        resourceField = new TextField();
         usernameField = new TextField();
-        PasswordField passwordField = new PasswordField();
-        HBox hb = new HBox();
-        Button saveButton = new Button("Save");
-        Button cancelButton = new Button("Cancel");
-        hb.getChildren().addAll(saveButton,cancelButton);
-        vbAdd.getChildren().addAll(label,usernameField,passwordField,hb);
+        passwordField = new PasswordField();
+        HBox hbResource = new HBox();
+        HBox hbUsername = new HBox();
+        HBox hbPassword = new HBox();
+        HBox hbButtons = new HBox();
+        saveButton = new Button("Save");
+        saveButton.setOnAction(e -> onSaveButtonClick());
+        cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> onCancelButtonClick());
+        hbResource.getChildren().addAll(resourceLabel, resourceField);
+        hbUsername.getChildren().addAll(usrenameLabel, usernameField);
+        hbPassword.getChildren().addAll(passwordLabel, passwordField);
+        hbButtons.getChildren().addAll(saveButton, cancelButton);
+        vbAdd.getChildren().addAll(hbResource, hbUsername, hbPassword, hbButtons);
     }
     private void showLinkForm(){
         vbAdd.getChildren().clear();
@@ -71,9 +89,18 @@ public class AddController {
         Label label = new Label("text");
         vbAdd.getChildren().addAll(label);
     }
-    protected void onSaveButtonClick() {
+    private void onSaveButtonClick() {
         DatabaseManager dm = new DatabaseManager();
+        String resource = resourceField.getText();
         String username = usernameField.getText();
-        dm.writeAccountTodb(username);
+        String password = passwordField.getText();
+        LocalDateTime date = LocalDateTime.now();
+        if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
+            dm.writeAccountTodb(resource, username, password, date);
+        }
+    }
+    private void onCancelButtonClick(){
+        Stage addStage = (Stage) cancelButton.getScene().getWindow();
+        addStage.close();
     }
 }
