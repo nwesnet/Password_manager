@@ -3,6 +3,8 @@ package nwes.passwordmanager;
 import java.sql.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:passwords.db";  // Standard SQLite database
@@ -79,6 +81,29 @@ public class DatabaseManager {
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
         }
+    }
+    public List<Account> getAllAccounts(){
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT resource, login, password, date_added FROM Accounts";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()){
+
+            while (rs.next()){
+                String resource = rs.getString("resource");
+                String username = rs.getString("login");
+                String password = rs.getString("password");
+                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added"));
+
+                accounts.add(new Account(resource, username, password, dateAdded));
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Database Read Error: " + e.getMessage());
+        }
+
+        return accounts;
     }
 }
 
