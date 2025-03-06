@@ -3,6 +3,7 @@ package nwes.passwordmanager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -30,6 +31,8 @@ public class MainPageController {
     private VBox settingsVBox;
     @FXML
     private VBox showListVBox;
+    @FXML
+    private VBox DisplayDetailsVBox;
 
     private boolean showListVisible = false;
     private boolean settingsVisible = false;
@@ -77,6 +80,7 @@ public class MainPageController {
             showListVBox.setVisible(true);
             DatabaseManager dbManager = new DatabaseManager();
             List<Account> accounts = dbManager.getAllAccounts();
+            List<Card> cards = dbManager.getAllCards();
             if (accounts.isEmpty()){
                 Label emptyMessage = new Label("You didn't add any account yet.");
                 showListVBox.getChildren().add(emptyMessage);
@@ -87,9 +91,14 @@ public class MainPageController {
                 for (Account account : accounts) {
                     DisplayAccountsDetails(account, dbManager);
                 }
+                for (Card card : cards) {
+                    DisplayCardsDetails(card, dbManager);
+                }
+
             }
         } else {
             showListVBox.setVisible(false);
+            showListVBox.getChildren().removeIf(node -> !(node instanceof TextField));
         }
     }
     @FXML
@@ -103,7 +112,7 @@ public class MainPageController {
     }
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
         VBox vb = new VBox(5);
-        vb.setPadding(new Insets(6));
+        vb.setPadding(new Insets(20));
 
         Label resourceLabel = new Label("Resource" + account.getResource());
         Label loginLabel = new Label("Login:        ");
@@ -123,5 +132,27 @@ public class MainPageController {
 
         vb.getChildren().addAll(resourceLabel, hbLogin, hbPassword);
         showListVBox.getChildren().add(vb);
+    }
+    private void DisplayCardsDetails(Card card, DatabaseManager dbManager){
+        VBox vb = new VBox(5);
+        vb.setPadding(new Insets(20));
+
+        Label resourceLabel = new Label("Resource: " + card.getResource());
+        TextField cardNumberField = new TextField(card.getCardNumber());
+        TextField cardExpiryDate = new TextField(card.getExpiryDate());
+        TextField cardCVVField = new TextField(card.getCvv());
+        TextField cardOwnerNameField = new TextField(card.getOnwerName());
+
+        HBox hbDateAndCVV = new HBox(5);
+        hbDateAndCVV.getChildren().addAll(cardExpiryDate, cardCVVField);
+
+        vb.getChildren().addAll(resourceLabel, cardNumberField, hbDateAndCVV, cardOwnerNameField);
+        showListVBox.getChildren().add(vb);
+    }
+    private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
+
+    }
+    private void DisplayWalletsDetails(Wallet wallte, DatabaseManager dbManager){
+
     }
 }

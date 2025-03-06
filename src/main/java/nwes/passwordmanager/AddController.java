@@ -64,20 +64,29 @@ public class AddController {
     }
     private void showAccountForm(){
         vbAdd.getChildren().clear();
+
         Label resourceLabel = new Label("Resource");
         Label usrenameLabel = new Label("Username");
         Label passwordLabel = new Label("Password");
+
         accountResourceField = new TextField();
         accountUsernameField = new TextField();
         accountPasswordField = new PasswordField();
+
+        saveButton = new Button("Save");
+        saveButton.setOnAction(e -> onSaveButtonClick(
+                accountResourceField.getText(),
+                accountUsernameField.getText(),
+                accountPasswordField.getText()
+        ));
+        cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> onCancelButtonClick());
+
         HBox hbResource = new HBox();
         HBox hbUsername = new HBox();
         HBox hbPassword = new HBox();
         HBox hbButtons = new HBox();
-        saveButton = new Button("Save");
-        saveButton.setOnAction(e -> onSaveButtonClick());
-        cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> onCancelButtonClick());
+
         hbResource.getChildren().addAll(resourceLabel, accountResourceField);
         hbUsername.getChildren().addAll(usrenameLabel, accountUsernameField);
         hbPassword.getChildren().addAll(passwordLabel, accountPasswordField);
@@ -86,11 +95,24 @@ public class AddController {
     }
     private void showLinkForm(){
         vbAdd.getChildren().clear();
+
         Label label = new Label("link");
+
         linkField = new TextField();
+        linkField.setPrefColumnCount(24);
+
+        saveButton = new Button("save");
+        saveButton.setOnAction(e -> onSaveButtonClick(
+                linkField.getText()
+        ));
+        cancelButton = new Button("cancel");
+        cancelButton.setOnAction(e -> onCancelButtonClick());
+
         HBox hbLink = new HBox();
         hbLink.getChildren().addAll(label, linkField);
-        vbAdd.getChildren().addAll(hbLink);
+        HBox hbButtons = new HBox(saveButton, cancelButton);
+
+        vbAdd.getChildren().addAll(hbLink, hbButtons);
     }
     private void showCardForm(){
         // I clear the vbox that I use for flexible interface
@@ -117,6 +139,18 @@ public class AddController {
 
         cardTypePayField = new TextField();
 
+        saveButton = new Button("save");
+        saveButton.setOnAction(e -> onSaveButtonClick(
+                cardResourceField.getText(),
+                cardNumberField.getText(),
+                cardDateField.getText(),
+                cardCVVField.getText(),
+                cardNameField.getText(),
+                cardTypePayField.getText()
+        ));
+        cancelButton = new Button("cancel");
+        cancelButton.setOnAction(e -> onCancelButtonClick());
+
         // I create HBox for all fields and buttons to make layout looks better
         HBox hbResource = new HBox(5);
         hbResource.getChildren().addAll(resourceLabel, cardResourceField);
@@ -131,7 +165,7 @@ public class AddController {
         HBox hbButtons = new HBox(5);
         hbButtons.getChildren().addAll(saveButton, cancelButton);
         // I add the items in VBox
-        vbAdd.getChildren().addAll(hbResource, hbNumber, hbDateAndCVV, hbName, hbTypepay);
+        vbAdd.getChildren().addAll(hbResource, hbNumber, hbDateAndCVV, hbName, hbTypepay, hbButtons);
     }
     private void showWalletForm(){
         vbAdd.getChildren().clear();
@@ -144,28 +178,66 @@ public class AddController {
         walletWordsField = new TextArea();
         walletPasswordField = new PasswordField();
 
+        saveButton = new Button("save");
+        saveButton.setOnAction(e -> onSaveButtonClick(
+                walletResourceField.getText(),
+                walletWordsField,
+                walletPasswordField.getText()
+        ));
+        cancelButton = new Button("cancel");
+        cancelButton.setOnAction(e -> onCancelButtonClick());
+
         HBox hbResource = new HBox(5);
         hbResource.getChildren().addAll(resourceLabel, walletResourceField);
         HBox hbWords = new HBox(5);
         hbWords.getChildren().addAll(wordsLabel, walletWordsField);
         HBox hbPassword = new HBox(5);
         hbPassword.getChildren().addAll(passwordLabel, walletPasswordField);
+        HBox hbButtons = new HBox(5);
+        hbButtons.getChildren().addAll(saveButton, cancelButton);
 
-        vbAdd.getChildren().addAll(hbResource, hbWords, hbPassword);
+        vbAdd.getChildren().addAll(hbResource, hbWords, hbPassword, hbButtons);
     }
     private void showTextForm(){
         vbAdd.getChildren().clear();
         Label label = new Label("text");
         vbAdd.getChildren().addAll(label);
     }
-    private void onSaveButtonClick() {
+    private void onSaveButtonClick(String resource, String username, String password) {
         DatabaseManager dm = new DatabaseManager();
-        String resource = accountResourceField.getText();
-        String username = accountUsernameField.getText();
-        String password = accountPasswordField.getText();
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
             dm.writeAccountTodb(resource, username, password, date);
+        }
+    }
+    private void onSaveButtonClick(String link){
+        DatabaseManager dm = new DatabaseManager();
+        if (!link.isEmpty()){
+            dm.writeLinkTodb(link);
+        }
+    }
+    private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String systemType){
+        DatabaseManager dm = new DatabaseManager();
+        LocalDateTime date = LocalDateTime.now();
+        if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()){
+            dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, systemType, date);
+        }
+    }
+    private void onSaveButtonClick(String resource, TextArea words, String password){
+        DatabaseManager dm = new DatabaseManager();
+        LocalDateTime date = LocalDateTime.now();
+
+        String wordsText = words.getText().trim();
+        String[] wordsArray = wordsText.split("\\s+");
+
+        if (wordsArray.length < 12 || wordsArray.length > 24) {
+            System.out.println("❌ Invalid number of words. Must be between 12 and 24.");
+            return;
+        }
+        String wordsString = String.join(",", wordsArray);
+
+        if (!resource.isEmpty() || !wordsString.isEmpty() || !password.isEmpty()){
+            dm.writeWalletTodb(resource, wordsString, password, date);
         }
     }
     private void onCancelButtonClick(){
