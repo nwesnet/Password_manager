@@ -87,7 +87,18 @@
                   fillWidth="true" VBox.vgrow="ALWAYS"
                   spacing="10"
             >
-                <TextField prefColumnCount="24" promptText="ShowList"/>
+                <!-- Search bar stays on the top -->
+                <TextField fx:id="showListSearchBar"
+                           prefColumnCount="24"
+                           promptText="ShowList"/>
+                <!-- Scrollable list content -->
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <VBox fx:id="showListContentVBox"
+                          spacing="10"
+                          alignment="TOP_CENTER"
+                          fillWidth="true"
+                          VBox.vgrow="ALWAYS"/>
+                </ScrollPane>
 
             </VBox>
         </StackPane>

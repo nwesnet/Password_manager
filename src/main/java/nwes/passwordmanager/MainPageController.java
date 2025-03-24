@@ -41,6 +41,10 @@ public class MainPageController {
     private PasswordField pinField;
     @FXML
     private VBox showListVBox;
+    @FXML
+    private TextField showListSearchBar;
+    @FXML
+    private VBox showListContentVBox;
 
     private boolean showListVisible = false;
     private boolean preferencesHBoxVisible = false;
@@ -108,7 +112,7 @@ public class MainPageController {
             }
         } else {
             showListVBox.setVisible(false);
-            showListVBox.getChildren().removeIf(node -> !(node instanceof TextField));
+            showListContentVBox.getChildren().clear();
         }
     }
     @FXML
@@ -147,7 +151,7 @@ public class MainPageController {
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
 
-        Label resourceLabel = new Label("Resource" + account.getResource());
+        Label resourceLabel = new Label("Resource: " + account.getResource());
         Label loginLabel = new Label("Login:        ");
         TextField loginField = new TextField(account.getUsername());
         loginField.setPrefColumnCount(16);
@@ -164,7 +168,7 @@ public class MainPageController {
         hbPassword.getChildren().addAll(passwordLabel, passwordField);
 
         vb.getChildren().addAll(resourceLabel, hbLogin, hbPassword);
-        showListVBox.getChildren().add(vb);
+        showListContentVBox.getChildren().add(vb);
     }
     private void DisplayCardsDetails(Card card, DatabaseManager dbManager){
         VBox vb = new VBox(5);
@@ -180,7 +184,7 @@ public class MainPageController {
         hbDateAndCVV.getChildren().addAll(cardExpiryDate, cardCVVField);
 
         vb.getChildren().addAll(resourceLabel, cardNumberField, hbDateAndCVV, cardOwnerNameField);
-        showListVBox.getChildren().add(vb);
+        showListContentVBox.getChildren().add(vb);
     }
     private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
 
