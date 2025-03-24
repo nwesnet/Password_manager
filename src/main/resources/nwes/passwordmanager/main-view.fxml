@@ -19,11 +19,11 @@
               fillWidth="true" VBox.vgrow="ALWAYS"
               style="-fx-background-color: lightgray; -fx-border-color: black; -fx-border-width: 2px;"
         >
-            <Button text="Add" onAction="#onAddButtonClick"/>
-            <Button text="Generate Password" onAction="#onGeneratePasswordClick"/>
-            <Button text="Show List" onAction="#onShowListButtonClick"/>
-            <Button text="Settings" onAction="#onSettingsButtonClick"/>
-            <Button text="Logs" onAction="#onLogsButtonClick"/>
+            <Button fx:id="add" text="Add" onAction="#onAddButtonClick"/>
+            <Button fx:id="generatePassword" text="Generate Password" onAction="#onGeneratePasswordClick"/>
+            <Button fx:id="showList" text="Show List" onAction="#onShowListButtonClick"/>
+            <Button fx:id="preferences" text="Preferences" onAction="#onPreferencesButtonClick"/>
+            <Button fx:id="logs" text="Logs" onAction="#onLogsButtonClick"/>
             <ScrollPane fx:id="logsScrollPane"
                         visible="false"
                         fitToWidth="true" fitToHeight="true"
@@ -42,16 +42,45 @@
         <StackPane alignment="CENTER_RIGHT"
                    prefWidth="330"
                    style="-fx-background-color: lightblue; -fx-border-color: black; -fx-border-width: 2px;">
-            <VBox fx:id="settingsVBox"
+            <HBox fx:id="preferencesHBox"
                   visible="false"
-                  alignment="CENTER_RIGHT"
-                  fillWidth="true" VBox.vgrow="ALWAYS"
+                  alignment="CENTER"
+                  fillHeight="true" HBox.hgrow="ALWAYS"
                   spacing="10"
             >
-                <TextField prefColumnCount="24" promptText="Settings"/>
+                <VBox fx:id="preferencesVBox"
+                      visible="false"
+                      alignment="CENTER_LEFT"
+                      fillWidth="true" VBox.vgrow="ALWAYS"
+                      spacing="10"
+                >
+                    <Button fx:id="accountInfoBtn" text="Account info" onAction="#onAccountInfoButtonClick"/>
+                    <Button text="double confirmation"/>
+                    <Button text="theme"/>
+                </VBox>
+                <VBox fx:id="accountInfoVBox"
+                      visible="false"
+                      alignment="CENTER_RIGHT"
+                      spacing="10"
+                >
+                    <HBox>
+                        <TextField fx:id="usernameField"/>
+                        <Button text="Edit"/>
+                        <Button text="Copy"/>
+                    </HBox>
+                    <HBox>
+                        <PasswordField fx:id="passwordField"/>
+                        <Button text="Edit"/>
+                        <Button text="Copy"/>
+                    </HBox>
+                    <HBox>
+                        <PasswordField fx:id="pinField"/>
+                        <Button text="Edit"/>
+                        <Button text="Copy"/>
+                    </HBox>
 
-            </VBox>
-
+                </VBox>
+            </HBox>
             <VBox fx:id="showListVBox"
                   visible="false"
                   alignment="TOP_CENTER"

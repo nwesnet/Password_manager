@@ -3,13 +3,13 @@ package nwes.passwordmanager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MainPageController {
@@ -20,7 +20,7 @@ public class MainPageController {
     @FXML
     private Button showList;
     @FXML
-    private Button settings;
+    private Button preferences;
     @FXML
     private Button logs;
     @FXML
@@ -28,14 +28,24 @@ public class MainPageController {
     @FXML
     private ScrollPane logsScrollPane;
     @FXML
-    private VBox settingsVBox;
+    private HBox preferencesHBox;
+    @FXML
+    private VBox preferencesVBox;
+    @FXML
+    private VBox accountInfoVBox;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private PasswordField pinField;
     @FXML
     private VBox showListVBox;
-    @FXML
-    private VBox DisplayDetailsVBox;
 
     private boolean showListVisible = false;
-    private boolean settingsVisible = false;
+    private boolean preferencesHBoxVisible = false;
+    private boolean preferencesVBoxVisible = false;
+    private boolean accountInfoVBoxVisible = false;
     private boolean logsVisible = false;
     @FXML
     protected void onAddButtonClick(){
@@ -102,13 +112,36 @@ public class MainPageController {
         }
     }
     @FXML
-    protected void onSettingsButtonClick(){
-        settingsVisible = !settingsVisible;
-        if (settingsVisible){
-            settingsVBox.setVisible(true);
+    protected void onPreferencesButtonClick(){
+        preferencesHBoxVisible = !preferencesHBoxVisible;
+        preferencesVBoxVisible = !preferencesVBoxVisible;
+        if (preferencesVBoxVisible){
+            preferencesHBox.setVisible(true);
+            preferencesVBox.setVisible(true);
         } else {
-            settingsVBox.setVisible(false);
+            preferencesHBox.setVisible(false);
+            preferencesVBox.setVisible(false);
         }
+    }
+    @FXML
+    protected void onAccountInfoButtonClick(){
+        accountInfoVBoxVisible = !accountInfoVBoxVisible;
+        if (accountInfoVBoxVisible) {
+            usernameField.setText(PreferencesManager.getUsername());
+            passwordField.setText(PreferencesManager.getPassword());
+            pinField.setText(PreferencesManager.getPincode());
+            accountInfoVBox.setVisible(true);
+        } else {
+            accountInfoVBox.setVisible(false);
+        }
+    }
+    @FXML
+    protected void onDoubleConfirmationClick(){
+
+    }
+    @FXML
+    protected void onThemeButtonClick(){
+
     }
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
         VBox vb = new VBox(5);
@@ -155,4 +188,5 @@ public class MainPageController {
     private void DisplayWalletsDetails(Wallet wallte, DatabaseManager dbManager){
 
     }
+
 }

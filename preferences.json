@@ -1,0 +1,11 @@
+{
+  "login_info": {
+    "username": "test1",
+    "password": "mypassword",
+    "pincode": "1234"
+  },
+  "security": {
+    "double_confirmation": false
+  },
+  "theme": "light"
+}
