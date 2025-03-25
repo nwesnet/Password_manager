@@ -91,6 +91,15 @@
                 <TextField fx:id="showListSearchBar"
                            prefColumnCount="24"
                            promptText="ShowList"/>
+                <HBox alignment="CENTER"
+                      HBox.hgrow="ALWAYS"
+                      spacing="10">
+
+                    <Button text="Accounts" onAction="#onShowAccounts"/>
+                    <Button text="Cards" onAction="#onShowCards"/>
+                    <Button text="Links" onAction="#onShowLinks"/>
+                    <Button text="Wallets" onAction="#onShowWallets"/>
+                </HBox>
                 <!-- Scrollable list content -->
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
                     <VBox fx:id="showListContentVBox"

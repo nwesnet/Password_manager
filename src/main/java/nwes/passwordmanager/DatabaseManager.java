@@ -213,11 +213,11 @@ public class DatabaseManager {
                 String resource = rs.getString("resource");
                 String wordsString = rs.getString("twelve_words");
                 String password = rs.getString("password");
-                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added").replace(" ", "T"));
+//                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added").replace(" ", "T"));
 
                 String[] wordsArray = wordsString.split(",");
 
-                wallets.add(new Wallet(resource, wordsArray, password, dateAdded));
+                wallets.add(new Wallet(resource, wordsArray, password, LocalDateTime.now()));
             }
         } catch (Exception e) {
             System.out.println("❌ Database Read Error (Wallets): " + e.getMessage());

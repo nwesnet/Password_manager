@@ -5,11 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainPageController {
@@ -85,34 +87,52 @@ public class MainPageController {
         } else {
             logsScrollPane.setVisible(false);
         }
-
     }
     @FXML
     protected void onShowListButtonClick(){
         showListVisible = !showListVisible;
         if (showListVisible){
             showListVBox.setVisible(true);
-            DatabaseManager dbManager = new DatabaseManager();
-            List<Account> accounts = dbManager.getAllAccounts();
-            List<Card> cards = dbManager.getAllCards();
-            if (accounts.isEmpty()){
-                Label emptyMessage = new Label("You didn't add any account yet.");
-                showListVBox.getChildren().add(emptyMessage);
-                for (Account account : accounts) {
-                    System.out.println(account);
-                }
-            } else {
-                for (Account account : accounts) {
-                    DisplayAccountsDetails(account, dbManager);
-                }
-                for (Card card : cards) {
-                    DisplayCardsDetails(card, dbManager);
-                }
-
-            }
+            onShowAccounts();
         } else {
             showListVBox.setVisible(false);
             showListContentVBox.getChildren().clear();
+        }
+    }
+    @FXML
+    protected void onShowAccounts(){
+        showListContentVBox.getChildren().clear();
+        DatabaseManager dbManager = new DatabaseManager();
+        List<Account> accounts = dbManager.getAllAccounts();
+        for (Account account : accounts){
+            DisplayAccountsDetails(account,dbManager);
+        }
+    }
+    @FXML
+    protected void onShowCards(){
+        showListContentVBox.getChildren().clear();
+        DatabaseManager dbManager = new DatabaseManager();
+        List<Card> cards = dbManager.getAllCards();
+        for(Card card : cards){
+            DisplayCardsDetails(card, dbManager);
+        }
+    }
+    @FXML
+    protected void onShowLinks(){
+        showListContentVBox.getChildren().clear();
+        DatabaseManager dbManager = new DatabaseManager();
+        List<Link> links = dbManager.getAllLinks();
+        for(Link link : links){
+            DisplayLinksDetails(link, dbManager);
+        }
+    }
+    @FXML
+    protected void onShowWallets(){
+        showListContentVBox.getChildren().clear();
+        DatabaseManager dbManager = new DatabaseManager();
+        List<Wallet> wallets = dbManager.getAllWallets();
+        for(Wallet wallet : wallets){
+            DisplayWalletsDetails(wallet, dbManager);
         }
     }
     @FXML
@@ -187,10 +207,30 @@ public class MainPageController {
         showListContentVBox.getChildren().add(vb);
     }
     private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
+        VBox vb = new VBox(5);
+        vb.setPadding(new Insets(20));
 
+        Label description = new Label("Resource: " + link.getResource());
+
+        vb.getChildren().add(description);
+        showListContentVBox.getChildren().add(vb);
     }
-    private void DisplayWalletsDetails(Wallet wallte, DatabaseManager dbManager){
+    private void DisplayWalletsDetails(Wallet wallet, DatabaseManager dbManager){
+        VBox vb = new VBox(5);
+        vb.setPadding(new Insets(20));
 
+        Label resourceLabel = new Label("Resource: " + wallet.getResource());
+        Label twelveWordsLabel = new Label("twelve words: ");
+        TextField passwordField = new PasswordField();
+        passwordField.setText(wallet.getPassword());
+
+        FlowPane twelveWordsBox = new FlowPane(6,3);
+
+        for (String word : wallet.getTwelveWords()){
+            Label wordLabel = new Label(word);
+            twelveWordsBox.getChildren().add(wordLabel);
+        }
+        vb.getChildren().addAll(resourceLabel, twelveWordsLabel, twelveWordsBox, passwordField);
+        showListContentVBox.getChildren().add(vb);
     }
-
 }
