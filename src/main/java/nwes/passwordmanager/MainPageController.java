@@ -5,14 +5,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MainPageController {
     @FXML
@@ -123,7 +125,7 @@ public class MainPageController {
         allAccounts = dbManager.getAllAccounts();
 
         for (Account account : allAccounts){
-            DisplayAccountsDetails(account,dbManager);
+            DisplayAccountsDetails(account, dbManager);
         }
     }
     @FXML
@@ -233,48 +235,102 @@ public class MainPageController {
     }
 
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
+        // create vbox to display accounts
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
-
+        // resource row
         Label resourceLabel = new Label("Resource: ");
         TextField resourceField = new TextField(account.getResource());
         resourceField.setPrefColumnCount(16);
         resourceField.setEditable(false);
-        HBox hbResource = new HBox(5);
-        hbResource.getChildren().addAll(resourceLabel, resourceField);
 
+        Button editBtn = new Button("edit");
+        editBtn.setOnAction(e -> openEditAccountDialog(account));
+
+        Button deleteBtn = new Button("delete");
+        deleteBtn.setOnAction(e -> openDeleteAccountDialog(account));
+
+        HBox hbResource = new HBox(5);
+        hbResource.getChildren().addAll(resourceLabel, resourceField, editBtn, deleteBtn);
+        // login row
         Label loginLabel = new Label("Login:        ");
         TextField loginField = new TextField(account.getUsername());
         loginField.setPrefColumnCount(16);
         loginField.setEditable(false);
-        HBox hbLogin = new HBox(5);
-        hbLogin.getChildren().addAll(loginLabel, loginField);
 
+        Button copyLoginBtn = new Button("copy");
+        copyLoginBtn.setOnAction(e -> copyToClipboard(loginField.getText()));
+
+        HBox hbLogin = new HBox(5);
+        hbLogin.getChildren().addAll(loginLabel, loginField, copyLoginBtn);
+        // password row
         Label passwordLabel = new Label("Password: ");
         PasswordField passwordField = new PasswordField();
         passwordField.setText(account.getPassword());
         passwordField.setPrefColumnCount(16);
         passwordField.setEditable(false);
-        HBox hbPassword = new HBox(5);
-        hbPassword.getChildren().addAll(passwordLabel, passwordField);
 
+        Button showPasswordBtn = new Button("show");
+        showPasswordBtn.setOnAction(e -> togglePasswordVisibility(passwordField, showPasswordBtn));
+
+        Button copyPsswdBtn = new Button("copy");
+        copyPsswdBtn.setOnAction(e -> copyToClipboard(passwordField.getText()));
+
+        HBox hbPassword = new HBox(5);
+        hbPassword.getChildren().addAll(passwordLabel, passwordField, showPasswordBtn, copyPsswdBtn);
+        // add every thing in showlistcontentvbox
         vb.getChildren().addAll(hbResource, hbLogin, hbPassword);
         showListContentVBox.getChildren().add(vb);
     }
     private void DisplayCardsDetails(Card card, DatabaseManager dbManager){
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
+        // resource row
+        Label resourceLabel = new Label("Resource: ");
+        TextField resourceField = new TextField(card.getResource());
+        resourceField.setEditable(false);
 
-        Label resourceLabel = new Label("Resource: " + card.getResource());
+        Button editBtn = new Button("edit");
+        editBtn.setOnAction( e -> openEditCardDialog(card));
+
+        Button deleteBtn = new Button("delete");
+        deleteBtn.setOnAction( e -> openDeleteCardDialog(card));
+
+        HBox hbResource = new HBox(5);
+        hbResource.getChildren().addAll(resourceLabel, resourceField, editBtn, deleteBtn);
+        // card number row
         TextField cardNumberField = new TextField(card.getCardNumber());
+        cardNumberField.setEditable(false);
+
+        Button copyCardNumberBtn = new Button("copy");
+        copyCardNumberBtn.setOnAction( e -> copyToClipboard(cardNumberField.getText()));
+
+        HBox hbCardNumber = new HBox(5);
+        hbCardNumber.getChildren().addAll(cardNumberField, copyCardNumberBtn);
+        // card date and cvv row
         TextField cardExpiryDate = new TextField(card.getExpiryDate());
-        TextField cardCVVField = new TextField(card.getCvv());
+        cardExpiryDate.setEditable(false);
+        PasswordField cardCVVField = new PasswordField();
+        cardCVVField.setText(card.getCvv());
+        cardCVVField.setEditable(false);
+
+        Button showBtn = new Button("show");
+        showBtn.setOnAction( e -> togglePasswordVisibility(cardCVVField, showBtn));
+
+        HBox hbDateAndCvv = new HBox(5);
+        hbDateAndCvv.getChildren().addAll(cardExpiryDate, cardCVVField, showBtn);
+        // card owner name row
         TextField cardOwnerNameField = new TextField(card.getOnwerName());
+        cardOwnerNameField.setEditable(false);
 
-        HBox hbDateAndCVV = new HBox(5);
-        hbDateAndCVV.getChildren().addAll(cardExpiryDate, cardCVVField);
+        Button copyNameBtn = new Button("copy");
+        copyNameBtn.setOnAction( e -> copyToClipboard(cardOwnerNameField.getText()));
 
-        vb.getChildren().addAll(resourceLabel, cardNumberField, hbDateAndCVV, cardOwnerNameField);
+        HBox hbCardName = new HBox(5);
+        hbCardName.getChildren().addAll(cardOwnerNameField, copyNameBtn);
+
+        // Assemble all
+        vb.getChildren().addAll(hbResource, hbCardNumber, hbDateAndCvv, hbCardName);
         showListContentVBox.getChildren().add(vb);
     }
     private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
@@ -303,5 +359,154 @@ public class MainPageController {
         }
         vb.getChildren().addAll(resourceLabel, twelveWordsLabel, twelveWordsBox, passwordField);
         showListContentVBox.getChildren().add(vb);
+    }
+    private void openEditAccountDialog(Account account){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit account: " + account.getResource());
+
+        TextField resourceField = new TextField(account.getResource());
+        TextField loginField = new TextField(account.getUsername());
+        TextField passwordField = new TextField(account.getPassword());
+
+        VBox vb = new VBox(10,
+                new HBox(5, new Label("Resource:"), resourceField),
+                new HBox(5, new Label("Login:"), loginField),
+                new HBox(5, new Label("Password:"), passwordField)
+        );
+        vb.setPadding(new Insets(10));
+
+        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Save updated values
+                account.setResource(resourceField.getText());
+                account.setUsername(loginField.getText());
+                account.setPassword(passwordField.getText());
+                // new DatabaseManager().updateAccount(account); // implement this in DB manager
+                onShowAccounts(); // Refresh
+            }
+        });
+    }
+    private void openEditCardDialog(Card card){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit card: " + card.getResource());
+
+        TextField resourceField = new TextField(card.getResource());
+        TextField cardNumberField = new TextField(card.getCardNumber());
+        TextField expiryDateField = new TextField(card.getExpiryDate());
+        TextField cvvField = new TextField(card.getCvv());
+        TextField ownerNameField = new TextField(card.getOnwerName());
+
+        VBox vb = new VBox(10,
+                new HBox(5, new Label("Resource:"), resourceField),
+                new HBox(5, new Label("Card Number:"), cardNumberField),
+                new HBox(5, new Label("Expiry Date:"), expiryDateField),
+                new HBox(5, new Label("CVV:"), cvvField),
+                new HBox(5, new Label("Owner Name:"), ownerNameField)
+        );
+        vb.setPadding(new Insets(10));
+
+        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
+                card.setResource(resourceField.getText());
+                card.setCardNumber(cardNumberField.getText());
+                card.setExpiryDate(expiryDateField.getText());
+                card.setCvv(cvvField.getText());
+                card.setOnwerName(ownerNameField.getText());
+
+                //DatabaseManager db = new DatabaseManager();
+                //db.updateCard(card); // You need to implement this method in DB manager
+
+                onShowCards(); // Refresh view
+            }
+        });
+    }
+    private void openEditLinkDialog(Link link){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit link");
+
+        TextField resourceField = new TextField(link.getResource());
+
+        VBox vb = new VBox(10,
+                new HBox(5, new Label("Resource: "), resourceField)
+        );
+        vb.setPadding(new Insets(10));
+
+        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent( result -> {
+            if(result == ButtonType.OK){
+                link.setResource(resourceField.getText());
+                // add the method that delete the link from db
+                onShowAccounts();
+            }
+        });
+    }
+    private void openDeleteAccountDialog(Account account){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete account");
+        alert.setHeaderText("Are you sure you want to delete \"" + account.getResource() + "\"?");
+        alert.setContentText("This action cannot be undone.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isPresent() && result.get() == ButtonType.OK){
+            // new DatabaseManager().deleteAccount(account);
+            onShowAccounts();
+        }
+    }
+    private void openDeleteCardDialog(Card card){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete card");
+        alert.setHeaderText("Are you sure you want to delete this card?");
+        alert.setContentText("Resource: " + card.getResource());
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isPresent() && result.get() == ButtonType.OK){
+            //DatabaseManager db = new DatabaseManager();
+            //db.deleteCard(card); // You need to implement this in DB manager too
+
+            onShowCards();
+        }
+    }
+    private void opneDeleteLinkDialog(Link link){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete link");
+        alert.setHeaderText("Are you sure you want to delete this resource?");
+        alert.setContentText("Resource: " + link.getResource());
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isPresent() && result.get() == ButtonType.OK){
+            // add there the method that will delete the link
+
+            onShowAccounts();
+        }
+    }
+    private void copyToClipboard(String text){
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(text);
+        clipboard.setContent(content);
+    }
+    private void togglePasswordVisibility(PasswordField passwordField, Button toggleBtn){
+        String current = passwordField.getText();
+        TextField plainField = new TextField(current);
+
+        HBox parent = (HBox) passwordField.getParent();
+        int index = parent.getChildren().indexOf(passwordField);
+        parent.getChildren().set(index, plainField);
+
+        toggleBtn.setText("hide");
+        toggleBtn.setOnAction( e -> {
+            passwordField.setText(plainField.getText());
+            parent.getChildren().set(index, passwordField);
+            toggleBtn.setText("show");
+            toggleBtn.setOnAction( ev -> togglePasswordVisibility(passwordField, toggleBtn));
+        });
     }
 }

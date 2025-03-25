@@ -43,6 +43,30 @@ public class Card {
         return dateAdded;
     }
 
+    public void setResource(String resource) {
+        this.resource = resource;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public void setExpiryDate(String expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public void setCvv(String cvv) {
+        this.cvv = cvv;
+    }
+
+    public void setOnwerName(String onwerName) {
+        this.onwerName = onwerName;
+    }
+
+    public void setDateAdded(LocalDateTime dateAdded) {
+        this.dateAdded = dateAdded;
+    }
+
     @Override
     public String toString() {
         return "Card{" +

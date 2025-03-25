@@ -18,18 +18,22 @@ public class Account {
     public String getResource() {
         return resource;
     }
+    public void setResource(String resource){ this.resource = resource; }
 
     public String getUsername() {
         return username;
     }
+    public void setUsername(String username){ this.username = username; }
 
     public String getPassword() {
         return password;
     }
+    public void setPassword(String password) { this.password = password; }
 
     public LocalDateTime getDate() {
         return date;
     }
+
 
     @Override
     public String toString() {
