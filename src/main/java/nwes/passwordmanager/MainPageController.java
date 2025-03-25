@@ -113,6 +113,7 @@ public class MainPageController {
             showListContentVBox.getChildren().clear();
         }
     }
+    // add this later: showlistsearchbar.setText("");
     @FXML
     protected void onShowAccounts(){
         currentCategory = Category.ACCOUNTS;
@@ -235,7 +236,13 @@ public class MainPageController {
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
 
-        Label resourceLabel = new Label("Resource: " + account.getResource());
+        Label resourceLabel = new Label("Resource: ");
+        TextField resourceField = new TextField(account.getResource());
+        resourceField.setPrefColumnCount(16);
+        resourceField.setEditable(false);
+        HBox hbResource = new HBox(5);
+        hbResource.getChildren().addAll(resourceLabel, resourceField);
+
         Label loginLabel = new Label("Login:        ");
         TextField loginField = new TextField(account.getUsername());
         loginField.setPrefColumnCount(16);
@@ -251,7 +258,7 @@ public class MainPageController {
         HBox hbPassword = new HBox(5);
         hbPassword.getChildren().addAll(passwordLabel, passwordField);
 
-        vb.getChildren().addAll(resourceLabel, hbLogin, hbPassword);
+        vb.getChildren().addAll(hbResource, hbLogin, hbPassword);
         showListContentVBox.getChildren().add(vb);
     }
     private void DisplayCardsDetails(Card card, DatabaseManager dbManager){
