@@ -48,11 +48,25 @@ public class MainPageController {
     @FXML
     private VBox showListContentVBox;
 
+    private List<Account> allAccounts = new ArrayList<>();
+    private List<Card> allCards = new ArrayList<>();
+    private List<Link> allLinks = new ArrayList<>();
+    private List<Wallet> allWallets = new ArrayList<>();
+
+    private Category currentCategory;
+
     private boolean showListVisible = false;
     private boolean preferencesHBoxVisible = false;
     private boolean preferencesVBoxVisible = false;
     private boolean accountInfoVBoxVisible = false;
     private boolean logsVisible = false;
+
+    @FXML
+    private void initialize(){
+        showListSearchBar.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterCurrentCategory(newValue.trim().toLowerCase());
+        });
+    }
     @FXML
     protected void onAddButtonClick(){
         try {
@@ -101,37 +115,49 @@ public class MainPageController {
     }
     @FXML
     protected void onShowAccounts(){
+        currentCategory = Category.ACCOUNTS;
         showListContentVBox.getChildren().clear();
+
         DatabaseManager dbManager = new DatabaseManager();
-        List<Account> accounts = dbManager.getAllAccounts();
-        for (Account account : accounts){
+        allAccounts = dbManager.getAllAccounts();
+
+        for (Account account : allAccounts){
             DisplayAccountsDetails(account,dbManager);
         }
     }
     @FXML
     protected void onShowCards(){
+        currentCategory = Category.CARDS;
         showListContentVBox.getChildren().clear();
+
         DatabaseManager dbManager = new DatabaseManager();
-        List<Card> cards = dbManager.getAllCards();
-        for(Card card : cards){
+        allCards = dbManager.getAllCards();
+
+        for(Card card : allCards){
             DisplayCardsDetails(card, dbManager);
         }
     }
     @FXML
     protected void onShowLinks(){
+        currentCategory = Category.LINKS;
         showListContentVBox.getChildren().clear();
+
         DatabaseManager dbManager = new DatabaseManager();
-        List<Link> links = dbManager.getAllLinks();
-        for(Link link : links){
+        allLinks = dbManager.getAllLinks();
+
+        for(Link link : allLinks){
             DisplayLinksDetails(link, dbManager);
         }
     }
     @FXML
     protected void onShowWallets(){
+        currentCategory = Category.WALLETS;
         showListContentVBox.getChildren().clear();
+
         DatabaseManager dbManager = new DatabaseManager();
-        List<Wallet> wallets = dbManager.getAllWallets();
-        for(Wallet wallet : wallets){
+        allWallets = dbManager.getAllWallets();
+
+        for(Wallet wallet : allWallets){
             DisplayWalletsDetails(wallet, dbManager);
         }
     }
@@ -167,6 +193,44 @@ public class MainPageController {
     protected void onThemeButtonClick(){
 
     }
+
+    private void filterCurrentCategory(String query){
+        showListContentVBox.getChildren().clear();
+        DatabaseManager dbManager = new DatabaseManager();
+
+        switch (currentCategory){
+            case ACCOUNTS:
+                for(Account acc : allAccounts){
+                    if(acc.getResource().toLowerCase().contains(query) ||
+                       acc.getUsername().toLowerCase().contains(query)){
+                        DisplayAccountsDetails(acc, dbManager);
+                    }
+                }
+                break;
+            case CARDS:
+                for(Card card : allCards){
+                    if(card.getResource().toLowerCase().contains(query)){
+                        DisplayCardsDetails(card, dbManager);
+                    }
+                }
+                break;
+            case LINKS:
+                for(Link link : allLinks){
+                    if(link.getResource().toLowerCase().contains(query)){
+                        DisplayLinksDetails(link, dbManager);
+                    }
+                }
+                break;
+            case WALLETS:
+                for(Wallet wallet : allWallets){
+                    if(wallet.getResource().toLowerCase().contains(query)){
+                        DisplayWalletsDetails(wallet, dbManager);
+                    }
+                }
+                break;
+        }
+    }
+
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
