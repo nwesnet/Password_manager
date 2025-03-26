@@ -93,27 +93,38 @@ public class AddController {
         hbButtons.getChildren().addAll(saveButton, cancelButton);
         vbAdd.getChildren().addAll(hbResource, hbUsername, hbPassword, hbButtons);
     }
-    private void showLinkForm(){
+    private void showLinkForm() {
         vbAdd.getChildren().clear();
 
-        Label label = new Label("link");
+        Label resourceLabel = new Label("Resource:");
+        TextField resourceField = new TextField();
 
-        linkField = new TextField();
-        linkField.setPrefColumnCount(24);
+        Label linkLabel = new Label("Link:");
+        TextField linkField = new TextField();
 
-        saveButton = new Button("save");
-        saveButton.setOnAction(e -> onSaveButtonClick(
-                linkField.getText()
-        ));
-        cancelButton = new Button("cancel");
+        saveButton = new Button("Save");
+        cancelButton = new Button("Cancel");
+
+        saveButton.setOnAction(e -> {
+            String resource = resourceField.getText();
+            String url = linkField.getText();
+            if (!resource.isEmpty() && !url.isEmpty()) {
+                onSaveButtonClick(resource, url);
+                onCancelButtonClick(); // or clear fields
+            }
+        });
+
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
-        HBox hbLink = new HBox();
-        hbLink.getChildren().addAll(label, linkField);
-        HBox hbButtons = new HBox(saveButton, cancelButton);
+        VBox formBox = new VBox(10,
+                new HBox(5, resourceLabel, resourceField),
+                new HBox(5, linkLabel, linkField),
+                new HBox(10, saveButton, cancelButton)
+        );
 
-        vbAdd.getChildren().addAll(hbLink, hbButtons);
+        vbAdd.getChildren().add(formBox);
     }
+
     private void showCardForm(){
         // I clear the vbox that I use for flexible interface
         vbAdd.getChildren().clear();
@@ -210,10 +221,10 @@ public class AddController {
             dm.writeAccountTodb(resource, username, password, date);
         }
     }
-    private void onSaveButtonClick(String link){
+    private void onSaveButtonClick(String link, String url){
         DatabaseManager dm = new DatabaseManager();
         if (!link.isEmpty()){
-            dm.writeLinkTodb(link);
+            dm.writeLinkTodb(link, url);
         }
     }
     private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String systemType){

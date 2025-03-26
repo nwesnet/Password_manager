@@ -301,32 +301,36 @@ public class MainPageController {
         // card number row
         TextField cardNumberField = new TextField(card.getCardNumber());
         cardNumberField.setEditable(false);
+        cardNumberField.setPrefColumnCount(18);
 
         Button copyCardNumberBtn = new Button("copy");
         copyCardNumberBtn.setOnAction( e -> copyToClipboard(cardNumberField.getText()));
 
-        HBox hbCardNumber = new HBox(5);
+        HBox hbCardNumber = new HBox(1);
         hbCardNumber.getChildren().addAll(cardNumberField, copyCardNumberBtn);
         // card date and cvv row
         TextField cardExpiryDate = new TextField(card.getExpiryDate());
         cardExpiryDate.setEditable(false);
+        cardExpiryDate.setPrefColumnCount(4);
         PasswordField cardCVVField = new PasswordField();
         cardCVVField.setText(card.getCvv());
         cardCVVField.setEditable(false);
+        cardCVVField.setPrefColumnCount(4);
 
         Button showBtn = new Button("show");
         showBtn.setOnAction( e -> togglePasswordVisibility(cardCVVField, showBtn));
 
-        HBox hbDateAndCvv = new HBox(5);
+        HBox hbDateAndCvv = new HBox(1);
         hbDateAndCvv.getChildren().addAll(cardExpiryDate, cardCVVField, showBtn);
         // card owner name row
         TextField cardOwnerNameField = new TextField(card.getOnwerName());
         cardOwnerNameField.setEditable(false);
+        cardOwnerNameField.setPrefColumnCount(18);
 
         Button copyNameBtn = new Button("copy");
         copyNameBtn.setOnAction( e -> copyToClipboard(cardOwnerNameField.getText()));
 
-        HBox hbCardName = new HBox(5);
+        HBox hbCardName = new HBox(1);
         hbCardName.getChildren().addAll(cardOwnerNameField, copyNameBtn);
 
         // Assemble all
@@ -336,28 +340,60 @@ public class MainPageController {
     private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
+        // resource row
+        Label resourceLabel = new Label("Resource: ");
+        TextField resourceField = new TextField(link.getResource());
+        resourceField.setEditable(false);
 
-        Label description = new Label("Resource: " + link.getResource());
+        Button editLinkBtn = new Button("edit");
+        editLinkBtn.setOnAction( e -> openEditLinkDialog(link));
 
-        vb.getChildren().add(description);
+        Button deleteLinkBtn = new Button("delete");
+        deleteLinkBtn.setOnAction( e -> openDeleteLinkDialog(link));
+
+        HBox hbResource = new HBox(5);
+        hbResource.getChildren().addAll(resourceLabel, resourceField, editLinkBtn, deleteLinkBtn);
+        // link row
+        TextField linkField = new TextField(link.getLink());
+        linkField.setEditable(false);
+        linkField.setPrefColumnCount(18);
+
+        Button copyLinkBtn = new Button("copy");
+        copyLinkBtn.setOnAction( e -> copyToClipboard(linkField.getText()));
+
+        HBox hbLink = new HBox(1);
+        hbLink.getChildren().addAll(linkField, copyLinkBtn);
+        // add everything in showlistcontentvbox
+        vb.getChildren().addAll(hbResource, hbLink);
         showListContentVBox.getChildren().add(vb);
     }
     private void DisplayWalletsDetails(Wallet wallet, DatabaseManager dbManager){
         VBox vb = new VBox(5);
         vb.setPadding(new Insets(20));
+        // resource row
+        Label resourceLabel = new Label("Resource: ");
+        TextField resourceField = new TextField(wallet.getResource());
 
-        Label resourceLabel = new Label("Resource: " + wallet.getResource());
+        Button editWalletBtn = new Button("edit");
+        editWalletBtn.setOnAction( e -> openEditWalletDialog(wallet));
+
+        Button deleteWalletBtn = new Button("delete");
+        deleteWalletBtn.setOnAction( e -> openDeleteWalletDialog(wallet));
+
+        HBox hbResource = new HBox(5, resourceLabel, resourceField, editWalletBtn, deleteWalletBtn);
+        // twelve words and pin rows
         Label twelveWordsLabel = new Label("twelve words: ");
         TextField passwordField = new PasswordField();
         passwordField.setText(wallet.getPassword());
 
         FlowPane twelveWordsBox = new FlowPane(6,3);
-
+        // The cycle that adds words to a page
         for (String word : wallet.getTwelveWords()){
             Label wordLabel = new Label(word);
             twelveWordsBox.getChildren().add(wordLabel);
         }
-        vb.getChildren().addAll(resourceLabel, twelveWordsLabel, twelveWordsBox, passwordField);
+        // add everything on showlistcontentvbox
+        vb.getChildren().addAll(hbResource, twelveWordsLabel, twelveWordsBox, passwordField);
         showListContentVBox.getChildren().add(vb);
     }
     private void openEditAccountDialog(Account account){
@@ -428,12 +464,14 @@ public class MainPageController {
     }
     private void openEditLinkDialog(Link link){
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit link");
+        dialog.setTitle("Edit link " + link.getResource());
 
         TextField resourceField = new TextField(link.getResource());
+        TextField linkField = new TextField(link.getLink());
 
         VBox vb = new VBox(10,
-                new HBox(5, new Label("Resource: "), resourceField)
+                new HBox(5, new Label("Resource: "), resourceField),
+                new HBox(5, new Label("Link:     "), linkField)
         );
         vb.setPadding(new Insets(10));
 
@@ -443,10 +481,43 @@ public class MainPageController {
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK){
                 link.setResource(resourceField.getText());
+                link.setLink(linkField.getText());
                 // add the method that delete the link from db
                 onShowAccounts();
             }
         });
+    }
+    private void openEditWalletDialog(Wallet wallet){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit wallet " + wallet.getResource());
+
+        TextField resourceField = new TextField(wallet.getResource());
+        TextField pinField = new TextField(wallet.getPassword());
+
+        FlowPane fp = new FlowPane(6,3);
+        for(String word : wallet.getTwelveWords()){
+            TextField wordField = new TextField(word);
+            fp.getChildren().add(wordField);
+        }
+
+        VBox vb = new VBox(5,
+                new HBox(new Label("Resource: "), resourceField),
+                new VBox(new Label("Key words: "), fp),
+                new HBox(new Label("Pin:      "), pinField)
+        );
+        vb.setPadding(new Insets(10));
+
+        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent( result -> {
+            if(result == ButtonType.OK){
+                wallet.setResource(resourceField.getText());
+                wallet.setPassword(pinField.getText());
+            }
+        });
+
+
     }
     private void openDeleteAccountDialog(Account account){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -474,7 +545,7 @@ public class MainPageController {
             onShowCards();
         }
     }
-    private void opneDeleteLinkDialog(Link link){
+    private void openDeleteLinkDialog(Link link){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete link");
         alert.setHeaderText("Are you sure you want to delete this resource?");
@@ -485,6 +556,19 @@ public class MainPageController {
             // add there the method that will delete the link
 
             onShowAccounts();
+        }
+    }
+    private void openDeleteWalletDialog(Wallet wallet){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete wallet");
+        alert.setHeaderText("Are you sure you want to delete this wallet?");
+        alert.setContentText("Resource: " + wallet.getResource());
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isPresent() && result.get() == ButtonType.OK){
+            // add there the method that will delete the wallet
+
+            onShowWallets();
         }
     }
     private void copyToClipboard(String text){

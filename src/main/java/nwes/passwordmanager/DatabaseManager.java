@@ -56,7 +56,8 @@ public class DatabaseManager {
 
         stmt.execute("CREATE TABLE IF NOT EXISTS Links ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "resource TEXT NOT NULL);");
+                + "resource TEXT NOT NULL, "
+                + "link TEXT NOT NULL);");
     }
 
     /**
@@ -83,15 +84,16 @@ public class DatabaseManager {
         }
     }
 
-    public void writeLinkTodb(String link) {
-        String sql = "INSERT INTO Links (resource) VALUES (?)";
+    public void writeLinkTodb(String link, String url) {
+        String sql = "INSERT INTO Links (resource, link) VALUES (?,?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, link);
+            pstmt.setString(2, url);
             pstmt.executeUpdate();
-            System.out.println("✅ Link successfully inserted: " + link);
+            System.out.println("✅ Link successfully inserted: " + link + " and " + url);
 
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
@@ -163,14 +165,14 @@ public class DatabaseManager {
     }
     public List<Link> getAllLinks(){
         List<Link> links = new ArrayList<>();
-        String sql = "SELECT resource FROM Links";
+        String sql = "SELECT resource, link FROM Links";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()){
 
             while(rs.next()){
-                links.add(new Link(rs.getString("resource")));
+                links.add(new Link(rs.getString("resource"), rs.getString("link")));
             }
 
         } catch (Exception e) {

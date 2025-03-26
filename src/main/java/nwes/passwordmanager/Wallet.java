@@ -32,6 +32,22 @@ public class Wallet {
         return dateAdded;
     }
 
+    public void setResource(String resource) {
+        this.resource = resource;
+    }
+
+    public void setTwelveWords(String[] twelveWords) {
+        this.twelveWords = twelveWords;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setDateAdded(LocalDateTime dateAdded) {
+        this.dateAdded = dateAdded;
+    }
+
     @Override
     public String toString() {
         return "Wallet{" +
