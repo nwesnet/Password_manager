@@ -1,5 +1,7 @@
 package nwes.passwordmanager;
 
+import javafx.scene.control.Dialog;
+
 import java.sql.*;
 
 import java.time.LocalDateTime;
@@ -33,7 +35,7 @@ public class DatabaseManager {
         stmt.execute("CREATE TABLE IF NOT EXISTS Accounts ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "resource TEXT NOT NULL, "
-                + "login TEXT NOT NULL, "
+                + "username TEXT NOT NULL, "
                 + "password TEXT NOT NULL, "
                 + "date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
 
@@ -64,7 +66,7 @@ public class DatabaseManager {
      * Inserts a new account into the database.
      */
     public void writeAccountTodb(String resource, String username, String password, LocalDateTime date) {
-        String sql = "INSERT INTO Accounts (resource, login, password, date_added) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Accounts (resource, username, password, date_added) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -142,7 +144,7 @@ public class DatabaseManager {
 
     public List<Account> getAllAccounts(){
         List<Account> accounts = new ArrayList<>();
-        String sql = "SELECT resource, login, password, date_added FROM Accounts";
+        String sql = "SELECT resource, username, password, date_added FROM Accounts";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -150,7 +152,7 @@ public class DatabaseManager {
 
             while (rs.next()){
                 String resource = rs.getString("resource");
-                String username = rs.getString("login");
+                String username = rs.getString("username");
                 String password = rs.getString("password");
 //                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added"));
 
@@ -203,7 +205,7 @@ public class DatabaseManager {
         }
         return cards;
     }
-    public List<Wallet> getAllWallets(){
+    public List<Wallet> getAllWallets() {
         List<Wallet> wallets = new ArrayList<>();
         String sql = "SELECT resource, twelve_words, password, date_added FROM Wallets";
 
@@ -226,6 +228,131 @@ public class DatabaseManager {
         }
         return wallets;
     }
+    public void updateAccount(Account account, String oldResource, String oldUsername) {
+        String sql = "UPDATE Accounts SET resource = ?, username = ?, password = ? WHERE resource = ? AND username = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, account.getResource());
+            pstmt.setString(2, account.getUsername());
+            pstmt.setString(3, account.getPassword());
+            pstmt.setString(4, oldResource);
+            pstmt.setString(5, oldUsername);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e){
+            System.out.println("Failed to update account: " + e.getMessage());
+        }
+    }
+    public void updateCard(Card card, String oldResource, String oldCardNumber) {
+        String sql = "UPDATE Cards SET resource = ?, card_number = ?, expiry_date = ?, cvv = ?, owner_name = ? WHERE resource = ? AND card_number = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, card.getResource());
+            pstmt.setString(2, card.getCardNumber());
+            pstmt.setString(3, card.getExpiryDate());
+            pstmt.setString(4, card.getCvv());
+            pstmt.setString(5, card.getOnwerName());
+            pstmt.setString(6, oldResource);
+            pstmt.setString(7, oldCardNumber);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Failed to update card: " + e.getMessage());
+        }
+    }
+    public void updateLink(Link link, String oldResource, String oldLink) {
+        String sql = "UPDATE Links SET resource = ?, link = ? WHERE resource = ? AND link = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, link.getResource());
+            pstmt.setString(2, link.getLink());
+            pstmt.setString(3, oldResource);
+            pstmt.setString(4, oldLink);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Failed to update link: " + e.getMessage());
+        }
+    }
+    public void updateWallet(Wallet wallet, String oldResource) {
+        String sql = "UPDATE Wallets SET resource = ?, twelve_words = ?, password = ? WHERE resource = ?";
+        String wordText = String.join(",", wallet.getTwelveWords());
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, wallet.getResource());
+            pstmt.setString(2, wordText);
+            pstmt.setString(3, wallet.getPassword());
+            pstmt.setString(4, oldResource);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Failed to update wallet: " + e.getMessage());
+        }
+    }
+    public void deleteAccount(Account account) {
+        String sql = "DELETE FROM Accounts WHERE resource = ? AND username = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, account.getResource());
+            pstmt.setString(2, account.getUsername());
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("❌ Failed to delete account: " + e.getMessage());
+        }
+    }
+    public void deleteCard(Card card) {
+        String sql = "DELETE FROM Cards WHERE resource = ? AND card_number = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, card.getResource());
+            pstmt.setString(2, card.getCardNumber());
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("❌ Failed to delete card: " + e.getMessage());
+        }
+    }
+    public void deleteLink(Link link) {
+        String sql = "DELETE FROM Links WHERE resource = ? AND link = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, link.getResource());
+            pstmt.setString(2, link.getLink());
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("❌ Failed to delete link: " + e.getMessage());
+        }
+    }
+    public void deleteWallet(Wallet wallet) {
+        String sql = "DELETE FROM Wallet WHERE resource = ?";
+
+        try(Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, wallet.getResource());
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("❌ Failed to delete wallet: " + e.getMessage());
+        }
+
+    }
+
 }
 
 

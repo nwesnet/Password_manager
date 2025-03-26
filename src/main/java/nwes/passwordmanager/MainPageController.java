@@ -397,6 +397,9 @@ public class MainPageController {
         showListContentVBox.getChildren().add(vb);
     }
     private void openEditAccountDialog(Account account){
+        String oldResource = account.getResource();
+        String oldUsername = account.getUsername();
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit account: " + account.getResource());
 
@@ -420,7 +423,7 @@ public class MainPageController {
                 account.setResource(resourceField.getText());
                 account.setUsername(loginField.getText());
                 account.setPassword(passwordField.getText());
-                // new DatabaseManager().updateAccount(account); // implement this in DB manager
+                //new DatabaseManager().updateAccount(account, oldResource, oldUsername); // implement this in DB manager
                 onShowAccounts(); // Refresh
             }
         });
