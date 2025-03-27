@@ -66,17 +66,14 @@
                     <HBox>
                         <TextField fx:id="usernameField"/>
                         <Button text="Edit"/>
-                        <Button text="Copy"/>
                     </HBox>
                     <HBox>
                         <PasswordField fx:id="passwordField"/>
-                        <Button text="Edit"/>
-                        <Button text="Copy"/>
+                        <Button text="show"/>
                     </HBox>
                     <HBox>
                         <PasswordField fx:id="pinField"/>
-                        <Button text="Edit"/>
-                        <Button text="Copy"/>
+                        <Button text="show"/>
                     </HBox>
 
                 </VBox>

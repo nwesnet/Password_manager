@@ -110,6 +110,9 @@ public class MainPageController {
         if (showListVisible){
             showListVBox.setVisible(true);
             onShowAccounts();
+            if(preferencesVBoxVisible){
+                onPreferencesButtonClick();
+            }
         } else {
             showListVBox.setVisible(false);
             showListContentVBox.getChildren().clear();
@@ -171,9 +174,15 @@ public class MainPageController {
         if (preferencesVBoxVisible){
             preferencesHBox.setVisible(true);
             preferencesVBox.setVisible(true);
+            if(showListVisible){
+                onShowListButtonClick();
+            }
         } else {
             preferencesHBox.setVisible(false);
             preferencesVBox.setVisible(false);
+            if(accountInfoVBoxVisible){
+                onAccountInfoButtonClick();
+            }
         }
     }
     @FXML

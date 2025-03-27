@@ -339,7 +339,7 @@ public class DatabaseManager {
         }
     }
     public void deleteWallet(Wallet wallet) {
-        String sql = "DELETE FROM Wallet WHERE resource = ?";
+        String sql = "DELETE FROM Wallets WHERE resource = ?";
 
         try(Connection conn = DriverManager.getConnection(DB_URL);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
