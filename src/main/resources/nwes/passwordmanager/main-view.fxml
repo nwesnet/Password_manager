@@ -55,8 +55,8 @@
                       spacing="10"
                 >
                     <Button fx:id="accountInfoBtn" text="Account info" onAction="#onAccountInfoButtonClick"/>
-                    <Button text="double confirmation"/>
-                    <Button text="theme"/>
+                    <Button fx:id="doubleConfirmBtn" text="double confirmation" onAction="#onDoubleConfirmationClick"/>
+                    <Button fx:id="themeBtn" text="theme" onAction="#onThemeButtonClick"/>
                 </VBox>
                 <VBox fx:id="accountInfoVBox"
                       visible="false"
@@ -65,15 +65,15 @@
                 >
                     <HBox>
                         <TextField fx:id="usernameField"/>
-                        <Button text="Edit"/>
+                        <Button fx:id="editLoginBtn" text="Edit" onAction="#onEditLoginDialogClick"/>
                     </HBox>
                     <HBox>
                         <PasswordField fx:id="passwordField"/>
-                        <Button text="show"/>
+                        <Button fx:id="showPsswdBtn" text="show" onAction="#onShowPsswdBtnClick"/>
                     </HBox>
                     <HBox>
                         <PasswordField fx:id="pinField"/>
-                        <Button text="show"/>
+                        <Button fx:id="showPinBtn" text="show" onAction="#onShowPinBtnClick"/>
                     </HBox>
 
                 </VBox>

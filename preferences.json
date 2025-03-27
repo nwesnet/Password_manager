@@ -1,8 +1,8 @@
 {
   "login_info": {
-    "username": "test1",
-    "password": "mypassword",
-    "pincode": "1234"
+    "username": "testhideandrefrash",
+    "password": "password",
+    "pincode": "1111"
   },
   "security": {
     "double_confirmation": false

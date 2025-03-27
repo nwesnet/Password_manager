@@ -26,6 +26,18 @@ public class MainPageController {
     @FXML
     private Button preferences;
     @FXML
+    private Button accountInfoBtn;
+    @FXML
+    private Button editLoginBtn;
+    @FXML
+    private Button showPsswdBtn;
+    @FXML
+    private Button showPinBtn;
+    @FXML
+    private Button doubleConfirmBtn;
+    @FXML
+    private Button themeBtn;
+    @FXML
     private Button logs;
     @FXML
     private VBox leftVBox;
@@ -196,6 +208,42 @@ public class MainPageController {
         } else {
             accountInfoVBox.setVisible(false);
         }
+    }
+    @FXML
+    protected void onEditLoginDialogClick() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit login info");
+
+        TextField usernameField = new TextField(PreferencesManager.getUsername());
+        TextField passwordField = new TextField(PreferencesManager.getPassword());
+        TextField pincodeField = new TextField(PreferencesManager.getPincode());
+
+        VBox vb = new VBox(5,
+                new HBox(5, new Label("Username: "), usernameField),
+                new HBox(5, new Label("Password: "), passwordField),
+                new HBox(5, new Label("Pin code: "), pincodeField)
+        );
+        vb.setPadding(new Insets(10));
+
+        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent( result -> {
+            if(result == ButtonType.OK) {
+                PreferencesManager.setUsername(usernameField.getText());
+                PreferencesManager.setPassword(passwordField.getText());
+                PreferencesManager.setPincode(pincodeField.getText());
+                onAccountInfoButtonClick();
+            }
+        });
+    }
+    @FXML
+    protected void onShowPsswdBtnClick() {
+        togglePasswordVisibility(passwordField, showPsswdBtn);
+    }
+    @FXML
+    protected void onShowPinBtnClick() {
+        togglePasswordVisibility(pinField, showPinBtn);
     }
     @FXML
     protected void onDoubleConfirmationClick(){
@@ -426,8 +474,8 @@ public class MainPageController {
         dialog.getDialogPane().setContent(vb);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dialog.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
+        dialog.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
                 // Save updated values
                 account.setResource(resourceField.getText());
                 account.setUsername(loginField.getText());
