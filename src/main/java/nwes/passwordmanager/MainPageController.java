@@ -423,12 +423,15 @@ public class MainPageController {
                 account.setResource(resourceField.getText());
                 account.setUsername(loginField.getText());
                 account.setPassword(passwordField.getText());
-                //new DatabaseManager().updateAccount(account, oldResource, oldUsername); // implement this in DB manager
+                new DatabaseManager().updateAccount(account, oldResource, oldUsername);
                 onShowAccounts(); // Refresh
             }
         });
     }
     private void openEditCardDialog(Card card){
+        String oldResource = card.getResource();
+        String oldCardNumber = card.getCardNumber();
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit card: " + card.getResource());
 
@@ -457,15 +460,15 @@ public class MainPageController {
                 card.setExpiryDate(expiryDateField.getText());
                 card.setCvv(cvvField.getText());
                 card.setOnwerName(ownerNameField.getText());
-
-                //DatabaseManager db = new DatabaseManager();
-                //db.updateCard(card); // You need to implement this method in DB manager
-
-                onShowCards(); // Refresh view
+                new DatabaseManager().updateCard(card, oldResource, oldCardNumber);
+                onShowCards(); // Refresh
             }
         });
     }
     private void openEditLinkDialog(Link link){
+        String oldResource = link.getResource();
+        String oldLink = link.getLink();
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit link " + link.getResource());
 
@@ -485,12 +488,14 @@ public class MainPageController {
             if(result == ButtonType.OK){
                 link.setResource(resourceField.getText());
                 link.setLink(linkField.getText());
-                // add the method that delete the link from db
-                onShowAccounts();
+                new DatabaseManager().updateLink(link, oldResource, oldLink);
+                onShowLinks();
             }
         });
     }
     private void openEditWalletDialog(Wallet wallet){
+        String oldResource = wallet.getResource();
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit wallet " + wallet.getResource());
 
@@ -517,6 +522,8 @@ public class MainPageController {
             if(result == ButtonType.OK){
                 wallet.setResource(resourceField.getText());
                 wallet.setPassword(pinField.getText());
+                new DatabaseManager().updateWallet(wallet, oldResource);
+                onShowWallets();
             }
         });
 
@@ -530,7 +537,7 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            // new DatabaseManager().deleteAccount(account);
+            new DatabaseManager().deleteAccount(account);
             onShowAccounts();
         }
     }
@@ -542,9 +549,7 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            //DatabaseManager db = new DatabaseManager();
-            //db.deleteCard(card); // You need to implement this in DB manager too
-
+            new DatabaseManager().deleteCard(card);
             onShowCards();
         }
     }
@@ -556,9 +561,8 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            // add there the method that will delete the link
-
-            onShowAccounts();
+            new DatabaseManager().deleteLink(link);
+            onShowLinks();
         }
     }
     private void openDeleteWalletDialog(Wallet wallet){
@@ -569,8 +573,7 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            // add there the method that will delete the wallet
-
+            new DatabaseManager().deleteWallet(wallet);
             onShowWallets();
         }
     }
