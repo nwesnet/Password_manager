@@ -33,6 +33,7 @@ public class LoginController {
             mainStage.setScene(mainScene);
             mainStage.show();
             Stage loginStage = (Stage) loginButton.getScene().getWindow();
+            LogsManager.logLogin();
             loginStage.close();
 
         } catch (IOException e) {

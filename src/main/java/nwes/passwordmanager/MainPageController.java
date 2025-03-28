@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +45,10 @@ public class MainPageController {
     @FXML
     private ScrollPane logsScrollPane;
     @FXML
+    private TextField logsSearchBar;
+    @FXML
+    private TextArea logsTextArea;
+    @FXML
     private HBox preferencesHBox;
     @FXML
     private VBox preferencesVBox;
@@ -62,10 +67,12 @@ public class MainPageController {
     @FXML
     private VBox showListContentVBox;
 
+
     private List<Account> allAccounts = new ArrayList<>();
     private List<Card> allCards = new ArrayList<>();
     private List<Link> allLinks = new ArrayList<>();
     private List<Wallet> allWallets = new ArrayList<>();
+    private List<String> allLogLines = new ArrayList<>();
 
     private Category currentCategory;
 
@@ -80,6 +87,10 @@ public class MainPageController {
         showListSearchBar.textProperty().addListener((observable, oldValue, newValue) -> {
             filterCurrentCategory(newValue.trim().toLowerCase());
         });
+        logsSearchBar.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterLogs(newValue);
+        });
+
     }
     @FXML
     protected void onAddButtonClick(){
@@ -112,6 +123,9 @@ public class MainPageController {
         logsVisible = !logsVisible;
         if (logsVisible){
             logsScrollPane.setVisible(true);
+            String logs = LogsManager.readLogs();
+            allLogLines = Arrays.asList(logs.split("\n"));
+            logsTextArea.setText(logs);
         } else {
             logsScrollPane.setVisible(false);
         }
@@ -289,6 +303,19 @@ public class MainPageController {
                 }
                 break;
         }
+    }
+    private void filterLogs(String query) {
+        if(query == null || query.isEmpty()) {
+            logsTextArea.setText(String.join("\n", allLogLines));
+            return;
+        }
+        String lowerQuery = query.toLowerCase();
+
+        List<String> filtered = allLogLines.stream()
+                .filter(line -> line.toLowerCase().contains(lowerQuery))
+                .toList();
+
+        logsTextArea.setText(String.join("\n", filtered));
     }
 
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
@@ -481,6 +508,7 @@ public class MainPageController {
                 account.setUsername(loginField.getText());
                 account.setPassword(passwordField.getText());
                 new DatabaseManager().updateAccount(account, oldResource, oldUsername);
+                LogsManager.logEdit("Account", account.getResource());
                 onShowAccounts(); // Refresh
             }
         });
@@ -518,6 +546,7 @@ public class MainPageController {
                 card.setCvv(cvvField.getText());
                 card.setOnwerName(ownerNameField.getText());
                 new DatabaseManager().updateCard(card, oldResource, oldCardNumber);
+                LogsManager.logEdit("Card", card.getResource());
                 onShowCards(); // Refresh
             }
         });
@@ -546,6 +575,7 @@ public class MainPageController {
                 link.setResource(resourceField.getText());
                 link.setLink(linkField.getText());
                 new DatabaseManager().updateLink(link, oldResource, oldLink);
+                LogsManager.logEdit("Link", link.getResource());
                 onShowLinks();
             }
         });
@@ -580,6 +610,7 @@ public class MainPageController {
                 wallet.setResource(resourceField.getText());
                 wallet.setPassword(pinField.getText());
                 new DatabaseManager().updateWallet(wallet, oldResource);
+                LogsManager.logEdit("Wallet", wallet.getResource());
                 onShowWallets();
             }
         });
@@ -595,6 +626,7 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteAccount(account);
+            LogsManager.logDelete("Account", account.getResource());
             onShowAccounts();
         }
     }
@@ -607,6 +639,7 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteCard(card);
+            LogsManager.logDelete("Card", card.getResource());
             onShowCards();
         }
     }
@@ -619,6 +652,7 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteLink(link);
+            LogsManager.logDelete("Link", link.getResource());
             onShowLinks();
         }
     }
@@ -631,6 +665,7 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteWallet(wallet);
+            LogsManager.logDelete("Wallet", wallet.getResource());
             onShowWallets();
         }
     }

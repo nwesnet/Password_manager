@@ -108,7 +108,7 @@ public class AddController {
         saveButton.setOnAction(e -> {
             String resource = resourceField.getText();
             String url = linkField.getText();
-            if (!resource.isEmpty() && !url.isEmpty()) {
+            if (!resource.isEmpty() || !url.isEmpty()) {
                 onSaveButtonClick(resource, url);
                 onCancelButtonClick(); // or clear fields
             }
@@ -219,12 +219,14 @@ public class AddController {
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
             dm.writeAccountTodb(resource, username, password, date);
+            LogsManager.logAdd("Account", resource);
         }
     }
     private void onSaveButtonClick(String link, String url){
         DatabaseManager dm = new DatabaseManager();
-        if (!link.isEmpty()){
+        if (!link.isEmpty() || !url.isEmpty()){
             dm.writeLinkTodb(link, url);
+            LogsManager.logAdd("Link", link);
         }
     }
     private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String systemType){
@@ -232,6 +234,7 @@ public class AddController {
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()){
             dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, systemType, date);
+            LogsManager.logAdd("Card", resource);
         }
     }
     private void onSaveButtonClick(String resource, TextArea words, String password){
@@ -249,6 +252,7 @@ public class AddController {
 
         if (!resource.isEmpty() || !wordsString.isEmpty() || !password.isEmpty()){
             dm.writeWalletTodb(resource, wordsString, password, date);
+            LogsManager.logAdd("Wallet", resource);
         }
     }
     private void onCancelButtonClick(){
