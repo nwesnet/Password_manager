@@ -1,0 +1,154 @@
+.root {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #e0e0e0;
+}
+
+/* === Input Fields === */
+.text-field, .password-field {
+    -fx-background-color: #2e2e2e;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #aaaaaa;
+    -fx-border-color: #444;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+/* === TextArea === */
+.text-area {
+    -fx-control-inner-background: #2e2e2e;
+    -fx-background-color: #2e2e2e;
+    -fx-text-fill: white;
+    -fx-highlight-fill: #444;
+    -fx-highlight-text-fill: white;
+    -fx-prompt-text-fill: #aaaaaa;
+}
+.text-area .content {
+    -fx-background-color: #2e2e2e;
+}
+.text-area .scroll-pane {
+    -fx-background-color: #2e2e2e;
+}
+
+/* === Buttons === */
+.button {
+    -fx-background-color: #3a3a3a;
+    -fx-text-fill: white;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+.button:hover {
+    -fx-background-color: #505050;
+}
+
+/* === Labels === */
+.label {
+    -fx-text-fill: #dddddd;
+}
+
+/* === ScrollPane === */
+.scroll-pane {
+    -fx-background: #1e1e1e;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: #1e1e1e;
+}
+
+/* === VBox / HBox containers === */
+.vbox, .hbox {
+    -fx-background-color: #1e1e1e;
+}
+
+/* === ScrollBars === */
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: #1e1e1e;
+}
+.scroll-bar .thumb {
+    -fx-background-color: #444;
+    -fx-background-insets: 2;
+    -fx-background-radius: 4;
+}
+
+/* === ComboBox === */
+.combo-box {
+    -fx-background-color: #2e2e2e;
+    -fx-border-color: #444;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-mark-color: white;
+    -fx-prompt-text-fill: #aaaaaa;
+}
+.combo-box .list-cell {
+    -fx-background-color: #2e2e2e;
+    -fx-text-fill: white;
+}
+.combo-box .list-view {
+    -fx-background-color: #2e2e2e;
+    -fx-border-color: #444;
+}
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #444;
+}
+
+/* === CheckBoxes === */
+.check-box {
+    -fx-text-fill: white;
+}
+.check-box .box {
+    -fx-background-color: #2e2e2e;
+    -fx-border-color: #444;
+}
+.check-box:selected .box {
+    -fx-background-color: #3a3a3a;
+}
+
+/* === Slider === */
+.slider {
+    -fx-control-inner-background: #2e2e2e;
+}
+.slider .track {
+    -fx-background-color: #444;
+}
+.slider .thumb {
+    -fx-background-color: #888;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 0, 0, 0);
+}
+
+/* === Alert Dialog Styling === */
+.dialog-pane {
+    -fx-background-color: #2e2e2e;
+}
+.dialog-pane .header-panel {
+    -fx-background-color: #1e1e1e;
+}
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+.dialog-pane .content.label {
+    -fx-text-fill: #dddddd;
+}
+.dialog-pane .button-bar .button {
+    -fx-background-color: #3a3a3a;
+    -fx-text-fill: white;
+}
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: #505050;
+}
+
+/* === Custom container borders === */
+.side-panel {
+    -fx-border-color: #444;
+    -fx-border-width: 0 1 0 0; /* Right border only */
+    -fx-border-style: solid;
+    -fx-border-insets: 0;
+}
+
+.center-panel {
+    -fx-border-color: #444;
+    -fx-border-width: 0 0 0 1; /* Left border only */
+    -fx-border-style: solid;
+    -fx-border-insets: 0;
+}
+
+

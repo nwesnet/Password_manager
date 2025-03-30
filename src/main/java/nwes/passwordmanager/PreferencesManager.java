@@ -101,5 +101,9 @@ public class PreferencesManager {
         preferences.theme = theme;
         savePreferences();
     }
+    public static String getThemeCssPath() {
+        String theme = getTheme();
+        return "/css/" + theme + "-theme.css";
+    }
 }
 

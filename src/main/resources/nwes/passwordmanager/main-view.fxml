@@ -17,7 +17,7 @@
               prefWidth="165"
               spacing="10"
               fillWidth="true" VBox.vgrow="ALWAYS"
-              style="-fx-background-color: lightgray; -fx-border-color: black; -fx-border-width: 2px;"
+              styleClass="side-panel"
         >
             <Button fx:id="add" text="Add" onAction="#onAddButtonClick"/>
             <Button fx:id="generatePassword" text="Generate Password" onAction="#onGeneratePasswordClick"/>
@@ -41,7 +41,8 @@
     <center>
         <StackPane alignment="CENTER_RIGHT"
                    prefWidth="330"
-                   style="-fx-background-color: lightblue; -fx-border-color: black; -fx-border-width: 2px;">
+                   styleClass="center-panel"
+                   >
             <HBox fx:id="preferencesHBox"
                   visible="false"
                   alignment="CENTER"
@@ -105,10 +106,7 @@
                           fillWidth="true"
                           VBox.vgrow="ALWAYS"/>
                 </ScrollPane>
-
             </VBox>
         </StackPane>
     </center>
-
-
 </BorderPane>

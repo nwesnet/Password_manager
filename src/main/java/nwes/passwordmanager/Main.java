@@ -16,6 +16,10 @@ public class Main extends Application{
         DatabaseManager.initializeDatabase();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+
+        ThemeManager.applyCurrentTheme(scene);
+        stage.setOnCloseRequest( e -> ThemeManager.unregisterScene(scene));
+
         stage.setTitle("Password manager");
         stage.setScene(scene);
         stage.show();

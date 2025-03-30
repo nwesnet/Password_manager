@@ -98,6 +98,10 @@ public class MainPageController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("add-view.fxml"));
             Scene addScene = new Scene(fxmlLoader.load());
             Stage addStage = new Stage();
+
+            ThemeManager.registerScene(addScene);
+            addStage.setOnCloseRequest( e -> ThemeManager.unregisterScene(addScene));
+
             addStage.setTitle("Add information");
             addStage.setScene(addScene);
             addStage.show();
@@ -111,6 +115,10 @@ public class MainPageController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("genpsswd-view.fxml"));
             Scene genpsswdScene = new Scene(fxmlLoader.load());
             Stage genpsswdStage = new Stage();
+
+            ThemeManager.registerScene(genpsswdScene);
+            genpsswdStage.setOnCloseRequest( e -> ThemeManager.unregisterScene(genpsswdScene));
+
             genpsswdStage.setTitle("Generate password");
             genpsswdStage.setScene(genpsswdScene);
             genpsswdStage.show();
@@ -144,7 +152,6 @@ public class MainPageController {
             showListContentVBox.getChildren().clear();
         }
     }
-    // add this later: showlistsearchbar.setText("");
     @FXML
     protected void onShowAccounts(){
         currentCategory = Category.ACCOUNTS;
@@ -265,7 +272,13 @@ public class MainPageController {
     }
     @FXML
     protected void onThemeButtonClick(){
+        String currentTheme = PreferencesManager.getTheme();
+        String newTheme = currentTheme.equals("light") ? "dark" : "light";
 
+
+        PreferencesManager.setTheme(newTheme);
+        ThemeManager.registerScene(themeBtn.getScene());
+        ThemeManager.applyThemeToAll();
     }
 
     private void filterCurrentCategory(String query){
@@ -491,6 +504,8 @@ public class MainPageController {
         TextField loginField = new TextField(account.getUsername());
         TextField passwordField = new TextField(account.getPassword());
 
+        ThemeManager.applyThemeToDialog(dialog);
+
         VBox vb = new VBox(10,
                 new HBox(5, new Label("Resource:"), resourceField),
                 new HBox(5, new Label("Login:"), loginField),
@@ -525,6 +540,8 @@ public class MainPageController {
         TextField expiryDateField = new TextField(card.getExpiryDate());
         TextField cvvField = new TextField(card.getCvv());
         TextField ownerNameField = new TextField(card.getOnwerName());
+
+        ThemeManager.applyThemeToDialog(dialog);
 
         VBox vb = new VBox(10,
                 new HBox(5, new Label("Resource:"), resourceField),
@@ -561,6 +578,8 @@ public class MainPageController {
         TextField resourceField = new TextField(link.getResource());
         TextField linkField = new TextField(link.getLink());
 
+        ThemeManager.applyThemeToDialog(dialog);
+
         VBox vb = new VBox(10,
                 new HBox(5, new Label("Resource: "), resourceField),
                 new HBox(5, new Label("Link:     "), linkField)
@@ -595,6 +614,8 @@ public class MainPageController {
             fp.getChildren().add(wordField);
         }
 
+        ThemeManager.applyThemeToDialog(dialog);
+
         VBox vb = new VBox(5,
                 new HBox(new Label("Resource: "), resourceField),
                 new VBox(new Label("Key words: "), fp),
@@ -623,6 +644,8 @@ public class MainPageController {
         alert.setHeaderText("Are you sure you want to delete \"" + account.getResource() + "\"?");
         alert.setContentText("This action cannot be undone.");
 
+        ThemeManager.applyThemeToDialog(alert);
+
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteAccount(account);
@@ -635,6 +658,8 @@ public class MainPageController {
         alert.setTitle("Delete card");
         alert.setHeaderText("Are you sure you want to delete this card?");
         alert.setContentText("Resource: " + card.getResource());
+
+        ThemeManager.applyThemeToDialog(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
@@ -649,6 +674,8 @@ public class MainPageController {
         alert.setHeaderText("Are you sure you want to delete this resource?");
         alert.setContentText("Resource: " + link.getResource());
 
+        ThemeManager.applyThemeToDialog(alert);
+
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteLink(link);
@@ -661,6 +688,8 @@ public class MainPageController {
         alert.setTitle("Delete wallet");
         alert.setHeaderText("Are you sure you want to delete this wallet?");
         alert.setContentText("Resource: " + wallet.getResource());
+
+        ThemeManager.applyThemeToDialog(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){

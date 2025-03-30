@@ -29,6 +29,10 @@ public class LoginController {
             Scene mainScene = new Scene(fxmlLoader.load());
             MainPageController mainPageController = fxmlLoader.getController();
             Stage mainStage = new Stage();
+
+            ThemeManager.registerScene(mainScene);
+            mainStage.setOnCloseRequest( e -> ThemeManager.unregisterScene(mainScene));
+
             mainStage.setTitle("Password manager");
             mainStage.setScene(mainScene);
             mainStage.show();
