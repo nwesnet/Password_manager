@@ -6,12 +6,14 @@ import java.util.Arrays;
 public class Wallet {
     private String resource;
     private String[] twelveWords;
+    private String address;
     private String password;
     private LocalDateTime dateAdded;
 
-    public Wallet(String resource, String[] twelveWords, String password, LocalDateTime dateAdded) {
+    public Wallet(String resource, String[] twelveWords, String address, String password, LocalDateTime dateAdded) {
         this.resource = resource;
         this.twelveWords = twelveWords;
+        this.address = address;
         this.password = password;
         this.dateAdded = dateAdded;
     }
@@ -22,6 +24,10 @@ public class Wallet {
 
     public String[] getTwelveWords() {
         return twelveWords;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public String getPassword() {
@@ -38,6 +44,10 @@ public class Wallet {
 
     public void setTwelveWords(String[] twelveWords) {
         this.twelveWords = twelveWords;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public void setPassword(String password) {

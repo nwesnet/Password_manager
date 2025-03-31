@@ -7,15 +7,21 @@ public class Card {
     private String cardNumber;
     private String expiryDate;
     private String cvv;
-    private String onwerName;
+    private String ownerName;
+    private String cardPincode;
+    private String cardNetworkType;
+    private String cardType;
     private LocalDateTime dateAdded;
 
-    public Card(String resource, String cardNumber, String expiryDate, String cvv, String onwerName, LocalDateTime dateAdded) {
+    public Card(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String cardPincode, String cardNetworkType, String cardType, LocalDateTime dateAdded) {
         this.resource = resource;
         this.cardNumber = cardNumber;
         this.expiryDate = expiryDate;
         this.cvv = cvv;
-        this.onwerName = onwerName;
+        this.ownerName = ownerName;
+        this.cardPincode = cardPincode;
+        this.cardNetworkType = cardNetworkType;
+        this.cardType = cardType;
         this.dateAdded = dateAdded;
     }
 
@@ -36,7 +42,19 @@ public class Card {
     }
 
     public String getOnwerName() {
-        return onwerName;
+        return ownerName;
+    }
+
+    public String getCardPincode() {
+        return cardPincode;
+    }
+
+    public String getCardNetworkType() {
+        return cardNetworkType;
+    }
+
+    public String getCardType() {
+        return cardType;
     }
 
     public LocalDateTime getDateAdded() {
@@ -60,7 +78,19 @@ public class Card {
     }
 
     public void setOnwerName(String onwerName) {
-        this.onwerName = onwerName;
+        this.ownerName = onwerName;
+    }
+
+    public void setCardPincode(String cardPincode) {
+        this.cardPincode = cardPincode;
+    }
+
+    public void setCardNetworkType(String cardNetworkType) {
+        this.cardNetworkType = cardNetworkType;
+    }
+
+    public void setCardType(String cardType) {
+        this.cardType = cardType;
     }
 
     public void setDateAdded(LocalDateTime dateAdded) {
@@ -74,7 +104,10 @@ public class Card {
                 ", cardNumber='" + cardNumber + '\'' +
                 ", expiryDate='" + expiryDate + '\'' +
                 ", cvv='" + cvv + '\'' +
-                ", onwerName='" + onwerName + '\'' +
+                ", onwerName='" + ownerName + '\'' +
+                ", cardPincode='" + cardPincode + '\'' +
+                ", cardNetworkType='" + cardNetworkType + '\'' +
+                ", cardType='" + cardType + '\'' +
                 ", dateAdded=" + dateAdded +
                 '}';
     }

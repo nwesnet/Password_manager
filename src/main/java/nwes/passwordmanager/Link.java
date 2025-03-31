@@ -14,6 +14,7 @@ public class Link {
     public String getLink(){
         return link;
     }
+
     public void setResource(String resource){
         this.resource = resource;
     }

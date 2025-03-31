@@ -230,7 +230,7 @@ public class AddController {
         DatabaseManager dm = new DatabaseManager();
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()){
-            dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, networkType, date);
+            dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, pincode, networkType, cardType, date);
             LogsManager.logAdd("Card", resource);
         }
     }
@@ -255,7 +255,7 @@ public class AddController {
         String wordsString = String.join(",", wordsArray);
 
         if (!resource.isEmpty() || !wordsString.isEmpty() || !password.isEmpty()){
-            dm.writeWalletTodb(resource, wordsString, password, date);
+            dm.writeWalletTodb(resource, wordsString, address, password, date);
             LogsManager.logAdd("Wallet", resource);
         }
     }

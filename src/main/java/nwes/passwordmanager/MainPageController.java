@@ -485,6 +485,9 @@ public class MainPageController {
         HBox hbResource = new HBox(5, resourceLabel, resourceField, editWalletBtn, deleteWalletBtn);
         // twelve words and pin rows
         Label twelveWordsLabel = new Label("twelve words: ");
+
+        TextField addressField = new TextField(wallet.getAddress());
+        addressField.setPrefColumnCount(24);
         TextField passwordField = new PasswordField();
         passwordField.setText(wallet.getPassword());
 
@@ -495,7 +498,7 @@ public class MainPageController {
             twelveWordsBox.getChildren().add(wordLabel);
         }
         // add everything on showlistcontentvbox
-        vb.getChildren().addAll(hbResource, twelveWordsLabel, twelveWordsBox, passwordField);
+        vb.getChildren().addAll(hbResource, twelveWordsLabel, twelveWordsBox, addressField, passwordField);
         showListContentVBox.getChildren().add(vb);
     }
     private void openEditAccountDialog(Account account){
@@ -536,6 +539,8 @@ public class MainPageController {
     private void openEditCardDialog(Card card){
         String oldResource = card.getResource();
         String oldCardNumber = card.getCardNumber();
+        String oldCardName = card.getOnwerName();
+        String oldExpiryDate = card.getExpiryDate();
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit card: " + card.getResource());
@@ -567,7 +572,7 @@ public class MainPageController {
                 card.setExpiryDate(expiryDateField.getText());
                 card.setCvv(cvvField.getText());
                 card.setOnwerName(ownerNameField.getText());
-                new DatabaseManager().updateCard(card, oldResource, oldCardNumber);
+                new DatabaseManager().updateCard(card, oldResource, oldCardNumber, oldCardName, oldExpiryDate);
                 LogsManager.logEdit("Card", card.getResource());
                 onShowCards(); // Refresh
             }
@@ -606,6 +611,7 @@ public class MainPageController {
     }
     private void openEditWalletDialog(Wallet wallet){
         String oldResource = wallet.getResource();
+        String oldAddress = wallet.getAddress();
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit wallet " + wallet.getResource());
@@ -635,7 +641,7 @@ public class MainPageController {
             if(result == ButtonType.OK){
                 wallet.setResource(resourceField.getText());
                 wallet.setPassword(pinField.getText());
-                new DatabaseManager().updateWallet(wallet, oldResource);
+                new DatabaseManager().updateWallet(wallet, oldResource, oldAddress);
                 LogsManager.logEdit("Wallet", wallet.getResource());
                 onShowWallets();
             }
