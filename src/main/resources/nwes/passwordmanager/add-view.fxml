@@ -20,8 +20,8 @@
             <items>
                 <FXCollections fx:factory="observableArrayList">
                     <String fx:value="Account"/>
-                    <String fx:value="Link"/>
                     <String fx:value="Card"/>
+                    <String fx:value="Link"/>
                     <String fx:value="Wallet"/>
                     <String fx:value="Text"/>
                 </FXCollections>

@@ -30,10 +30,13 @@ public class AddController {
     private TextField cardDateField;
     private TextField cardCVVField;
     private TextField cardNameField;
+    private TextField cardPinField;
     private TextField cardTypePayField;
+    private TextField cardTypeField;
 
     private TextField walletResourceField;
     private TextArea walletWordsField;
+    private TextField walletAddressField;
     private PasswordField walletPasswordField;
 
     @FXML
@@ -65,13 +68,12 @@ public class AddController {
     private void showAccountForm(){
         vbAdd.getChildren().clear();
 
-        Label resourceLabel = new Label("Resource");
-        Label usrenameLabel = new Label("Username");
-        Label passwordLabel = new Label("Password");
-
         accountResourceField = new TextField();
+        accountResourceField.setPrefColumnCount(24);
         accountUsernameField = new TextField();
+        accountUsernameField.setPrefColumnCount(24);
         accountPasswordField = new PasswordField();
+        accountPasswordField.setPrefColumnCount(24);
 
         saveButton = new Button("Save");
         saveButton.setOnAction(e -> onSaveButtonClick(
@@ -82,24 +84,77 @@ public class AddController {
         cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
-        HBox hbResource = new HBox();
-        HBox hbUsername = new HBox();
-        HBox hbPassword = new HBox();
-        HBox hbButtons = new HBox();
+        VBox formBox = new VBox(10,
+                new HBox(5, new Label("Resource:   "), accountResourceField),
+                new HBox(5, new Label("Username: "), accountUsernameField),
+                new HBox(5, new Label("Password:  "), accountPasswordField),
+                new HBox(10, saveButton, cancelButton)
+        );
 
-        hbResource.getChildren().addAll(resourceLabel, accountResourceField);
-        hbUsername.getChildren().addAll(usrenameLabel, accountUsernameField);
-        hbPassword.getChildren().addAll(passwordLabel, accountPasswordField);
-        hbButtons.getChildren().addAll(saveButton, cancelButton);
-        vbAdd.getChildren().addAll(hbResource, hbUsername, hbPassword, hbButtons);
+        vbAdd.getChildren().addAll(formBox);
     }
+
+    private void showCardForm(){
+        // I clear the vbox that I use for flexible interface
+        vbAdd.getChildren().clear();
+        // I define the fields and set up it
+        cardResourceField = new TextField();
+        cardResourceField.setPrefColumnCount(24);
+
+        cardNumberField = new TextField();
+        cardNumberField.setPrefColumnCount(20);
+
+        cardDateField = new TextField();
+        cardDateField.setPrefColumnCount(6);
+
+        cardCVVField = new TextField();
+        cardCVVField.setPrefColumnCount(6);
+
+        cardNameField = new TextField();
+        cardNameField.setPrefColumnCount(20);
+
+        cardPinField = new TextField();
+        cardPinField.setPrefColumnCount(10);
+
+        cardTypePayField = new TextField();
+        cardTypePayField.setPrefColumnCount(10);
+
+        cardTypeField = new TextField();
+        cardTypeField.setPrefColumnCount(10);
+
+        saveButton = new Button("save");
+        saveButton.setOnAction(e -> onSaveButtonClick(
+                cardResourceField.getText(),
+                cardNumberField.getText(),
+                cardDateField.getText(),
+                cardCVVField.getText(),
+                cardNameField.getText(),
+                cardPinField.getText(),
+                cardTypePayField.getText(),
+                cardTypeField.getText()
+        ));
+        cancelButton = new Button("cancel");
+        cancelButton.setOnAction(e -> onCancelButtonClick());
+
+        VBox formBox = new VBox(10,
+                new HBox(5, new Label("Resource: "), cardResourceField),
+                new HBox(5, new Label("Card number: "), cardNumberField),
+                new HBox(5, new Label("Date:                 "), cardDateField, new Label("          CVV: "), cardCVVField),
+                new HBox(5, new Label("Name:              "), cardNameField),
+                new HBox(5,new Label("Pin:                    "), cardPinField),
+                new HBox(5, new Label("Pay network:   "), cardTypePayField),
+                new HBox(5, new Label("Card type:        "), cardTypeField),
+                new HBox(10, saveButton, cancelButton)
+        );
+
+        // I add the items in VBox
+        vbAdd.getChildren().addAll(formBox);
+    }
+
     private void showLinkForm() {
         vbAdd.getChildren().clear();
 
-        Label resourceLabel = new Label("Resource:");
         TextField resourceField = new TextField();
-
-        Label linkLabel = new Label("Link:");
         TextField linkField = new TextField();
 
         saveButton = new Button("Save");
@@ -117,97 +172,45 @@ public class AddController {
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
         VBox formBox = new VBox(10,
-                new HBox(5, resourceLabel, resourceField),
-                new HBox(5, linkLabel, linkField),
+                new HBox(5, new Label("Resource: "), resourceField),
+                new HBox(5, new Label("Link:          "), linkField),
                 new HBox(10, saveButton, cancelButton)
         );
 
         vbAdd.getChildren().add(formBox);
     }
-
-    private void showCardForm(){
-        // I clear the vbox that I use for flexible interface
-        vbAdd.getChildren().clear();
-        // I create the labels for all fields
-        Label resourceLabel = new Label("Resource");
-        Label numberLabel = new Label("Number");
-        Label dateLabel = new Label("Date");
-        Label CVVLabel = new Label("CVV");
-        Label nameLabel = new Label("Name");
-        Label typepayLabel = new Label("Pay system");
-        // I define the fields and set up it
-        cardResourceField = new TextField();
-
-        cardNumberField = new TextField();
-        cardNumberField.setPrefColumnCount(24);
-
-        cardDateField = new TextField();
-
-        cardCVVField = new TextField();
-
-        cardNameField = new TextField();
-        cardNameField.setPrefColumnCount(24);
-
-        cardTypePayField = new TextField();
-
-        saveButton = new Button("save");
-        saveButton.setOnAction(e -> onSaveButtonClick(
-                cardResourceField.getText(),
-                cardNumberField.getText(),
-                cardDateField.getText(),
-                cardCVVField.getText(),
-                cardNameField.getText(),
-                cardTypePayField.getText()
-        ));
-        cancelButton = new Button("cancel");
-        cancelButton.setOnAction(e -> onCancelButtonClick());
-
-        // I create HBox for all fields and buttons to make layout looks better
-        HBox hbResource = new HBox(5);
-        hbResource.getChildren().addAll(resourceLabel, cardResourceField);
-        HBox hbNumber = new HBox(5);
-        hbNumber.getChildren().addAll(numberLabel, cardNumberField);
-        HBox hbDateAndCVV = new HBox(40);
-        hbDateAndCVV.getChildren().addAll(dateLabel, cardDateField, CVVLabel, cardCVVField);
-        HBox hbName = new HBox(5);
-        hbName.getChildren().addAll(nameLabel, cardNameField);
-        HBox hbTypepay = new HBox(5);
-        hbTypepay.getChildren().addAll(typepayLabel, cardTypePayField);
-        HBox hbButtons = new HBox(5);
-        hbButtons.getChildren().addAll(saveButton, cancelButton);
-        // I add the items in VBox
-        vbAdd.getChildren().addAll(hbResource, hbNumber, hbDateAndCVV, hbName, hbTypepay, hbButtons);
-    }
     private void showWalletForm(){
         vbAdd.getChildren().clear();
 
-        Label resourceLabel = new Label("Resource");
-        Label wordsLabel = new Label("12 words");
-        Label passwordLabel = new Label("Pin");
-
         walletResourceField = new TextField();
+        walletResourceField.setPrefColumnCount(24);
         walletWordsField = new TextArea();
+        walletWordsField.setPrefColumnCount(23);
+        walletWordsField.setPrefRowCount(4);
+        walletAddressField = new TextField();
+        walletAddressField.setPrefColumnCount(24);
         walletPasswordField = new PasswordField();
+        walletPasswordField.setPrefColumnCount(24);
 
         saveButton = new Button("save");
         saveButton.setOnAction(e -> onSaveButtonClick(
                 walletResourceField.getText(),
                 walletWordsField,
+                walletAddressField.getText(),
                 walletPasswordField.getText()
         ));
         cancelButton = new Button("cancel");
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
-        HBox hbResource = new HBox(5);
-        hbResource.getChildren().addAll(resourceLabel, walletResourceField);
-        HBox hbWords = new HBox(5);
-        hbWords.getChildren().addAll(wordsLabel, walletWordsField);
-        HBox hbPassword = new HBox(5);
-        hbPassword.getChildren().addAll(passwordLabel, walletPasswordField);
-        HBox hbButtons = new HBox(5);
-        hbButtons.getChildren().addAll(saveButton, cancelButton);
+        VBox formBox = new VBox(10,
+                new HBox(5, new Label("Resource:   "), walletResourceField),
+                new HBox(5, new Label("Key words: "), walletWordsField),
+                new HBox(5, new Label("Address:     "), walletAddressField),
+                new HBox(5, new Label("Password:  "), walletPasswordField),
+                new HBox(10, saveButton, cancelButton)
+                );
 
-        vbAdd.getChildren().addAll(hbResource, hbWords, hbPassword, hbButtons);
+        vbAdd.getChildren().addAll(formBox);
     }
     private void showTextForm(){
         vbAdd.getChildren().clear();
@@ -222,22 +225,23 @@ public class AddController {
             LogsManager.logAdd("Account", resource);
         }
     }
-    private void onSaveButtonClick(String link, String url){
-        DatabaseManager dm = new DatabaseManager();
-        if (!link.isEmpty() || !url.isEmpty()){
-            dm.writeLinkTodb(link, url);
-            LogsManager.logAdd("Link", link);
-        }
-    }
-    private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String systemType){
+
+    private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String pincode, String networkType, String cardType){
         DatabaseManager dm = new DatabaseManager();
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()){
-            dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, systemType, date);
+            dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, networkType, date);
             LogsManager.logAdd("Card", resource);
         }
     }
-    private void onSaveButtonClick(String resource, TextArea words, String password){
+    private void onSaveButtonClick(String resource, String link){
+        DatabaseManager dm = new DatabaseManager();
+        if (!resource.isEmpty() || !link.isEmpty()){
+            dm.writeLinkTodb(resource, link);
+            LogsManager.logAdd("Link", resource);
+        }
+    }
+    private void onSaveButtonClick(String resource, TextArea words, String address, String password){
         DatabaseManager dm = new DatabaseManager();
         LocalDateTime date = LocalDateTime.now();
 
