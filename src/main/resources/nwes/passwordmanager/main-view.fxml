@@ -12,20 +12,20 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="nwes.passwordmanager.MainPageController"
-            prefHeight="650" prefWidth="750"
+            prefHeight="750" prefWidth="850"
             minHeight="450" minWidth="550">
     <left>
         <VBox alignment="TOP_LEFT"
-              prefWidth="165"
+              prefWidth="180"
               spacing="10"
               fillWidth="true" VBox.vgrow="ALWAYS"
               styleClass="side-panel"
         >
-            <Button fx:id="add" text="Add" styleClass="add-button" onAction="#onAddButtonClick"/>
-            <Button fx:id="generatePassword" styleClass="genpsswd-button" text="Generate Password" onAction="#onGeneratePasswordClick"/>
-            <Button fx:id="showList" styleClass="icon-button showlist-button" text="Show List" onAction="#onShowListButtonClick"/>
-            <Button fx:id="preferences" styleClass="icon-button preference-button" text="Preferences" onAction="#onPreferencesButtonClick"/>
-            <Button fx:id="logs" styleClass="icon-button logs-button" text="Logs" onAction="#onLogsButtonClick"/>
+            <Button fx:id="add" text="Add" styleClass="add-button" onAction="#onAddButtonClick" maxWidth="Infinity"/>
+            <Button fx:id="generatePassword" styleClass="genpsswd-button" text="Generate password" onAction="#onGeneratePasswordClick" maxWidth="Infinity"/>
+            <Button fx:id="showList" styleClass="showlist-button" text="Show List" onAction="#onShowListButtonClick" maxWidth="Infinity"/>
+            <Button fx:id="preferences" styleClass="pref-button" text="Preferences" onAction="#onPreferencesButtonClick" maxWidth="Infinity"/>
+            <Button fx:id="logs" styleClass="logs-button" text="Logs" onAction="#onLogsButtonClick" maxWidth="Infinity"/>
             <ScrollPane fx:id="logsScrollPane"
                         visible="false"
                         fitToWidth="true" fitToHeight="true"

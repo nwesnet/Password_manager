@@ -341,11 +341,13 @@ public class MainPageController {
         resourceField.setPrefColumnCount(16);
         resourceField.setEditable(false);
 
-        Button editBtn = new Button("edit");
+        Button editBtn = new Button();
         editBtn.setOnAction(e -> openEditAccountDialog(account));
+        editBtn.getStyleClass().add("edit-button");
 
-        Button deleteBtn = new Button("delete");
+        Button deleteBtn = new Button();
         deleteBtn.setOnAction(e -> openDeleteAccountDialog(account));
+        deleteBtn.getStyleClass().add("delete-button");
 
         HBox hbResource = new HBox(5);
         hbResource.getChildren().addAll(resourceLabel, resourceField, editBtn, deleteBtn);
@@ -355,8 +357,9 @@ public class MainPageController {
         loginField.setPrefColumnCount(16);
         loginField.setEditable(false);
 
-        Button copyLoginBtn = new Button("copy");
+        Button copyLoginBtn = new Button();
         copyLoginBtn.setOnAction(e -> copyToClipboard(loginField.getText()));
+        copyLoginBtn.getStyleClass().add("copy-button");
 
         HBox hbLogin = new HBox(5);
         hbLogin.getChildren().addAll(loginLabel, loginField, copyLoginBtn);
@@ -367,11 +370,13 @@ public class MainPageController {
         passwordField.setPrefColumnCount(16);
         passwordField.setEditable(false);
 
-        Button showPasswordBtn = new Button("show");
+        Button showPasswordBtn = new Button();
         showPasswordBtn.setOnAction(e -> togglePasswordVisibility(passwordField, showPasswordBtn));
+        showPasswordBtn.getStyleClass().add("show-button");
 
-        Button copyPsswdBtn = new Button("copy");
+        Button copyPsswdBtn = new Button();
         copyPsswdBtn.setOnAction(e -> copyToClipboard(passwordField.getText()));
+        copyPsswdBtn.getStyleClass().add("copy-button");
 
         HBox hbPassword = new HBox(5);
         hbPassword.getChildren().addAll(passwordLabel, passwordField, showPasswordBtn, copyPsswdBtn);
