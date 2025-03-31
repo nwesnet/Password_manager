@@ -7,6 +7,8 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="nwes.passwordmanager.MainPageController"
@@ -19,11 +21,11 @@
               fillWidth="true" VBox.vgrow="ALWAYS"
               styleClass="side-panel"
         >
-            <Button fx:id="add" text="Add" onAction="#onAddButtonClick"/>
-            <Button fx:id="generatePassword" text="Generate Password" onAction="#onGeneratePasswordClick"/>
-            <Button fx:id="showList" text="Show List" onAction="#onShowListButtonClick"/>
-            <Button fx:id="preferences" text="Preferences" onAction="#onPreferencesButtonClick"/>
-            <Button fx:id="logs" text="Logs" onAction="#onLogsButtonClick"/>
+            <Button fx:id="add" text="Add" styleClass="add-button" onAction="#onAddButtonClick"/>
+            <Button fx:id="generatePassword" styleClass="genpsswd-button" text="Generate Password" onAction="#onGeneratePasswordClick"/>
+            <Button fx:id="showList" styleClass="icon-button showlist-button" text="Show List" onAction="#onShowListButtonClick"/>
+            <Button fx:id="preferences" styleClass="icon-button preference-button" text="Preferences" onAction="#onPreferencesButtonClick"/>
+            <Button fx:id="logs" styleClass="icon-button logs-button" text="Logs" onAction="#onLogsButtonClick"/>
             <ScrollPane fx:id="logsScrollPane"
                         visible="false"
                         fitToWidth="true" fitToHeight="true"

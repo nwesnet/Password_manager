@@ -151,4 +151,38 @@
     -fx-border-insets: 0;
 }
 
+.add-button {
+    -fx-background-image: url("../img/add_24_White.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: left center;
+    -fx-background-size: 24px 24px;
+    -fx-padding: 6 12 6 32; /* leave space for icon */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+}
+
+.add-button:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+.genpsswd-button {
+    -fx-background-image: url("../img/password_24_white.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: left center;
+    -fx-background-size: 24px 24px;
+    -fx-padding: 6 12 6 32; /* leave space for icon */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+}
+
+.genpsswd-button:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+
+
+
+
 

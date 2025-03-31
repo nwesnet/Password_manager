@@ -7,5 +7,5 @@
   "security": {
     "double_confirmation": false
   },
-  "theme": "light"
+  "theme": "dark"
 }
