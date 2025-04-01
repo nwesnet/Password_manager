@@ -3,6 +3,7 @@ package nwes.passwordmanager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -332,11 +333,7 @@ public class MainPageController {
     }
 
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
-        // create vbox to display accounts
-        VBox vb = new VBox(5);
-        vb.setPadding(new Insets(20));
-        // resource row
-        Label resourceLabel = new Label("Resource: ");
+
         TextField resourceField = new TextField(account.getResource());
         resourceField.setPrefColumnCount(16);
         resourceField.setEditable(false);
@@ -349,10 +346,6 @@ public class MainPageController {
         deleteBtn.setOnAction(e -> openDeleteAccountDialog(account));
         deleteBtn.getStyleClass().add("delete-button");
 
-        HBox hbResource = new HBox(5);
-        hbResource.getChildren().addAll(resourceLabel, resourceField, editBtn, deleteBtn);
-        // login row
-        Label loginLabel = new Label("Login:        ");
         TextField loginField = new TextField(account.getUsername());
         loginField.setPrefColumnCount(16);
         loginField.setEditable(false);
@@ -361,10 +354,6 @@ public class MainPageController {
         copyLoginBtn.setOnAction(e -> copyToClipboard(loginField.getText()));
         copyLoginBtn.getStyleClass().add("copy-button");
 
-        HBox hbLogin = new HBox(5);
-        hbLogin.getChildren().addAll(loginLabel, loginField, copyLoginBtn);
-        // password row
-        Label passwordLabel = new Label("Password: ");
         PasswordField passwordField = new PasswordField();
         passwordField.setText(account.getPassword());
         passwordField.setPrefColumnCount(16);
@@ -378,17 +367,16 @@ public class MainPageController {
         copyPsswdBtn.setOnAction(e -> copyToClipboard(passwordField.getText()));
         copyPsswdBtn.getStyleClass().add("copy-button");
 
-        HBox hbPassword = new HBox(5);
-        hbPassword.getChildren().addAll(passwordLabel, passwordField, showPasswordBtn, copyPsswdBtn);
+        VBox formBox = new VBox(5,
+                new HBox(5, new Label("Resource: "), resourceField, editBtn, deleteBtn),
+                new HBox(5, new Label("Login:        "), loginField, copyLoginBtn),
+                new HBox(5, new Label("Password: "), passwordField, showPasswordBtn, copyPsswdBtn)
+        );
+        formBox.setPadding(new Insets(20));
         // add every thing in showlistcontentvbox
-        vb.getChildren().addAll(hbResource, hbLogin, hbPassword);
-        showListContentVBox.getChildren().add(vb);
+        showListContentVBox.getChildren().add(formBox);
     }
     private void DisplayCardsDetails(Card card, DatabaseManager dbManager){
-        VBox vb = new VBox(5);
-        vb.setPadding(new Insets(20));
-        // resource row
-        Label resourceLabel = new Label("Resource: ");
         TextField resourceField = new TextField(card.getResource());
         resourceField.setEditable(false);
 
@@ -398,9 +386,6 @@ public class MainPageController {
         Button deleteBtn = new Button("delete");
         deleteBtn.setOnAction( e -> openDeleteCardDialog(card));
 
-        HBox hbResource = new HBox(5);
-        hbResource.getChildren().addAll(resourceLabel, resourceField, editBtn, deleteBtn);
-        // card number row
         TextField cardNumberField = new TextField(card.getCardNumber());
         cardNumberField.setEditable(false);
         cardNumberField.setPrefColumnCount(18);
@@ -408,9 +393,6 @@ public class MainPageController {
         Button copyCardNumberBtn = new Button("copy");
         copyCardNumberBtn.setOnAction( e -> copyToClipboard(cardNumberField.getText()));
 
-        HBox hbCardNumber = new HBox(1);
-        hbCardNumber.getChildren().addAll(cardNumberField, copyCardNumberBtn);
-        // card date and cvv row
         TextField cardExpiryDate = new TextField(card.getExpiryDate());
         cardExpiryDate.setEditable(false);
         cardExpiryDate.setPrefColumnCount(4);
@@ -422,9 +404,6 @@ public class MainPageController {
         Button showBtn = new Button("show");
         showBtn.setOnAction( e -> togglePasswordVisibility(cardCVVField, showBtn));
 
-        HBox hbDateAndCvv = new HBox(1);
-        hbDateAndCvv.getChildren().addAll(cardExpiryDate, cardCVVField, showBtn);
-        // card owner name row
         TextField cardOwnerNameField = new TextField(card.getOnwerName());
         cardOwnerNameField.setEditable(false);
         cardOwnerNameField.setPrefColumnCount(18);
@@ -432,18 +411,31 @@ public class MainPageController {
         Button copyNameBtn = new Button("copy");
         copyNameBtn.setOnAction( e -> copyToClipboard(cardOwnerNameField.getText()));
 
-        HBox hbCardName = new HBox(1);
-        hbCardName.getChildren().addAll(cardOwnerNameField, copyNameBtn);
+        TextField cardPincodeField = new TextField(card.getCardPincode());
+        cardPincodeField.setEditable(false);
+        cardPincodeField.setPrefColumnCount(10);
 
-        // Assemble all
-        vb.getChildren().addAll(hbResource, hbCardNumber, hbDateAndCvv, hbCardName);
-        showListContentVBox.getChildren().add(vb);
+        TextField cardNetworkField = new TextField(card.getCardNetworkType());
+        cardNetworkField.setEditable(false);
+        cardNetworkField.setPrefColumnCount(10);
+
+        TextField cardTypeField = new TextField(card.getCardType());
+        cardTypeField.setEditable(false);
+        cardTypeField.setPrefColumnCount(10);
+
+        VBox formBox = new VBox(5,
+                new HBox(5, new Label("Resource: "), resourceField, editBtn, deleteBtn),
+                new HBox(5, cardNumberField, copyCardNumberBtn),
+                new HBox(5, cardExpiryDate, cardCVVField, showBtn),
+                new HBox(5, cardOwnerNameField, copyNameBtn),
+                new HBox(5, new Label("Pin code:   "), cardPincodeField),
+                new HBox(5, new Label("Network:   "), cardNetworkField),
+                new HBox(5, new Label("Card type: "), cardTypeField)
+        );
+        formBox.setPadding(new Insets(20));
+        showListContentVBox.getChildren().add(formBox);
     }
     private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
-        VBox vb = new VBox(5);
-        vb.setPadding(new Insets(20));
-        // resource row
-        Label resourceLabel = new Label("Resource: ");
         TextField resourceField = new TextField(link.getResource());
         resourceField.setEditable(false);
 
@@ -453,27 +445,22 @@ public class MainPageController {
         Button deleteLinkBtn = new Button("delete");
         deleteLinkBtn.setOnAction( e -> openDeleteLinkDialog(link));
 
-        HBox hbResource = new HBox(5);
-        hbResource.getChildren().addAll(resourceLabel, resourceField, editLinkBtn, deleteLinkBtn);
-        // link row
         TextField linkField = new TextField(link.getLink());
         linkField.setEditable(false);
-        linkField.setPrefColumnCount(18);
+        linkField.setPrefColumnCount(24);
 
         Button copyLinkBtn = new Button("copy");
         copyLinkBtn.setOnAction( e -> copyToClipboard(linkField.getText()));
 
-        HBox hbLink = new HBox(1);
-        hbLink.getChildren().addAll(linkField, copyLinkBtn);
-        // add everything in showlistcontentvbox
-        vb.getChildren().addAll(hbResource, hbLink);
-        showListContentVBox.getChildren().add(vb);
+        VBox formBox = new VBox(5,
+                new HBox(5, new Label("Resource: "), resourceField, editLinkBtn, deleteLinkBtn),
+                new HBox(5, new Label("Link: "), linkField)
+        );
+        formBox.setPadding(new Insets(20));
+
+        showListContentVBox.getChildren().add(formBox);
     }
     private void DisplayWalletsDetails(Wallet wallet, DatabaseManager dbManager){
-        VBox vb = new VBox(5);
-        vb.setPadding(new Insets(20));
-        // resource row
-        Label resourceLabel = new Label("Resource: ");
         TextField resourceField = new TextField(wallet.getResource());
 
         Button editWalletBtn = new Button("edit");
@@ -482,14 +469,13 @@ public class MainPageController {
         Button deleteWalletBtn = new Button("delete");
         deleteWalletBtn.setOnAction( e -> openDeleteWalletDialog(wallet));
 
-        HBox hbResource = new HBox(5, resourceLabel, resourceField, editWalletBtn, deleteWalletBtn);
-        // twelve words and pin rows
-        Label twelveWordsLabel = new Label("twelve words: ");
-
         TextField addressField = new TextField(wallet.getAddress());
+        addressField.setEditable(false);
         addressField.setPrefColumnCount(24);
         TextField passwordField = new PasswordField();
         passwordField.setText(wallet.getPassword());
+        passwordField.setEditable(false);
+        passwordField.setPrefColumnCount(24);
 
         FlowPane twelveWordsBox = new FlowPane(6,3);
         // The cycle that adds words to a page
@@ -497,9 +483,15 @@ public class MainPageController {
             Label wordLabel = new Label(word);
             twelveWordsBox.getChildren().add(wordLabel);
         }
-        // add everything on showlistcontentvbox
-        vb.getChildren().addAll(hbResource, twelveWordsLabel, twelveWordsBox, addressField, passwordField);
-        showListContentVBox.getChildren().add(vb);
+        VBox formBox = new VBox(5,
+                new HBox(5, new Label("Resource: "), resourceField, editWalletBtn, deleteWalletBtn),
+                new Label("key words: "),
+                twelveWordsBox,
+                new HBox(5, new Label("Address:    "), addressField),
+                new HBox(5, new Label("Password: "), passwordField)
+        );
+        formBox.setPadding(new Insets(20));
+        showListContentVBox.getChildren().add(formBox);
     }
     private void openEditAccountDialog(Account account){
         String oldResource = account.getResource();
@@ -507,19 +499,24 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit account: " + account.getResource());
+        dialog.getDialogPane().setPrefSize(350, 220);
 
         TextField resourceField = new TextField(account.getResource());
+        resourceField.setPrefColumnCount(20);
         TextField loginField = new TextField(account.getUsername());
+        loginField.setPrefColumnCount(20);
         TextField passwordField = new TextField(account.getPassword());
+        passwordField.setPrefColumnCount(20);
 
         ThemeManager.applyThemeToDialog(dialog);
 
         VBox vb = new VBox(10,
-                new HBox(5, new Label("Resource:"), resourceField),
-                new HBox(5, new Label("Login:"), loginField),
+                new HBox(5, new Label("Resource: "), resourceField),
+                new HBox(5, new Label("Login:       "), loginField),
                 new HBox(5, new Label("Password:"), passwordField)
         );
         vb.setPadding(new Insets(10));
+        vb.setAlignment(Pos.CENTER);
 
         dialog.getDialogPane().setContent(vb);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -544,6 +541,8 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit card: " + card.getResource());
+        dialog.getDialogPane().setPrefSize(350, 220);
+
 
         TextField resourceField = new TextField(card.getResource());
         TextField cardNumberField = new TextField(card.getCardNumber());
@@ -584,6 +583,8 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit link " + link.getResource());
+        dialog.getDialogPane().setPrefSize(350, 220);
+
 
         TextField resourceField = new TextField(link.getResource());
         TextField linkField = new TextField(link.getLink());
@@ -615,6 +616,8 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit wallet " + wallet.getResource());
+        dialog.getDialogPane().setPrefSize(350, 220);
+
 
         TextField resourceField = new TextField(wallet.getResource());
         TextField pinField = new TextField(wallet.getPassword());
@@ -654,6 +657,7 @@ public class MainPageController {
         alert.setTitle("Delete account");
         alert.setHeaderText("Are you sure you want to delete \"" + account.getResource() + "\"?");
         alert.setContentText("This action cannot be undone.");
+
 
         ThemeManager.applyThemeToDialog(alert);
 
