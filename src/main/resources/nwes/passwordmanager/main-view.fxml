@@ -58,28 +58,41 @@
                       spacing="10"
                 >
                     <Button fx:id="accountInfoBtn" text="Account info" onAction="#onAccountInfoButtonClick"/>
-                    <Button fx:id="doubleConfirmBtn" text="double confirmation" onAction="#onDoubleConfirmationClick"/>
-                    <Button fx:id="themeBtn" text="theme" onAction="#onThemeButtonClick"/>
+                    <Button fx:id="securityBtn" text="Security" onAction="#onSecurityClick"/>
+                    <Button fx:id="themeBtn" text="Theme" onAction="#onThemeButtonClick"/>
                 </VBox>
-                <VBox fx:id="accountInfoVBox"
-                      visible="false"
-                      alignment="CENTER_RIGHT"
-                      spacing="10"
-                >
-                    <HBox>
-                        <TextField fx:id="usernameField"/>
-                        <Button fx:id="editLoginBtn" text="Edit" onAction="#onEditLoginDialogClick"/>
-                    </HBox>
-                    <HBox>
-                        <PasswordField fx:id="passwordField"/>
-                        <Button fx:id="showPsswdBtn" text="show" onAction="#onShowPsswdBtnClick"/>
-                    </HBox>
-                    <HBox>
-                        <PasswordField fx:id="pinField"/>
-                        <Button fx:id="showPinBtn" text="show" onAction="#onShowPinBtnClick"/>
-                    </HBox>
+                <StackPane>
+                    <VBox fx:id="accountInfoVBox"
+                          visible="false"
+                          alignment="CENTER_RIGHT"
+                          spacing="10"
+                    >
+                        <HBox>
+                            <TextField fx:id="usernameField"/>
+                            <Button fx:id="editLoginBtn" text="Edit" onAction="#onEditLoginDialogClick"/>
+                        </HBox>
+                        <HBox>
+                            <PasswordField fx:id="passwordField"/>
+                            <Button fx:id="showPsswdBtn" text="show" onAction="#onShowPsswdBtnClick"/>
+                        </HBox>
+                        <HBox>
+                            <PasswordField fx:id="pinField"/>
+                            <Button fx:id="showPinBtn" text="show" onAction="#onShowPinBtnClick"/>
+                        </HBox>
 
-                </VBox>
+                    </VBox>
+                    <VBox fx:id="securityVBox"
+                          visible="false"
+                          alignment="CENTER"
+                          spacing="10"
+                    >
+                        <Button fx:id="encryptBtn" text="Encrypt" onAction="#onEncryptClick"/>
+                        <Button fx:id="doubleConfirmBtn" text="Double confirmation" onAction="#onDoubleConfirmationClick"/>
+                        <Button fx:id="storeLogsBtn" text="Store logs" onAction="#onStoreLogsClick"/>
+                        <Button fx:id="clearLogsBtn" text="Clear logs" onAction="#onClearLogsClick"/>
+
+                    </VBox>
+                </StackPane>
             </HBox>
             <VBox fx:id="showListVBox"
                   visible="false"

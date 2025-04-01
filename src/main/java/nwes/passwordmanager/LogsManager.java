@@ -54,5 +54,17 @@ public class LogsManager {
     public static void logDelete(String itemType, String resource) {
         writeLog(itemType + " " + resource + " was deleted");
     }
+    public static void logClear() {
+        try(FileWriter writer = new FileWriter(LOG_FILE, false);
+            BufferedWriter bw = new BufferedWriter(writer)) {
+
+            String timestamp = LocalDateTime.now().format(formatter);
+            bw.write("The history was cleared at [ " + timestamp + " ]");
+            bw.newLine();
+
+        } catch (IOException e) {
+            System.out.println("❌ Failed to write log: " + e.getMessage());
+        }
+    }
 
 }

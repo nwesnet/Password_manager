@@ -28,13 +28,21 @@ public class MainPageController {
     @FXML
     private Button accountInfoBtn;
     @FXML
+    private Button encryptBtn;
+    @FXML
+    private Button doubleConfirmBtn;
+    @FXML
+    private Button storeLogsBtn;
+    @FXML
+    private Button clearLogsBtn;
+    @FXML
     private Button editLoginBtn;
     @FXML
     private Button showPsswdBtn;
     @FXML
     private Button showPinBtn;
     @FXML
-    private Button doubleConfirmBtn;
+    private Button securityBtn;
     @FXML
     private Button themeBtn;
     @FXML
@@ -53,6 +61,8 @@ public class MainPageController {
     private VBox preferencesVBox;
     @FXML
     private VBox accountInfoVBox;
+    @FXML
+    private VBox securityVBox;
     @FXML
     private TextField usernameField;
     @FXML
@@ -79,6 +89,7 @@ public class MainPageController {
     private boolean preferencesHBoxVisible = false;
     private boolean preferencesVBoxVisible = false;
     private boolean accountInfoVBoxVisible = false;
+    private boolean securityVBoxVisible = false;
     private boolean logsVisible = false;
 
     @FXML
@@ -215,12 +226,18 @@ public class MainPageController {
             if(accountInfoVBoxVisible){
                 onAccountInfoButtonClick();
             }
+            if(securityVBoxVisible) {
+                onSecurityClick();
+            }
         }
     }
     @FXML
     protected void onAccountInfoButtonClick(){
         accountInfoVBoxVisible = !accountInfoVBoxVisible;
         if (accountInfoVBoxVisible) {
+            if(securityVBoxVisible) {
+                onSecurityClick();
+            }
             usernameField.setText(PreferencesManager.getUsername());
             passwordField.setText(PreferencesManager.getPassword());
             pinField.setText(PreferencesManager.getPincode());
@@ -266,14 +283,46 @@ public class MainPageController {
         togglePasswordVisibility(pinField, showPinBtn);
     }
     @FXML
-    protected void onDoubleConfirmationClick(){
-
+    protected void onSecurityClick() {
+        securityVBoxVisible = !securityVBoxVisible;
+        if(securityVBoxVisible) {
+            if(accountInfoVBoxVisible) {
+                onAccountInfoButtonClick();
+            }
+            securityVBox.setVisible(true);
+        } else {
+            securityVBox.setVisible(false);
+        }
     }
     @FXML
-    protected void onThemeButtonClick(){
+    protected void onEncryptClick() {
+        boolean currentEncryptionStatus = PreferencesManager.isEncryptionEnable();
+        boolean newEncryptionStatus = (currentEncryptionStatus == true) ? false : true;
+
+        PreferencesManager.setEncryptionEnable(newEncryptionStatus);
+    }
+    @FXML
+    protected void onDoubleConfirmationClick() {
+        boolean currentDoubleConfirmStatus = PreferencesManager.isDoubleConfirmationEnabled();
+        boolean newDoubleConfirmStatus = (currentDoubleConfirmStatus == true) ? false : true;
+
+        PreferencesManager.setDoubleConfirmation(newDoubleConfirmStatus);
+    }
+    @FXML
+    protected void onStoreLogsClick() {
+        boolean currentStoreLogsStatus = PreferencesManager.isStoreLogsEnabled();
+        boolean newStoreLogsStatus = (currentStoreLogsStatus == true) ? false : true;
+
+        PreferencesManager.setStoreLogsEnabled(newStoreLogsStatus);
+    }
+    @FXML
+    protected void onClearLogsClick() {
+        LogsManager.logClear();
+    }
+    @FXML
+    protected void onThemeButtonClick() {
         String currentTheme = PreferencesManager.getTheme();
         String newTheme = currentTheme.equals("light") ? "dark" : "light";
-
 
         PreferencesManager.setTheme(newTheme);
         ThemeManager.registerScene(themeBtn.getScene());
