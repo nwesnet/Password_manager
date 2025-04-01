@@ -8,9 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -332,10 +330,22 @@ public class MainPageController {
         logsTextArea.setText(String.join("\n", filtered));
     }
 
-    private void DisplayAccountsDetails(Account account, DatabaseManager dbManager){
+    private void DisplayAccountsDetails(Account account, DatabaseManager dbManager) {
+        // Create gridpane, set spacing and padding, implement the column width
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER_LEFT);
+        grid.setHgap(1);
+        grid.setVgap(1);
+        grid.setPadding(new Insets(20));
 
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setPrefWidth(70);
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setPrefWidth(240);
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
+        // Row 1: Resource
         TextField resourceField = new TextField(account.getResource());
-        resourceField.setPrefColumnCount(16);
+        resourceField.setPrefColumnCount(24);
         resourceField.setEditable(false);
 
         Button editBtn = new Button();
@@ -345,18 +355,18 @@ public class MainPageController {
         Button deleteBtn = new Button();
         deleteBtn.setOnAction(e -> openDeleteAccountDialog(account));
         deleteBtn.getStyleClass().add("delete-button");
-
+        // Row 2: Login
         TextField loginField = new TextField(account.getUsername());
-        loginField.setPrefColumnCount(16);
+        loginField.setPrefColumnCount(24);
         loginField.setEditable(false);
 
         Button copyLoginBtn = new Button();
         copyLoginBtn.setOnAction(e -> copyToClipboard(loginField.getText()));
         copyLoginBtn.getStyleClass().add("copy-button");
-
+        // Row 3: Password
         PasswordField passwordField = new PasswordField();
         passwordField.setText(account.getPassword());
-        passwordField.setPrefColumnCount(16);
+        passwordField.setPrefColumnCount(24);
         passwordField.setEditable(false);
 
         Button showPasswordBtn = new Button();
@@ -366,17 +376,35 @@ public class MainPageController {
         Button copyPsswdBtn = new Button();
         copyPsswdBtn.setOnAction(e -> copyToClipboard(passwordField.getText()));
         copyPsswdBtn.getStyleClass().add("copy-button");
+        // Add everything into gridpane
+        grid.add(new Label("Resource:"), 0, 0);
+        grid.add(resourceField, 1, 0);
+        grid.add(editBtn, 2, 0);
+        grid.add(deleteBtn, 3, 0);
 
-        VBox formBox = new VBox(5,
-                new HBox(5, new Label("Resource: "), resourceField, editBtn, deleteBtn),
-                new HBox(5, new Label("Login:        "), loginField, copyLoginBtn),
-                new HBox(5, new Label("Password: "), passwordField, showPasswordBtn, copyPsswdBtn)
-        );
-        formBox.setPadding(new Insets(20));
-        // add every thing in showlistcontentvbox
-        showListContentVBox.getChildren().add(formBox);
+        grid.add(new Label("Login:"), 0, 1);
+        grid.add(loginField, 1, 1);
+        grid.add(copyLoginBtn, 2, 1);
+
+        grid.add(new Label("Password:"), 0, 2);
+        grid.add(passwordField, 1, 2);
+        grid.add(showPasswordBtn, 2, 2);
+        grid.add(copyPsswdBtn, 3, 2);
+        // Add grid into showlistcontentvbox
+        showListContentVBox.getChildren().add(grid);
     }
-    private void DisplayCardsDetails(Card card, DatabaseManager dbManager){
+    private void DisplayCardsDetails(Card card, DatabaseManager dbManager) {
+        // Create gridpane, implement column size and add it
+        GridPane grid = new GridPane();
+        grid.setHgap(1);
+        grid.setVgap(1);
+        grid.setPadding(new Insets(20));
+
+        ColumnConstraints labelColumn = new ColumnConstraints(80);
+        ColumnConstraints inputColumn = new ColumnConstraints(200);
+        ColumnConstraints buttonColumn = new ColumnConstraints(60);
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn, buttonColumn);
+        // Row 1: Resource
         TextField resourceField = new TextField(card.getResource());
         resourceField.setEditable(false);
 
@@ -385,57 +413,96 @@ public class MainPageController {
 
         Button deleteBtn = new Button("delete");
         deleteBtn.setOnAction( e -> openDeleteCardDialog(card));
-
+        // Row 2: Card number
         TextField cardNumberField = new TextField(card.getCardNumber());
         cardNumberField.setEditable(false);
         cardNumberField.setPrefColumnCount(18);
 
         Button copyCardNumberBtn = new Button("copy");
         copyCardNumberBtn.setOnAction( e -> copyToClipboard(cardNumberField.getText()));
-
+        // Row 3: Expiry date
         TextField cardExpiryDate = new TextField(card.getExpiryDate());
         cardExpiryDate.setEditable(false);
         cardExpiryDate.setPrefColumnCount(4);
-        PasswordField cardCVVField = new PasswordField();
-        cardCVVField.setText(card.getCvv());
-        cardCVVField.setEditable(false);
-        cardCVVField.setPrefColumnCount(4);
-
-        Button showBtn = new Button("show");
-        showBtn.setOnAction( e -> togglePasswordVisibility(cardCVVField, showBtn));
-
+        // Row 4: Owner name
         TextField cardOwnerNameField = new TextField(card.getOnwerName());
         cardOwnerNameField.setEditable(false);
         cardOwnerNameField.setPrefColumnCount(18);
 
         Button copyNameBtn = new Button("copy");
         copyNameBtn.setOnAction( e -> copyToClipboard(cardOwnerNameField.getText()));
+        // Row 5: CVV
+        PasswordField cardCVVField = new PasswordField();
+        cardCVVField.setText(card.getCvv());
+        cardCVVField.setEditable(false);
+        cardCVVField.setPrefColumnCount(4);
 
-        TextField cardPincodeField = new TextField(card.getCardPincode());
+        Button showCVVBtn = new Button("show");
+        showCVVBtn.setOnAction( e -> togglePasswordVisibility(cardCVVField, showCVVBtn));
+        // Row 6: Pincode
+        PasswordField cardPincodeField = new PasswordField();
+        cardPincodeField.setText(card.getCardPincode());
         cardPincodeField.setEditable(false);
         cardPincodeField.setPrefColumnCount(10);
 
+        Button showPincodeBtn = new Button("show");
+        showPincodeBtn.setOnAction( e -> togglePasswordVisibility(cardPincodeField, showPincodeBtn));
+        // Row 7: Network type
         TextField cardNetworkField = new TextField(card.getCardNetworkType());
         cardNetworkField.setEditable(false);
         cardNetworkField.setPrefColumnCount(10);
-
+        // Row 8: Card type
         TextField cardTypeField = new TextField(card.getCardType());
         cardTypeField.setEditable(false);
         cardTypeField.setPrefColumnCount(10);
+        // Add every thing into gridpane
+        grid.add(new Label("Resource:"), 0, 0);
+        grid.add(resourceField, 1, 0);
+        grid.add(editBtn, 2, 0);
+        grid.add(deleteBtn, 3, 0);
 
-        VBox formBox = new VBox(5,
-                new HBox(5, new Label("Resource: "), resourceField, editBtn, deleteBtn),
-                new HBox(5, cardNumberField, copyCardNumberBtn),
-                new HBox(5, cardExpiryDate, cardCVVField, showBtn),
-                new HBox(5, cardOwnerNameField, copyNameBtn),
-                new HBox(5, new Label("Pin code:   "), cardPincodeField),
-                new HBox(5, new Label("Network:   "), cardNetworkField),
-                new HBox(5, new Label("Card type: "), cardTypeField)
-        );
-        formBox.setPadding(new Insets(20));
-        showListContentVBox.getChildren().add(formBox);
+        grid.add(new Label("Number:"), 0, 1);
+        grid.add(cardNumberField, 1, 1);
+        grid.add(copyCardNumberBtn, 2, 1);
+
+        grid.add(new Label("Date:"), 0, 2);
+        grid.add(cardExpiryDate, 1, 2);
+
+        grid.add(new Label("Owner:"), 0, 3);
+        grid.add(cardOwnerNameField, 1, 3);
+        grid.add(copyNameBtn, 2, 3);
+
+        grid.add(new Label("Additional details"), 1, 4);
+
+        grid.add(new Label("CVV:"), 0, 5);
+        grid.add(cardCVVField, 1, 5);
+        grid.add(showCVVBtn, 2, 5);
+
+        grid.add(new Label("Pincode:"), 0, 6);
+        grid.add(cardPincodeField, 1, 6);
+        grid.add(showPincodeBtn, 2, 6);
+
+        grid.add(new Label("Network:"), 0, 7);
+        grid.add(cardNetworkField, 1, 7);
+
+        grid.add(new Label("Type:"), 0, 8);
+        grid.add(cardTypeField, 1, 8);
+        // Add gridpane into showlistcontentvbox
+        showListContentVBox.getChildren().add(grid);
     }
+
     private void DisplayLinksDetails(Link link, DatabaseManager dbManager){
+        // Create gridpane, set spacing and padding, implement the column width
+        GridPane grid = new GridPane();
+        grid.setHgap(1);
+        grid.setVgap(1);
+        grid.setPadding(new Insets(20));
+
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setPrefWidth(80);
+        ColumnConstraints inputColunm = new ColumnConstraints();
+        inputColunm.setPrefWidth(240);
+        // Row 1: Resource
         TextField resourceField = new TextField(link.getResource());
         resourceField.setEditable(false);
 
@@ -444,22 +511,26 @@ public class MainPageController {
 
         Button deleteLinkBtn = new Button("delete");
         deleteLinkBtn.setOnAction( e -> openDeleteLinkDialog(link));
-
+        // Row 2: Link
         TextField linkField = new TextField(link.getLink());
         linkField.setEditable(false);
         linkField.setPrefColumnCount(24);
 
         Button copyLinkBtn = new Button("copy");
         copyLinkBtn.setOnAction( e -> copyToClipboard(linkField.getText()));
+        // Add everything into gridpane
+        grid.add(new Label("Resource:"), 0, 0);
+        grid.add(resourceField, 1, 0);
+        grid.add(editLinkBtn, 2, 0);
+        grid.add(deleteLinkBtn, 3, 0);
 
-        VBox formBox = new VBox(5,
-                new HBox(5, new Label("Resource: "), resourceField, editLinkBtn, deleteLinkBtn),
-                new HBox(5, new Label("Link: "), linkField)
-        );
-        formBox.setPadding(new Insets(20));
-
-        showListContentVBox.getChildren().add(formBox);
+        grid.add(new Label("Link:"), 0, 1);
+        grid.add(linkField, 1, 1);
+        grid.add(copyLinkBtn, 2, 1);
+        // Add gridpane into showlistcontentvbox
+        showListContentVBox.getChildren().add(grid);
     }
+    // Change it when you will be ready ( mb grid... )
     private void DisplayWalletsDetails(Wallet wallet, DatabaseManager dbManager){
         TextField resourceField = new TextField(wallet.getResource());
 
@@ -493,6 +564,7 @@ public class MainPageController {
         formBox.setPadding(new Insets(20));
         showListContentVBox.getChildren().add(formBox);
     }
+    // Change it when will be ready: ( mb grid.. ) All edit and delete windows
     private void openEditAccountDialog(Account account){
         String oldResource = account.getResource();
         String oldUsername = account.getUsername();
@@ -723,15 +795,25 @@ public class MainPageController {
         String current = passwordField.getText();
         TextField plainField = new TextField(current);
 
-        HBox parent = (HBox) passwordField.getParent();
-        int index = parent.getChildren().indexOf(passwordField);
-        parent.getChildren().set(index, plainField);
+        GridPane parent = (GridPane) passwordField.getParent();
 
-        toggleBtn.setText("hide");
+        Integer col = GridPane.getColumnIndex(passwordField);
+        Integer row = GridPane.getRowIndex(passwordField);
+
+        parent.getChildren().remove(passwordField);
+
+        GridPane.setColumnIndex(plainField, col);
+        GridPane.setRowIndex(plainField, row);
+        parent.getChildren().add(plainField);
+
         toggleBtn.setOnAction( e -> {
             passwordField.setText(plainField.getText());
-            parent.getChildren().set(index, passwordField);
-            toggleBtn.setText("show");
+            parent.getChildren().remove(plainField);
+
+            GridPane.setColumnIndex(passwordField, col);
+            GridPane.setRowIndex(passwordField, row);
+            parent.getChildren().add(passwordField);
+
             toggleBtn.setOnAction( ev -> togglePasswordVisibility(passwordField, toggleBtn));
         });
     }

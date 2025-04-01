@@ -226,6 +226,20 @@
     -fx-background-color: #2a2a2a;
 }
 
+.category-button {
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-insets: 1 1 1 1;
+    -fx-padding: 12 12 12 12; /* leave space for icon */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+}
+
+.category-button:last-child {
+    -fx-border-width: 0; /* remove right border for last button */
+}
+
 /* Action button for dynamical panels */
 .edit-button {
     -fx-background-image: url("../img/edit_24_White.png");

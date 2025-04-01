@@ -85,20 +85,22 @@
                   visible="false"
                   alignment="TOP_CENTER"
                   fillWidth="true" VBox.vgrow="ALWAYS"
-                  spacing="10"
+                  spacing="0"
             >
                 <!-- Search bar stays on the top -->
                 <TextField fx:id="showListSearchBar"
                            prefColumnCount="24"
                            promptText="ShowList"/>
                 <HBox alignment="CENTER"
+                      fillHeight="true"
                       HBox.hgrow="ALWAYS"
-                      spacing="10">
+                >
 
-                    <Button text="Accounts" onAction="#onShowAccounts"/>
-                    <Button text="Cards" onAction="#onShowCards"/>
-                    <Button text="Links" onAction="#onShowLinks"/>
-                    <Button text="Wallets" onAction="#onShowWallets"/>
+                    <Button text="Accounts" styleClass="category-button" onAction="#onShowAccounts"/>
+                    <Button text="Cards" styleClass="category-button" onAction="#onShowCards"/>
+                    <Button text="Links" styleClass="category-button" onAction="#onShowLinks"/>
+                    <Button text="Wallets" styleClass="category-button" onAction="#onShowWallets"/>
+
                 </HBox>
                 <!-- Scrollable list content -->
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
