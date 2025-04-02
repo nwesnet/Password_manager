@@ -168,7 +168,7 @@
 }
 
 .genpsswd-button {
-    -fx-background-image: url("../img/password_24_white.png");
+    -fx-background-image: url("../img/password_24_White.png");
     -fx-background-repeat: no-repeat;
     -fx-background-position: left center;
     -fx-background-size: 24px 24px;
