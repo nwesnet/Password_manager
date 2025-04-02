@@ -64,8 +64,6 @@ public class GeneratePasswordController {
                 selectedSymbols.add(c);
             }
         }
-
-
         Random random = new Random();
         for(int i = 0; i < length; i++){
             if(!selectedSymbols.isEmpty()){

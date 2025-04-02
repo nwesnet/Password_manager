@@ -281,6 +281,16 @@
     -fx-border-color: transparent;
 }
 
+.hide-button {
+    -fx-background-image: url("../img/visibility_24_White.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: 28px 28px;
+    -fx-padding: 2 8 2 24;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
 
 
 
