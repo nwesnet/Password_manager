@@ -37,6 +37,10 @@
         <CheckBox fx:id="cbUppercase" text="Uppercase: A-Z"/>
         <CheckBox fx:id="cbLowercase" text="Lowercase: a-z"/>
         <CheckBox fx:id="cbSymbols" text="Symbols: ~`!@#$%^&amp;*()_-+={[}]|\\:;&quot;&lt;&gt;,.?"/>
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <CheckBox fx:id="cbCustom" text="Custom:"/>
+            <TextField fx:id="customSymbolsField" promptText="Custom symbols" prefColumnCount="10"/>
+        </HBox>
     </VBox>
     <HBox alignment="CENTER_LEFT"
           spacing="5"

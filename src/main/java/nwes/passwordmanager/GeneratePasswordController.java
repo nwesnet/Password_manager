@@ -17,6 +17,8 @@ public class GeneratePasswordController {
     @FXML
     private TextField textFieldSlider;
     @FXML
+    private TextField customSymbolsField;
+    @FXML
     private TextField passwordField;
     @FXML
     private CheckBox cbNumbers;
@@ -26,6 +28,8 @@ public class GeneratePasswordController {
     private CheckBox cbLowercase;
     @FXML
     private CheckBox cbSymbols;
+    @FXML
+    private CheckBox cbCustom;
     @FXML
     private Button generatePasswordButton;
     @FXML
@@ -37,8 +41,13 @@ public class GeneratePasswordController {
         textFieldSlider.textProperty().bind(sliderBar.valueProperty().asString("%.0f"));
         // Set default password length in the slider
         sliderBar.setValue(12); // Default value, can be changed as needed
+        
+        cbCustom.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            customSymbolsField.setDisable(!newVal);
+        });
+        customSymbolsField.setDisable(true); // default
     }
-    public String onGeneratePsswdBtnPressed(boolean cbNumbers, boolean cbUppercase, boolean cbLowercase, boolean cbSymbols, int length){
+    public String onGeneratePsswdBtnPressed(boolean cbNumbers, boolean cbUppercase, boolean cbLowercase, boolean cbSymbols, boolean cbCustom, String customSymbols, int length){
         StringBuilder password = new StringBuilder();
         List<Character> selectedSymbols = new ArrayList<>();
 
@@ -50,6 +59,12 @@ public class GeneratePasswordController {
             selectedSymbols.addAll(Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'));
         if (cbSymbols)
             selectedSymbols.addAll(Arrays.asList('~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '-', '+', '=', '{', '}', '[', ']', '|', '\\', ':', ';', '"', '<', ',', '>', '.', '?', '/'));
+        if(cbCustom && customSymbols != null && !customSymbols.isEmpty()) {
+            for(char c : customSymbols.toCharArray()) {
+                selectedSymbols.add(c);
+            }
+        }
+
 
         Random random = new Random();
         for(int i = 0; i < length; i++){
@@ -67,8 +82,11 @@ public class GeneratePasswordController {
         boolean includeUppercase = cbUppercase.isSelected();
         boolean includeLowercase = cbLowercase.isSelected();
         boolean includeSymbols = cbSymbols.isSelected();
+        boolean includeCustom = cbCustom.isSelected();
+        String customSymbols = customSymbolsField.getText()
+                .replaceAll("\\s+", "");
 
-        String generatedPassword = onGeneratePsswdBtnPressed(includeNumbers, includeUppercase, includeLowercase, includeSymbols, length);
+        String generatedPassword = onGeneratePsswdBtnPressed(includeNumbers, includeUppercase, includeLowercase, includeSymbols, includeCustom, customSymbols, length);
         passwordField.setText(generatedPassword);
     }
     @FXML
