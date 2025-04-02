@@ -660,6 +660,17 @@ public class MainPageController {
         String oldResource = account.getResource();
         String oldUsername = account.getUsername();
 
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(1);
+        grid.setVgap(1);
+        grid.setPadding(new Insets(20));
+
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setPrefWidth(80);
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setPrefWidth(240);
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit account: " + account.getResource());
         dialog.getDialogPane().setPrefSize(350, 220);
@@ -673,15 +684,16 @@ public class MainPageController {
 
         ThemeManager.applyThemeToDialog(dialog);
 
-        VBox vb = new VBox(10,
-                new HBox(5, new Label("Resource: "), resourceField),
-                new HBox(5, new Label("Login:       "), loginField),
-                new HBox(5, new Label("Password:"), passwordField)
-        );
-        vb.setPadding(new Insets(10));
-        vb.setAlignment(Pos.CENTER);
+        grid.add(new Label("Resource:"), 0, 0);
+        grid.add(resourceField, 1, 0);
 
-        dialog.getDialogPane().setContent(vb);
+        grid.add(new Label("Login:"), 0, 1);
+        grid.add(loginField, 1, 1);
+
+        grid.add(new Label("Password:"), 0, 2);
+        grid.add(passwordField, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dialog.showAndWait().ifPresent(result -> {
@@ -702,27 +714,53 @@ public class MainPageController {
         String oldCardName = card.getOnwerName();
         String oldExpiryDate = card.getExpiryDate();
 
+        GridPane grid = new GridPane();
+        grid.setHgap(1);
+        grid.setVgap(1);
+        grid.setPadding(new Insets(10));
+
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setPrefWidth(80);
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setPrefWidth(240);
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn);
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit card: " + card.getResource());
-        dialog.getDialogPane().setPrefSize(350, 220);
-
+        dialog.getDialogPane().setPrefSize(550, 220);
 
         TextField resourceField = new TextField(card.getResource());
         TextField cardNumberField = new TextField(card.getCardNumber());
         TextField expiryDateField = new TextField(card.getExpiryDate());
-        TextField cvvField = new TextField(card.getCvv());
         TextField ownerNameField = new TextField(card.getOnwerName());
+
+        TextField cvvField = new TextField(card.getCvv());
+        TextField pinField = new TextField(card.getCardPincode());
+        TextField networkField = new TextField(card.getCardNetworkType());
+        TextField typeField = new TextField(card.getCardType());
 
         ThemeManager.applyThemeToDialog(dialog);
 
-        VBox vb = new VBox(10,
-                new HBox(5, new Label("Resource:"), resourceField),
-                new HBox(5, new Label("Card Number:"), cardNumberField),
-                new HBox(5, new Label("Expiry Date:"), expiryDateField),
-                new HBox(5, new Label("CVV:"), cvvField),
-                new HBox(5, new Label("Owner Name:"), ownerNameField)
+        grid.add(new Label("Resource:"), 0, 0);
+        grid.add(resourceField, 1, 0);
+
+        grid.add(new Label("Number:"), 0, 1);
+        grid.add(cardNumberField, 1, 1);
+
+        grid.add(new Label("Date:"), 0, 2);
+        grid.add(expiryDateField, 1, 2);
+
+        grid.add(new Label("Owner:"), 0, 3);
+        grid.add(ownerNameField, 1, 3);
+
+        VBox formBox = new VBox(5,
+                new HBox(5, new Label("CVV:                   "), cvvField),
+                new HBox(5,new Label("Pin:                    "), pinField),
+                new HBox(5, new Label("Pay network:   "), networkField),
+                new HBox(5, new Label("Card type:        "), typeField)
         );
-        vb.setPadding(new Insets(10));
+
+        VBox vb = new VBox(10, grid, formBox);
 
         dialog.getDialogPane().setContent(vb);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -732,8 +770,11 @@ public class MainPageController {
                 card.setResource(resourceField.getText());
                 card.setCardNumber(cardNumberField.getText());
                 card.setExpiryDate(expiryDateField.getText());
-                card.setCvv(cvvField.getText());
                 card.setOnwerName(ownerNameField.getText());
+                card.setCvv(cvvField.getText());
+                card.setCardPincode(pinField.getText());
+                card.setCardNetworkType(networkField.getText());
+                card.setCardType(typeField.getText());
                 new DatabaseManager().updateCard(card, oldResource, oldCardNumber, oldCardName, oldExpiryDate);
                 LogsManager.logEdit("Card", card.getResource());
                 onShowCards(); // Refresh
@@ -744,23 +785,33 @@ public class MainPageController {
         String oldResource = link.getResource();
         String oldLink = link.getLink();
 
+        GridPane grid = new GridPane();
+        grid.setHgap(1);
+        grid.setVgap(1);
+        grid.setPadding(new Insets(10));
+
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setPrefWidth(80);
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setPrefWidth(240);
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn);
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit link " + link.getResource());
         dialog.getDialogPane().setPrefSize(350, 220);
-
 
         TextField resourceField = new TextField(link.getResource());
         TextField linkField = new TextField(link.getLink());
 
         ThemeManager.applyThemeToDialog(dialog);
 
-        VBox vb = new VBox(10,
-                new HBox(5, new Label("Resource: "), resourceField),
-                new HBox(5, new Label("Link:     "), linkField)
-        );
-        vb.setPadding(new Insets(10));
+        grid.add(new Label("Resource:"), 0, 0);
+        grid.add(resourceField, 1, 0);
 
-        dialog.getDialogPane().setContent(vb);
+        grid.add(new Label("Link:"), 0, 1);
+        grid.add(linkField, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dialog.showAndWait().ifPresent( result -> {
@@ -779,15 +830,17 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit wallet " + wallet.getResource());
-        dialog.getDialogPane().setPrefSize(350, 220);
-
+        dialog.getDialogPane().setPrefSize(450, 220);
 
         TextField resourceField = new TextField(wallet.getResource());
+        TextField addressField = new TextField(wallet.getAddress());
         TextField pinField = new TextField(wallet.getPassword());
 
+        List<TextField> wordFields = new ArrayList<>();
         FlowPane fp = new FlowPane(6,3);
         for(String word : wallet.getTwelveWords()){
             TextField wordField = new TextField(word);
+            wordFields.add(wordField);
             fp.getChildren().add(wordField);
         }
 
@@ -796,7 +849,8 @@ public class MainPageController {
         VBox vb = new VBox(5,
                 new HBox(new Label("Resource: "), resourceField),
                 new VBox(new Label("Key words: "), fp),
-                new HBox(new Label("Pin:      "), pinField)
+                new VBox(new HBox(new Label("Address:"), addressField),
+                        new HBox(new Label("Pincode:"), pinField))
         );
         vb.setPadding(new Insets(10));
 
@@ -806,21 +860,24 @@ public class MainPageController {
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK){
                 wallet.setResource(resourceField.getText());
+                wallet.setAddress(addressField.getText());
                 wallet.setPassword(pinField.getText());
+                String [] updateWords = new String[wordFields.size()];
+                for( int i = 0; i < updateWords.length; i++) {
+                    updateWords[i] = wordFields.get(i).getText().trim();
+                }
+                wallet.setTwelveWords(updateWords);
                 new DatabaseManager().updateWallet(wallet, oldResource, oldAddress);
                 LogsManager.logEdit("Wallet", wallet.getResource());
                 onShowWallets();
             }
         });
-
-
     }
     private void openDeleteAccountDialog(Account account){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete account");
         alert.setHeaderText("Are you sure you want to delete \"" + account.getResource() + "\"?");
         alert.setContentText("This action cannot be undone.");
-
 
         ThemeManager.applyThemeToDialog(alert);
 
