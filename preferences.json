@@ -5,9 +5,9 @@
     "pincode": "1111"
   },
   "security": {
-    "encrypt": false,
+    "encrypt": true,
     "double_confirmation": true,
-    "store_logs": false
+    "store_logs": true
   },
   "theme": "dark"
 }

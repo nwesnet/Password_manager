@@ -49,7 +49,7 @@
                   visible="false"
                   alignment="CENTER"
                   fillHeight="true" HBox.hgrow="ALWAYS"
-                  spacing="10"
+                  spacing="30"
             >
                 <VBox fx:id="preferencesVBox"
                       visible="false"
@@ -67,23 +67,23 @@
                           alignment="CENTER_RIGHT"
                           spacing="10"
                     >
-                        <HBox>
-                            <TextField fx:id="usernameField"/>
-                            <Button fx:id="editLoginBtn" text="Edit" onAction="#onEditLoginDialogClick"/>
-                        </HBox>
-                        <HBox>
-                            <PasswordField fx:id="passwordField"/>
-                            <Button fx:id="showPsswdBtn" text="show" onAction="#onShowPsswdBtnClick"/>
-                        </HBox>
-                        <HBox>
-                            <PasswordField fx:id="pinField"/>
-                            <Button fx:id="showPinBtn" text="show" onAction="#onShowPinBtnClick"/>
-                        </HBox>
+                        <GridPane hgap="1" vgap="5">
+                            <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <Button fx:id="editLoginBtn" text="Edit" onAction="#onEditLoginDialogClick"
+                                    GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
+                            <PasswordField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <Button fx:id="showPsswdBtn" text="show" onAction="#onShowPsswdBtnClick"
+                                    GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <PasswordField fx:id="pinField" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <Button fx:id="showPinBtn" text="show" onAction="#onShowPinBtnClick"
+                                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        </GridPane>
                     </VBox>
                     <VBox fx:id="securityVBox"
                           visible="false"
-                          alignment="CENTER"
+                          alignment="CENTER_LEFT"
                           spacing="10"
                     >
                         <Button fx:id="encryptBtn" text="Encrypt" onAction="#onEncryptClick"/>
