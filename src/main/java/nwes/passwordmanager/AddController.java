@@ -274,7 +274,9 @@ public class AddController {
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
             dm.writeAccountTodb(resource, username, password, date);
-            LogsManager.logAdd("Account", resource);
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logAdd("Account", resource);
+            }
         }
     }
 
@@ -283,14 +285,18 @@ public class AddController {
         LocalDateTime date = LocalDateTime.now();
         if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()){
             dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, pincode, networkType, cardType, date);
-            LogsManager.logAdd("Card", resource);
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logAdd("Card", resource);
+            }
         }
     }
     private void onSaveButtonClick(String resource, String link){
         DatabaseManager dm = new DatabaseManager();
         if (!resource.isEmpty() || !link.isEmpty()){
             dm.writeLinkTodb(resource, link);
-            LogsManager.logAdd("Link", resource);
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logAdd("Link", resource);
+            }
         }
     }
     private void onSaveButtonClick(String resource, TextArea words, String address, String password){
@@ -308,7 +314,9 @@ public class AddController {
 
         if (!resource.isEmpty() || !wordsString.isEmpty() || !password.isEmpty()){
             dm.writeWalletTodb(resource, wordsString, address, password, date);
-            LogsManager.logAdd("Wallet", resource);
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logAdd("Wallet", resource);
+            }
         }
     }
     private void onCancelButtonClick(){

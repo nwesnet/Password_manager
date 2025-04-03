@@ -43,7 +43,6 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
     @FXML
     protected void onCreateAccountButtonClick(){

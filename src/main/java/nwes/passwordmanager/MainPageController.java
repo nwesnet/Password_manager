@@ -1,5 +1,6 @@
 package nwes.passwordmanager;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -76,7 +77,6 @@ public class MainPageController {
     @FXML
     private VBox showListContentVBox;
 
-
     private List<Account> allAccounts = new ArrayList<>();
     private List<Card> allCards = new ArrayList<>();
     private List<Link> allLinks = new ArrayList<>();
@@ -100,7 +100,6 @@ public class MainPageController {
         logsSearchBar.textProperty().addListener((observable, oldValue, newValue) -> {
             filterLogs(newValue);
         });
-
     }
     @FXML
     protected void onAddButtonClick(){
@@ -224,74 +223,51 @@ public class MainPageController {
             preferencesHBox.setVisible(false);
             preferencesVBox.setVisible(false);
             if(accountInfoVBoxVisible){
-                onAccountInfoButtonClick();
+                DisplayAccountInfoDetails();
             }
             if(securityVBoxVisible) {
-                onSecurityClick();
+                DisplaySecurityDetails();
             }
         }
     }
     @FXML
     protected void onAccountInfoButtonClick(){
-        accountInfoVBoxVisible = !accountInfoVBoxVisible;
-        if (accountInfoVBoxVisible) {
-            if(securityVBoxVisible) {
-                onSecurityClick();
-            }
-            usernameField.setText(PreferencesManager.getUsername());
-            passwordField.setText(PreferencesManager.getPassword());
-            pinField.setText(PreferencesManager.getPincode());
-            accountInfoVBox.setVisible(true);
+        if(SecurityManager.isDoubleConfirmationEnabled()) {
+            showDoubleConfirmDialog(() -> DisplayAccountInfoDetails());
         } else {
-            accountInfoVBox.setVisible(false);
+            DisplayAccountInfoDetails();
         }
     }
     @FXML
     protected void onEditLoginDialogClick() {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit login info");
-
-        TextField usernameField = new TextField(PreferencesManager.getUsername());
-        TextField passwordField = new TextField(PreferencesManager.getPassword());
-        TextField pincodeField = new TextField(PreferencesManager.getPincode());
-
-        VBox vb = new VBox(5,
-                new HBox(5, new Label("Username: "), usernameField),
-                new HBox(5, new Label("Password: "), passwordField),
-                new HBox(5, new Label("Pin code: "), pincodeField)
-        );
-        vb.setPadding(new Insets(10));
-
-        dialog.getDialogPane().setContent(vb);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        dialog.showAndWait().ifPresent( result -> {
-            if(result == ButtonType.OK) {
-                PreferencesManager.setUsername(usernameField.getText());
-                PreferencesManager.setPassword(passwordField.getText());
-                PreferencesManager.setPincode(pincodeField.getText());
-                onAccountInfoButtonClick();
-            }
-        });
+        if(SecurityManager.isDoubleConfirmationEnabled()) {
+            showDoubleConfirmDialog(() -> openEditLoginDialog());
+        } else {
+            openEditLoginDialog();
+        }
     }
     @FXML
     protected void onShowPsswdBtnClick() {
-        togglePasswordVisibility(passwordField, showPsswdBtn);
+        if(SecurityManager.isDoubleConfirmationEnabled()) {
+            showDoubleConfirmDialog(() -> togglePasswordVisibility(passwordField, showPsswdBtn));
+        } else {
+            togglePasswordVisibility(passwordField, showPsswdBtn);
+        }
     }
     @FXML
     protected void onShowPinBtnClick() {
-        togglePasswordVisibility(pinField, showPinBtn);
+        if(SecurityManager.isDoubleConfirmationEnabled()) {
+            showDoubleConfirmDialog(() -> togglePasswordVisibility(pinField, showPinBtn));
+        } else {
+            togglePasswordVisibility(pinField, showPinBtn);
+        }
     }
     @FXML
     protected void onSecurityClick() {
-        securityVBoxVisible = !securityVBoxVisible;
-        if(securityVBoxVisible) {
-            if(accountInfoVBoxVisible) {
-                onAccountInfoButtonClick();
-            }
-            securityVBox.setVisible(true);
+        if(SecurityManager.isDoubleConfirmationEnabled()) {
+            showDoubleConfirmDialog(() -> DisplaySecurityDetails());
         } else {
-            securityVBox.setVisible(false);
+            DisplaySecurityDetails();
         }
     }
     @FXML
@@ -303,17 +279,17 @@ public class MainPageController {
     }
     @FXML
     protected void onDoubleConfirmationClick() {
-        boolean currentDoubleConfirmStatus = PreferencesManager.isDoubleConfirmationEnabled();
-        boolean newDoubleConfirmStatus = (currentDoubleConfirmStatus == true) ? false : true;
+        boolean current = SecurityManager.isDoubleConfirmationEnabled();
+        boolean updated = !current;
 
-        PreferencesManager.setDoubleConfirmation(newDoubleConfirmStatus);
+        SecurityManager.setDoubleConfirmationEnabled(updated);
     }
     @FXML
     protected void onStoreLogsClick() {
-        boolean currentStoreLogsStatus = PreferencesManager.isStoreLogsEnabled();
-        boolean newStoreLogsStatus = (currentStoreLogsStatus == true) ? false : true;
+        boolean current = SecurityManager.isStoreLogsEnabled();
+        boolean updated = !current;
 
-        PreferencesManager.setStoreLogsEnabled(newStoreLogsStatus);
+        SecurityManager.setStoreLogsEnabled(updated);
     }
     @FXML
     protected void onClearLogsClick() {
@@ -378,6 +354,31 @@ public class MainPageController {
 
         logsTextArea.setText(String.join("\n", filtered));
     }
+    private void DisplayAccountInfoDetails() {
+        accountInfoVBoxVisible = !accountInfoVBoxVisible;
+        if (accountInfoVBoxVisible) {
+            if(securityVBoxVisible) {
+                DisplaySecurityDetails();
+            }
+            usernameField.setText(PreferencesManager.getUsername());
+            passwordField.setText(PreferencesManager.getPassword());
+            pinField.setText(PreferencesManager.getPincode());
+            accountInfoVBox.setVisible(true);
+        } else {
+            accountInfoVBox.setVisible(false);
+        }
+    }
+    private void DisplaySecurityDetails() {
+        securityVBoxVisible = !securityVBoxVisible;
+        if(securityVBoxVisible) {
+            if(accountInfoVBoxVisible) {
+                DisplayAccountInfoDetails();
+            }
+            securityVBox.setVisible(true);
+        } else {
+            securityVBox.setVisible(false);
+        }
+    }
 
     private void DisplayAccountsDetails(Account account, DatabaseManager dbManager) {
         // Create gridpane, set spacing and padding, implement the column width
@@ -398,11 +399,23 @@ public class MainPageController {
         resourceField.setEditable(false);
 
         Button editBtn = new Button();
-        editBtn.setOnAction(e -> openEditAccountDialog(account));
+        editBtn.setOnAction(e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openEditAccountDialog(account));
+            } else {
+                openEditAccountDialog(account);
+            }
+        });
         editBtn.getStyleClass().add("edit-button");
 
         Button deleteBtn = new Button();
-        deleteBtn.setOnAction(e -> openDeleteAccountDialog(account));
+        deleteBtn.setOnAction(e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openDeleteAccountDialog(account));
+            } else {
+                openDeleteAccountDialog(account);
+            }
+        });
         deleteBtn.getStyleClass().add("delete-button");
         // Row 2: Login
         TextField loginField = new TextField(account.getUsername());
@@ -419,11 +432,23 @@ public class MainPageController {
         passwordField.setEditable(false);
 
         Button showPasswordBtn = new Button();
-        showPasswordBtn.setOnAction(e -> togglePasswordVisibility(passwordField, showPasswordBtn));
+        showPasswordBtn.setOnAction(e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> togglePasswordVisibility(passwordField, showPasswordBtn));
+            } else {
+                togglePasswordVisibility(passwordField, showPasswordBtn);
+            }
+        });
         showPasswordBtn.getStyleClass().add("show-button");
 
         Button copyPsswdBtn = new Button();
-        copyPsswdBtn.setOnAction(e -> copyToClipboard(passwordField.getText()));
+        copyPsswdBtn.setOnAction(e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> copyToClipboard(passwordField.getText()));
+            } else {
+                copyToClipboard(passwordField.getText());
+            }
+        });
         copyPsswdBtn.getStyleClass().add("copy-button");
         // Add everything into gridpane
         grid.add(new Label("Resource:"), 0, 0);
@@ -459,11 +484,23 @@ public class MainPageController {
         resourceField.setEditable(false);
 
         Button editBtn = new Button();
-        editBtn.setOnAction( e -> openEditCardDialog(card));
+        editBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openEditCardDialog(card));
+            } else {
+                openEditCardDialog(card);
+            }
+        });
         editBtn.getStyleClass().add("edit-button");
 
         Button deleteBtn = new Button();
-        deleteBtn.setOnAction( e -> openDeleteCardDialog(card));
+        deleteBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openDeleteCardDialog(card));
+            } else {
+                openDeleteCardDialog(card);
+            }
+        });
         deleteBtn.getStyleClass().add("delete-button");
         // Row 2: Card number
         TextField cardNumberField = new TextField(card.getCardNumber());
@@ -492,7 +529,13 @@ public class MainPageController {
         cardCVVField.setPrefColumnCount(4);
 
         Button showCVVBtn = new Button();
-        showCVVBtn.setOnAction( e -> togglePasswordVisibility(cardCVVField, showCVVBtn));
+        showCVVBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> togglePasswordVisibility(cardCVVField, showCVVBtn));
+            } else {
+                togglePasswordVisibility(cardCVVField, showCVVBtn);
+            }
+        });
         showCVVBtn.getStyleClass().add("show-button");
         // Row 6: Pincode
         PasswordField cardPincodeField = new PasswordField();
@@ -501,7 +544,13 @@ public class MainPageController {
         cardPincodeField.setPrefColumnCount(10);
 
         Button showPincodeBtn = new Button();
-        showPincodeBtn.setOnAction( e -> togglePasswordVisibility(cardPincodeField, showPincodeBtn));
+        showPincodeBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> togglePasswordVisibility(cardPincodeField, showPincodeBtn));
+            } else {
+                togglePasswordVisibility(cardPincodeField, showPincodeBtn);
+            }
+        });
         showPincodeBtn.getStyleClass().add("show-button");
         // Row 7: Network type
         TextField cardNetworkField = new TextField(card.getCardNetworkType());
@@ -563,11 +612,23 @@ public class MainPageController {
         resourceField.setEditable(false);
 
         Button editLinkBtn = new Button();
-        editLinkBtn.setOnAction( e -> openEditLinkDialog(link));
+        editLinkBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openEditLinkDialog(link));
+            } else {
+                openEditLinkDialog(link);
+            }
+        });
         editLinkBtn.getStyleClass().add("edit-button");
 
         Button deleteLinkBtn = new Button();
-        deleteLinkBtn.setOnAction( e -> openDeleteLinkDialog(link));
+        deleteLinkBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openDeleteLinkDialog(link));
+            } else {
+                openDeleteLinkDialog(link);
+            }
+        });
         deleteLinkBtn.getStyleClass().add("delete-button");
         // Row 2: Link
         TextField linkField = new TextField(link.getLink());
@@ -602,11 +663,23 @@ public class MainPageController {
         TextField resourceField = new TextField(wallet.getResource());
 
         Button editWalletBtn = new Button();
-        editWalletBtn.setOnAction( e -> openEditWalletDialog(wallet));
+        editWalletBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openEditWalletDialog(wallet));
+            } else {
+                openEditWalletDialog(wallet);
+            }
+        });
         editWalletBtn.getStyleClass().add("edit-button");
 
         Button deleteWalletBtn = new Button();
-        deleteWalletBtn.setOnAction( e -> openDeleteWalletDialog(wallet));
+        deleteWalletBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> openDeleteWalletDialog(wallet));
+            } else {
+                openDeleteWalletDialog(wallet);
+            }
+        });
         deleteWalletBtn.getStyleClass().add("delete-button");
 
         TextField addressField = new TextField(wallet.getAddress());
@@ -623,11 +696,23 @@ public class MainPageController {
         passwordField.setPrefColumnCount(24);
 
         Button showPsswdBtn = new Button();
-        showPsswdBtn.setOnAction( e -> togglePasswordVisibility(passwordField, showPsswdBtn));
+        showPsswdBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> togglePasswordVisibility(passwordField, showPsswdBtn));
+            } else {
+                togglePasswordVisibility(passwordField, showPsswdBtn);
+            }
+        });
         showPsswdBtn.getStyleClass().add("show-button");
 
         Button copyPsswdBtn = new Button();
-        copyPsswdBtn.setOnAction( e -> copyToClipboard(passwordField.getText()));
+        copyPsswdBtn.setOnAction( e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> copyToClipboard(passwordField.getText()));
+            } else {
+                copyToClipboard(passwordField.getText());
+            }
+        });
         copyPsswdBtn.getStyleClass().add("copy-button");
 
         FlowPane twelveWordsBox = new FlowPane(6,3);
@@ -654,6 +739,35 @@ public class MainPageController {
         );
         formBox.setPadding(new Insets(20));
         showListContentVBox.getChildren().add(formBox);
+    }
+    private void openEditLoginDialog() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit login info");
+
+        TextField usernameField = new TextField(PreferencesManager.getUsername());
+        TextField passwordField = new TextField(PreferencesManager.getPassword());
+        TextField pincodeField = new TextField(PreferencesManager.getPincode());
+
+        VBox vb = new VBox(5,
+                new HBox(5, new Label("Username: "), usernameField),
+                new HBox(5, new Label("Password: "), passwordField),
+                new HBox(5, new Label("Pin code: "), pincodeField)
+        );
+        vb.setPadding(new Insets(10));
+
+        ThemeManager.applyThemeToDialog(dialog);
+
+        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent( result -> {
+            if(result == ButtonType.OK) {
+                PreferencesManager.setUsername(usernameField.getText());
+                PreferencesManager.setPassword(passwordField.getText());
+                PreferencesManager.setPincode(pincodeField.getText());
+                onAccountInfoButtonClick();
+            }
+        });
     }
     // Change it when will be ready: ( mb grid.. ) All edit and delete windows
     private void openEditAccountDialog(Account account){
@@ -703,7 +817,9 @@ public class MainPageController {
                 account.setUsername(loginField.getText());
                 account.setPassword(passwordField.getText());
                 new DatabaseManager().updateAccount(account, oldResource, oldUsername);
-                LogsManager.logEdit("Account", account.getResource());
+                if(SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logEdit("Account", account.getResource());
+                }
                 onShowAccounts(); // Refresh
             }
         });
@@ -776,7 +892,9 @@ public class MainPageController {
                 card.setCardNetworkType(networkField.getText());
                 card.setCardType(typeField.getText());
                 new DatabaseManager().updateCard(card, oldResource, oldCardNumber, oldCardName, oldExpiryDate);
-                LogsManager.logEdit("Card", card.getResource());
+                if(SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logEdit("Card", card.getResource());
+                }
                 onShowCards(); // Refresh
             }
         });
@@ -819,7 +937,9 @@ public class MainPageController {
                 link.setResource(resourceField.getText());
                 link.setLink(linkField.getText());
                 new DatabaseManager().updateLink(link, oldResource, oldLink);
-                LogsManager.logEdit("Link", link.getResource());
+                if(SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logEdit("Link", link.getResource());
+                }
                 onShowLinks();
             }
         });
@@ -868,7 +988,9 @@ public class MainPageController {
                 }
                 wallet.setTwelveWords(updateWords);
                 new DatabaseManager().updateWallet(wallet, oldResource, oldAddress);
-                LogsManager.logEdit("Wallet", wallet.getResource());
+                if(SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logEdit("Wallet", wallet.getResource());
+                }
                 onShowWallets();
             }
         });
@@ -884,7 +1006,9 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteAccount(account);
-            LogsManager.logDelete("Account", account.getResource());
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logDelete("Account", account.getResource());
+            }
             onShowAccounts();
         }
     }
@@ -899,7 +1023,9 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteCard(card);
-            LogsManager.logDelete("Card", card.getResource());
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logDelete("Card", card.getResource());
+            }
             onShowCards();
         }
     }
@@ -914,7 +1040,9 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteLink(link);
-            LogsManager.logDelete("Link", link.getResource());
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logDelete("Link", link.getResource());
+            }
             onShowLinks();
         }
     }
@@ -929,7 +1057,9 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteWallet(wallet);
-            LogsManager.logDelete("Wallet", wallet.getResource());
+            if(SecurityManager.isStoreLogsEnabled()) {
+                LogsManager.logDelete("Wallet", wallet.getResource());
+            }
             onShowWallets();
         }
     }
@@ -972,5 +1102,51 @@ public class MainPageController {
 
             toggleBtn.setOnAction( ev -> togglePasswordVisibility(passwordField, toggleBtn));
         });
+    }
+    private void showDoubleConfirmDialog(Runnable onSuccess) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Double confirmation");
+
+        VBox box = new VBox(10);
+        box.setPadding(new Insets(20));
+        box.setAlignment(Pos.CENTER);
+
+        Label label = new Label("Enter your PIN to confirm this action:");
+        PasswordField pinField = new PasswordField();
+        pinField.setPromptText("PIN code");
+
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red;");
+
+        ThemeManager.applyThemeToDialog(dialog);
+
+        box.getChildren().addAll(label, pinField, errorLabel);
+
+        dialog.getDialogPane().setContent(box);
+        ButtonType okButtonType = ButtonType.OK;
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+        // Get the actual OK button node to hook into
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(okButtonType);
+        // Track retries
+        final int[] attemptsLeft = {3};
+
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            String inputPin = pinField.getText();
+
+            if (SecurityManager.validatePin(inputPin)) {
+                onSuccess.run();
+                dialog.setResult(null); // Close the dialog
+            } else {
+                attemptsLeft[0]--;
+                if (attemptsLeft[0] > 0) {
+                    errorLabel.setText("❌ Incorrect PIN. Attempts left: " + attemptsLeft[0]);
+                    event.consume(); // Keep dialog open
+                } else {
+                    errorLabel.setText("❌ Too many failed attempts.");
+                    dialog.setResult(null); // Close the dialog
+                }
+            }
+        });
+        dialog.showAndWait();
     }
 }

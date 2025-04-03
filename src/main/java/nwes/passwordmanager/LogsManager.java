@@ -66,5 +66,16 @@ public class LogsManager {
             System.out.println("❌ Failed to write log: " + e.getMessage());
         }
     }
+    public static void writeOptionalLog(String message) {
+        try(FileWriter writer = new FileWriter(LOG_FILE, false);
+            BufferedWriter bw = new BufferedWriter(writer)) {
 
+            String timestamp = LocalDateTime.now().format(formatter);
+            bw.write(message + " [ " + timestamp + " ]");
+            bw.newLine();
+
+        } catch (IOException e) {
+            System.out.println("❌ Failed to write log: " + e.getMessage());
+        }
+    }
 }

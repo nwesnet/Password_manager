@@ -2,12 +2,12 @@
   "login_info": {
     "username": "testhideandrefrash",
     "password": "password",
-    "pincode": "1111"
+    "pincode": "1112"
   },
   "security": {
     "encrypt": true,
-    "double_confirmation": true,
-    "store_logs": true
+    "double_confirmation": false,
+    "store_logs": false
   },
-  "theme": "light"
+  "theme": "dark"
 }
