@@ -86,7 +86,6 @@
                           alignment="CENTER_LEFT"
                           spacing="10"
                     >
-                        <Button fx:id="encryptBtn" text="Encrypt" onAction="#onEncryptClick"/>
                         <Button fx:id="doubleConfirmBtn" text="Double confirmation" onAction="#onDoubleConfirmationClick"/>
                         <Button fx:id="storeLogsBtn" text="Store logs" onAction="#onStoreLogsClick"/>
                         <Button fx:id="clearLogsBtn" text="Clear logs" onAction="#onClearLogsClick"/>

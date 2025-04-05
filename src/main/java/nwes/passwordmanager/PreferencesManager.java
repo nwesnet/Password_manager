@@ -3,6 +3,7 @@ package nwes.passwordmanager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import javax.crypto.SecretKey;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,17 +27,35 @@ public class PreferencesManager {
         public String pincode = "default_pincode";
     }
     public static class Security {
-        public boolean encrypt = true;
         public boolean double_confirmation = true;
         public boolean store_logs = true;
     }
     public static void createNewPreferences(String username, String password, String pincode) {
-        preferences = new Preferences();
-        preferences.login_info.username = username;
-        preferences.login_info.password = password;
-        preferences.login_info.pincode = pincode;
+        try {
+            SecretKey key = EncryptionUtils.getKeyFromString(username + password);
 
-        savePreferences();
+            preferences = new Preferences();
+            preferences.login_info.username = EncryptionUtils.encrypt(username, key);
+            preferences.login_info.password = EncryptionUtils.encrypt(password, key);
+            preferences.login_info.pincode = EncryptionUtils.encrypt(pincode, key);
+
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("❌ Error encrypting preferences: " + e.getMessage());
+        }
+    }
+    public static boolean decryptLoginInfo(String loginInputUsername, String loginInputPassword) {
+        try {
+            SecretKey key = EncryptionUtils.getKeyFromString(loginInputUsername + loginInputPassword);
+
+            preferences.login_info.username = EncryptionUtils.decrypt(preferences.login_info.username, key);
+            preferences.login_info.password = EncryptionUtils.decrypt(preferences.login_info.password, key);
+            preferences.login_info.pincode = EncryptionUtils.decrypt(preferences.login_info.pincode, key);
+            return true;
+        } catch (Exception e) {
+            System.out.println("❌ Failed to decrypt login info: " + e.getMessage());
+            return false;
+        }
     }
     // Load JSON preferences from file
     public static void loadPreferences() {
@@ -89,13 +108,7 @@ public class PreferencesManager {
         preferences.theme = theme;
         savePreferences();
     }
-    public static boolean isEncryptionEnable() {
-        return preferences.security.encrypt;
-    }
-    public static void setEncryptionEnable(boolean enable) {
-        preferences.security.encrypt = enable;
-        savePreferences();
-    }
+
     public static boolean isDoubleConfirmationEnabled() {
         return preferences.security.double_confirmation;
     }

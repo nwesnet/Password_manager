@@ -33,32 +33,33 @@ public class LoginController {
             welcomeText.setText("⚠ Please enter both username and password.");
             return;
         }
+        if(PreferencesManager.decryptLoginInfo(username, password)) {
+            if (username.equals(PreferencesManager.getUsername()) &&
+                    password.equals(PreferencesManager.getPassword())) {
 
-        if (username.equals(PreferencesManager.getUsername()) &&
-                password.equals(PreferencesManager.getPassword())) {
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
+                    Scene mainScene = new Scene(fxmlLoader.load());
+                    ThemeManager.registerScene(mainScene);
 
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
-                Scene mainScene = new Scene(fxmlLoader.load());
-                ThemeManager.registerScene(mainScene);
+                    Stage mainStage = new Stage();
+                    mainStage.setScene(mainScene);
+                    mainStage.setTitle("Password manager");
+                    mainStage.setOnCloseRequest(e -> ThemeManager.unregisterScene(mainScene));
+                    mainStage.show();
 
-                Stage mainStage = new Stage();
-                mainStage.setScene(mainScene);
-                mainStage.setTitle("Password manager");
-                mainStage.setOnCloseRequest(e -> ThemeManager.unregisterScene(mainScene));
-                mainStage.show();
+                    LogsManager.logLogin();
 
-                LogsManager.logLogin();
-
-                // Close login stage
-                Stage loginStage = (Stage) loginButton.getScene().getWindow();
-                loginStage.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                welcomeText.setText("❌ Failed to load main page.");
+                    // Close login stage
+                    Stage loginStage = (Stage) loginButton.getScene().getWindow();
+                    loginStage.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    welcomeText.setText("❌ Failed to load main page.");
+                }
+            } else {
+                welcomeText.setText("❌ Incorrect username or password.");
             }
-        } else {
-            welcomeText.setText("❌ Incorrect username or password.");
         }
     }
 

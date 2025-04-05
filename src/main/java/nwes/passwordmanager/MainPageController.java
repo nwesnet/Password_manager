@@ -271,13 +271,6 @@ public class MainPageController {
         }
     }
     @FXML
-    protected void onEncryptClick() {
-        boolean currentEncryptionStatus = PreferencesManager.isEncryptionEnable();
-        boolean newEncryptionStatus = (currentEncryptionStatus == true) ? false : true;
-
-        PreferencesManager.setEncryptionEnable(newEncryptionStatus);
-    }
-    @FXML
     protected void onDoubleConfirmationClick() {
         boolean current = SecurityManager.isDoubleConfirmationEnabled();
         boolean updated = !current;
