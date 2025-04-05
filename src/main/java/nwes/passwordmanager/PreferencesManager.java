@@ -30,6 +30,14 @@ public class PreferencesManager {
         public boolean double_confirmation = true;
         public boolean store_logs = true;
     }
+    public static void createNewPreferences(String username, String password, String pincode) {
+        preferences = new Preferences();
+        preferences.login_info.username = username;
+        preferences.login_info.password = password;
+        preferences.login_info.pincode = pincode;
+
+        savePreferences();
+    }
     // Load JSON preferences from file
     public static void loadPreferences() {
         Gson gson = new Gson();

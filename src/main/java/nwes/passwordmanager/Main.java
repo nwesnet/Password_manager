@@ -13,7 +13,9 @@ public class Main extends Application{
     }
     @Override
     public void start(Stage stage) throws Exception {
+        PreferencesManager.loadPreferences();
         DatabaseManager.initializeDatabase();
+        LogsManager.writeOptionalLog("Start the app at ");
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());

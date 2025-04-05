@@ -1,1 +1,2 @@
-Store logs option changed to false [ 2025-04-03 14:22:00 ]
+Start the app at  [ 2025-04-04 18:21:58 ]
+Login [2025-04-04 18:22:32]

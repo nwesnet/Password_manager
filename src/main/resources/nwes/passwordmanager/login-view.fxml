@@ -1,29 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.TextField?>
-
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<VBox xmlns="http://javafx.com/javafx"
-      alignment="CENTER"
-      spacing="20"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="nwes.passwordmanager.LoginController"
-      prefHeight="700.0" prefWidth="500.0">
 
-    <Label fx:id="welcomeText" text="Welcome"/>
-    <TextField fx:id="usernameField" promptText="User name"/>
-    <PasswordField fx:id="passwordField" promptText="Password"/>
-    <Button fx:id="loginButton" text="login" onAction="#onLoginButtonClick"/>
-    <Button text="create account" onAction="#onCreateAccountButtonClick"/>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="nwes.passwordmanager.LoginController"
+           prefHeight="700.0" prefWidth="500.0">
 
-    <padding>
-        <Insets bottom="20" left="20" right="20" top="20"/>
-    </padding>
-</VBox>
+    <!-- Login VBox -->
+    <VBox fx:id="loginVBox" spacing="20" alignment="CENTER" visible="true">
+        <Label fx:id="welcomeText" text="Welcome"/>
+        <TextField fx:id="usernameField" promptText="User name"/>
+        <PasswordField fx:id="passwordField" promptText="Password"/>
+        <Button fx:id="loginButton" text="Login" onAction="#onLoginButtonClick"/>
+        <Button text="Create Account" onAction="#onCreateAccountButtonClick"/>
+        <padding><Insets top="20" bottom="20" left="20" right="20"/></padding>
+    </VBox>
+
+    <!-- Create Account VBox -->
+    <VBox fx:id="createAccountVBox" spacing="20" alignment="CENTER" visible="false">
+        <Label text="Create Account"/>
+        <TextField fx:id="newUsernameField" promptText="New Username"/>
+        <PasswordField fx:id="newPasswordField" promptText="Password"/>
+        <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password"/>
+        <Button text="Create" onAction="#onCreateNewAccount"/>
+        <Button text="Back to Login" onAction="#onBackToLogin"/>
+        <padding><Insets top="20" bottom="20" left="20" right="20"/></padding>
+    </VBox>
+</StackPane>
+
