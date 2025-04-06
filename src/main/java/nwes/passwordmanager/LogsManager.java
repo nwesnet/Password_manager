@@ -1,9 +1,12 @@
 package nwes.passwordmanager;
 
+import javax.crypto.SecretKey;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LogsManager {
     private static final String LOG_FILE = "history.txt";
@@ -27,20 +30,33 @@ public class LogsManager {
             BufferedWriter bw = new BufferedWriter(writer)) {
 
             String timestamp = LocalDateTime.now().format(formatter);
-            bw.write(message + " [" + timestamp + "]");
+            String logEntry = message + " [" + timestamp + "]";
+            String encryptedLog = EncryptionUtils.encrypt(logEntry);
+            bw.write(encryptedLog);
             bw.newLine();
 
-        } catch (IOException e) {
-            System.out.println("❌ Failed to write log: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Failed to write encrypted log: " + e.getMessage());
         }
     }
     public static String readLogs() {
+        StringBuilder decryptedLogs = new StringBuilder();
         try {
-            return new String(Files.readAllBytes(Paths.get(LOG_FILE)));
+            Path path = Paths.get(LOG_FILE);
+            if (!Files.exists(path)) return "";
+
+            for (String line : Files.readAllLines(path)) {
+                try {
+                    String decrypted = EncryptionUtils.decrypt(line); // 🔓
+                    decryptedLogs.append(decrypted).append("\n");
+                } catch (Exception e) {
+                    decryptedLogs.append("❌ Failed to decrypt log line\n");
+                }
+            }
         } catch (IOException e) {
             System.out.println("❌ Failed to read logs: " + e.getMessage());
-            return "";
         }
+        return decryptedLogs.toString();
     }
     public static void logLogin() {
         writeLog("Login");
@@ -55,27 +71,46 @@ public class LogsManager {
         writeLog(itemType + " " + resource + " was deleted");
     }
     public static void logClear() {
-        try(FileWriter writer = new FileWriter(LOG_FILE, false);
-            BufferedWriter bw = new BufferedWriter(writer)) {
+        try (FileWriter writer = new FileWriter(LOG_FILE, false);
+             BufferedWriter bw = new BufferedWriter(writer)) {
 
             String timestamp = LocalDateTime.now().format(formatter);
-            bw.write("The history was cleared at [ " + timestamp + " ]");
+            String logEntry = "The history was cleared at [ " + timestamp + " ]";
+
+            bw.write(EncryptionUtils.encrypt(logEntry)); // 🔐
             bw.newLine();
 
-        } catch (IOException e) {
-            System.out.println("❌ Failed to write log: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Failed to write clear log: " + e.getMessage());
         }
     }
     public static void writeOptionalLog(String message) {
-        try(FileWriter writer = new FileWriter(LOG_FILE, false);
-            BufferedWriter bw = new BufferedWriter(writer)) {
+        try (FileWriter writer = new FileWriter(LOG_FILE, false);
+             BufferedWriter bw = new BufferedWriter(writer)) {
 
             String timestamp = LocalDateTime.now().format(formatter);
-            bw.write(message + " [ " + timestamp + " ]");
+            String logEntry = message + " [ " + timestamp + " ]";
+
+            bw.write(EncryptionUtils.encrypt(logEntry)); // 🔐
             bw.newLine();
 
-        } catch (IOException e) {
-            System.out.println("❌ Failed to write log: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Failed to write optional log: " + e.getMessage());
         }
     }
+    public static void reencryptLogs(SecretKey oldKey, SecretKey newKey) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get("history.txt"));
+            List<String> reencrypted = new ArrayList<>();
+            for (String line : lines) {
+                String decrypted = EncryptionUtils.decrypt(line, oldKey);
+                String encrypted = EncryptionUtils.encrypt(decrypted, newKey);
+                reencrypted.add(encrypted);
+            }
+            Files.write(Paths.get("history.txt"), reencrypted);
+        } catch (Exception e) {
+            System.out.println("❌ Failed to reencrypt logs: " + e.getMessage());
+        }
+    }
+
 }

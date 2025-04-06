@@ -34,6 +34,48 @@ public class Account {
         return date;
     }
 
+    public String getResourceDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void setResourceEncrypted(String resource) {
+        try {
+            this.resource = EncryptionUtils.encrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public String getUsernameDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(username);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void setUsernameEncrypted(String username) {
+        try {
+            this.username = EncryptionUtils.encrypt(username);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public String getPasswordDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(password);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void setPasswordEncrypted(String password) {
+        try {
+            this.password = EncryptionUtils.encrypt(password);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public String toString() {

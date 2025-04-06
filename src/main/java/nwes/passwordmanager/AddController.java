@@ -231,7 +231,7 @@ public class AddController {
 
         vbAdd.getChildren().addAll(grid, formBox);
     }
-    private void showWalletForm(){
+    private void showWalletForm() {
         vbAdd.getChildren().clear();
 
         walletResourceField = new TextField();
@@ -270,53 +270,111 @@ public class AddController {
         vbAdd.getChildren().addAll(label);
     }
     private void onSaveButtonClick(String resource, String username, String password) {
-        DatabaseManager dm = new DatabaseManager();
-        LocalDateTime date = LocalDateTime.now();
-        if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
-            dm.writeAccountTodb(resource, username, password, date);
-            if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logAdd("Account", resource);
+        try {
+            DatabaseManager dm = new DatabaseManager();
+            LocalDateTime date = LocalDateTime.now();
+            if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
+
+                String encryptedResource = EncryptionUtils.encrypt(resource);
+                String encryptedUsernmae = EncryptionUtils.encrypt(username);
+                String encryptedPassword = EncryptionUtils.encrypt(password);
+
+                dm.writeAccountTodb(encryptedResource, encryptedUsernmae, encryptedPassword, date);
+                if (SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logAdd("Account", resource);
+                }
             }
+        } catch (Exception e) {
+            System.out.println("❌ Error encrypting data: " + e.getMessage());
         }
     }
 
-    private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String pincode, String networkType, String cardType){
-        DatabaseManager dm = new DatabaseManager();
-        LocalDateTime date = LocalDateTime.now();
-        if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()){
-            dm.writeCardTodb(resource, cardNumber, expiryDate, cvv, ownerName, pincode, networkType, cardType, date);
-            if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logAdd("Card", resource);
+    private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String pincode, String networkType, String cardType) {
+        try {
+            DatabaseManager dm = new DatabaseManager();
+            LocalDateTime date = LocalDateTime.now();
+
+            if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()) {
+                // 🔐 Encrypt all card data before saving
+                String encryptedResource = EncryptionUtils.encrypt(resource);
+                String encryptedCardNumber = EncryptionUtils.encrypt(cardNumber);
+                String encryptedExpiryDate = EncryptionUtils.encrypt(expiryDate);
+                String encryptedCvv = EncryptionUtils.encrypt(cvv);
+                String encryptedOwnerName = EncryptionUtils.encrypt(ownerName);
+                String encryptedPincode = EncryptionUtils.encrypt(pincode);
+                String encryptedNetworkType = EncryptionUtils.encrypt(networkType);
+                String encryptedCardType = EncryptionUtils.encrypt(cardType);
+
+                dm.writeCardTodb(
+                        encryptedResource,
+                        encryptedCardNumber,
+                        encryptedExpiryDate,
+                        encryptedCvv,
+                        encryptedOwnerName,
+                        encryptedPincode,
+                        encryptedNetworkType,
+                        encryptedCardType,
+                        date
+                );
+
+                if (SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logAdd("Card", resource); // resource in log stays plaintext
+                }
             }
+        } catch (Exception e) {
+            System.out.println("❌ Error encrypting card data: " + e.getMessage());
         }
     }
-    private void onSaveButtonClick(String resource, String link){
-        DatabaseManager dm = new DatabaseManager();
-        if (!resource.isEmpty() || !link.isEmpty()){
-            dm.writeLinkTodb(resource, link);
-            if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logAdd("Link", resource);
+    private void onSaveButtonClick(String resource, String link) {
+        try {
+            DatabaseManager dm = new DatabaseManager();
+
+            if (!resource.isEmpty() || !link.isEmpty()) {
+                // 🔐 Encrypt both fields
+                String encryptedResource = EncryptionUtils.encrypt(resource);
+                String encryptedLink = EncryptionUtils.encrypt(link);
+
+                dm.writeLinkTodb(encryptedResource, encryptedLink);
+
+                if (SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logAdd("Link", resource); // log original name
+                }
             }
+        } catch (Exception e) {
+            System.out.println("❌ Error encrypting link: " + e.getMessage());
         }
     }
-    private void onSaveButtonClick(String resource, TextArea words, String address, String password){
-        DatabaseManager dm = new DatabaseManager();
-        LocalDateTime date = LocalDateTime.now();
+    private void onSaveButtonClick(String resource, TextArea words, String address, String password) {
+        try {
+            DatabaseManager dm = new DatabaseManager();
+            LocalDateTime date = LocalDateTime.now();
 
-        String wordsText = words.getText().trim();
-        String[] wordsArray = wordsText.split("\\s+");
+            String wordsText = words.getText().trim();
+            String[] wordsArray = wordsText.split("\\s+");
 
-        if (wordsArray.length < 12 || wordsArray.length > 24) {
-            System.out.println("❌ Invalid number of words. Must be between 12 and 24.");
-            return;
-        }
-        String wordsString = String.join(",", wordsArray);
-
-        if (!resource.isEmpty() || !wordsString.isEmpty() || !password.isEmpty()){
-            dm.writeWalletTodb(resource, wordsString, address, password, date);
-            if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logAdd("Wallet", resource);
+            if (wordsArray.length < 12 || wordsArray.length > 24) {
+                System.out.println("❌ Invalid number of words. Must be between 12 and 24.");
+                return;
             }
+
+            // 🔐 Encrypt words individually
+            for (int i = 0; i < wordsArray.length; i++) {
+                wordsArray[i] = EncryptionUtils.encrypt(wordsArray[i]);
+            }
+            String encryptedWordsString = String.join(",", wordsArray);
+            String encryptedResource = EncryptionUtils.encrypt(resource);
+            String encryptedAddress = EncryptionUtils.encrypt(address);
+            String encryptedPassword = EncryptionUtils.encrypt(password);
+
+            if (!resource.isEmpty() || !encryptedWordsString.isEmpty() || !password.isEmpty()) {
+                dm.writeWalletTodb(encryptedResource, encryptedWordsString, encryptedAddress, encryptedPassword, date);
+
+                if (SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logAdd("Wallet", resource); // log plain resource
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error encrypting wallet data: " + e.getMessage());
         }
     }
     private void onCancelButtonClick(){

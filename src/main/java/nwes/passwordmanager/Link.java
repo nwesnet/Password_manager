@@ -21,6 +21,38 @@ public class Link {
     public void setLink(String link){
         this.link = link;
     }
+    // 🔐 Decrypted Getters
+    public String getResourceDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getLinkDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(link);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    // 🔐 Encrypted Setters
+    public void setResourceEncrypted(String resource) {
+        try {
+            this.resource = EncryptionUtils.encrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setLinkEncrypted(String link) {
+        try {
+            this.link = EncryptionUtils.encrypt(link);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public String toString() {

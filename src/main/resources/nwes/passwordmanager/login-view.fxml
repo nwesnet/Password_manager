@@ -22,7 +22,7 @@
 
     <!-- Create Account VBox -->
     <VBox fx:id="createAccountVBox" spacing="20" alignment="CENTER" visible="false">
-        <Label text="Create Account"/>
+        <Label fx:id="createText" text="Create Account"/>
         <TextField fx:id="newUsernameField" promptText="New Username"/>
         <PasswordField fx:id="newPasswordField" promptText="Password"/>
         <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password"/>

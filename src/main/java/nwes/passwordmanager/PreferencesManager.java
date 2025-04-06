@@ -2,11 +2,14 @@ package nwes.passwordmanager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import javax.crypto.SecretKey;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class PreferencesManager {
     private static final String PREFS_FILE = "preferences.json";
@@ -27,34 +30,24 @@ public class PreferencesManager {
         public String pincode = "default_pincode";
     }
     public static class Security {
-        public boolean double_confirmation = true;
-        public boolean store_logs = true;
+        public String double_confirmation = "true";
+        public String store_logs = "true";
     }
     public static void createNewPreferences(String username, String password, String pincode) {
         try {
             SecretKey key = EncryptionUtils.getKeyFromString(username + password);
 
-            preferences = new Preferences();
+            if (preferences == null) preferences = new Preferences();
             preferences.login_info.username = EncryptionUtils.encrypt(username, key);
             preferences.login_info.password = EncryptionUtils.encrypt(password, key);
             preferences.login_info.pincode = EncryptionUtils.encrypt(pincode, key);
+            preferences.security.double_confirmation = EncryptionUtils.encrypt("true" , key);
+            preferences.security.store_logs = EncryptionUtils.encrypt("true" , key);
 
             savePreferences();
+
         } catch (Exception e) {
             System.out.println("❌ Error encrypting preferences: " + e.getMessage());
-        }
-    }
-    public static boolean decryptLoginInfo(String loginInputUsername, String loginInputPassword) {
-        try {
-            SecretKey key = EncryptionUtils.getKeyFromString(loginInputUsername + loginInputPassword);
-
-            preferences.login_info.username = EncryptionUtils.decrypt(preferences.login_info.username, key);
-            preferences.login_info.password = EncryptionUtils.decrypt(preferences.login_info.password, key);
-            preferences.login_info.pincode = EncryptionUtils.decrypt(preferences.login_info.pincode, key);
-            return true;
-        } catch (Exception e) {
-            System.out.println("❌ Failed to decrypt login info: " + e.getMessage());
-            return false;
         }
     }
     // Load JSON preferences from file
@@ -81,25 +74,52 @@ public class PreferencesManager {
     }
     // Getters & Setters
     public static String getUsername() {
-        return preferences.login_info.username;
+        try {
+            return EncryptionUtils.decrypt(preferences.login_info.username);
+        } catch (Exception e) {
+            System.out.println("❌ Username decrypt failed: " + e.getMessage());
+            return "";
+        }
     }
     public static void setUsername(String username) {
-        preferences.login_info.username = username;
-        savePreferences();
+        try {
+            preferences.login_info.username = EncryptionUtils.encrypt(username);
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("❌ Username encrypt failed: " + e.getMessage());
+        }
     }
     public static String getPassword() {
-        return preferences.login_info.password;
+        try {
+            return EncryptionUtils.decrypt(preferences.login_info.password);
+        } catch (Exception e) {
+            System.out.println("❌ Password decrypt failed: " + e.getMessage());
+            return "";
+        }
     }
     public static void setPassword(String password) {
-        preferences.login_info.password = password;
-        savePreferences();
+        try {
+            preferences.login_info.password = EncryptionUtils.encrypt(password);
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("❌ Password encrypt failed: " + e.getMessage());
+        }
     }
     public static String getPincode(){
-        return preferences.login_info.pincode;
+        try {
+            return EncryptionUtils.decrypt(preferences.login_info.pincode);
+        } catch (Exception e) {
+            System.out.println("❌ Pincode decrypt failed: " + e.getMessage());
+            return "";
+        }
     }
     public static void setPincode(String pincode){
-        preferences.login_info.pincode = pincode;
-        savePreferences();
+        try {
+            preferences.login_info.pincode = EncryptionUtils.encrypt(pincode);
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("❌ Pincode encrypt failed: " + e.getMessage());
+        }
     }
     public static String getTheme() {
         return preferences.theme;
@@ -110,19 +130,39 @@ public class PreferencesManager {
     }
 
     public static boolean isDoubleConfirmationEnabled() {
-        return preferences.security.double_confirmation;
+        try {
+            return Boolean.parseBoolean(EncryptionUtils.decrypt(preferences.security.double_confirmation));
+        } catch (Exception e) {
+            System.out.println("❌ Double confirm decrypt failed: " + e.getMessage());
+            return true;
+        }
     }
     public static void setDoubleConfirmation(boolean enabled) {
-        preferences.security.double_confirmation = enabled;
-        savePreferences();
+        try {
+            preferences.security.double_confirmation = EncryptionUtils.encrypt(String.valueOf(enabled));
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("❌ Double confirm encrypt failed: " + e.getMessage());
+        }
     }
+
     public static boolean isStoreLogsEnabled() {
-        return preferences.security.store_logs;
+        try {
+            return Boolean.parseBoolean(EncryptionUtils.decrypt(preferences.security.store_logs));
+        } catch (Exception e) {
+            System.out.println("❌ Store logs decrypt failed: " + e.getMessage());
+            return true;
+        }
     }
     public static void setStoreLogsEnabled(boolean enabled) {
-        preferences.security.store_logs = enabled;
-        savePreferences();
+        try {
+            preferences.security.store_logs = EncryptionUtils.encrypt(String.valueOf(enabled));
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("❌ Store logs encrypt failed: " + e.getMessage());
+        }
     }
+
     public static String getThemeCssPath() {
         String theme = getTheme();
         return "/css/" + theme + "-theme.css";

@@ -97,6 +97,138 @@ public class Card {
         this.dateAdded = dateAdded;
     }
 
+    // 🔐 Decrypted Getters
+
+    public String getResourceDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getCardNumberDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(cardNumber);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getExpiryDateDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(expiryDate);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getCvvDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(cvv);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getOwnerNameDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(ownerName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getCardPincodeDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(cardPincode);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getCardNetworkTypeDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(cardNetworkType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getCardTypeDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(cardType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 🔐 Encrypted Setters
+
+    public void setResourceEncrypted(String resource) {
+        try {
+            this.resource = EncryptionUtils.encrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCardNumberEncrypted(String cardNumber) {
+        try {
+            this.cardNumber = EncryptionUtils.encrypt(cardNumber);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setExpiryDateEncrypted(String expiryDate) {
+        try {
+            this.expiryDate = EncryptionUtils.encrypt(expiryDate);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCvvEncrypted(String cvv) {
+        try {
+            this.cvv = EncryptionUtils.encrypt(cvv);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setOwnerNameEncrypted(String ownerName) {
+        try {
+            this.ownerName = EncryptionUtils.encrypt(ownerName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCardPincodeEncrypted(String cardPincode) {
+        try {
+            this.cardPincode = EncryptionUtils.encrypt(cardPincode);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCardNetworkTypeEncrypted(String cardNetworkType) {
+        try {
+            this.cardNetworkType = EncryptionUtils.encrypt(cardNetworkType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCardTypeEncrypted(String cardType) {
+        try {
+            this.cardType = EncryptionUtils.encrypt(cardType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public String toString() {
         return "Card{" +

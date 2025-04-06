@@ -305,29 +305,29 @@ public class MainPageController {
         switch (currentCategory){
             case ACCOUNTS:
                 for(Account acc : allAccounts){
-                    if(acc.getResource().toLowerCase().contains(query) ||
-                       acc.getUsername().toLowerCase().contains(query)){
+                    if(acc.getResourceDecrypted().toLowerCase().contains(query) ||
+                       acc.getUsernameDecrypted().toLowerCase().contains(query)){
                         DisplayAccountsDetails(acc, dbManager);
                     }
                 }
                 break;
             case CARDS:
                 for(Card card : allCards){
-                    if(card.getResource().toLowerCase().contains(query)){
+                    if(card.getResourceDecrypted().toLowerCase().contains(query)){
                         DisplayCardsDetails(card, dbManager);
                     }
                 }
                 break;
             case LINKS:
                 for(Link link : allLinks){
-                    if(link.getResource().toLowerCase().contains(query)){
+                    if(link.getResourceDecrypted().toLowerCase().contains(query)){
                         DisplayLinksDetails(link, dbManager);
                     }
                 }
                 break;
             case WALLETS:
                 for(Wallet wallet : allWallets){
-                    if(wallet.getResource().toLowerCase().contains(query)){
+                    if(wallet.getResourceDecrypted().toLowerCase().contains(query)){
                         DisplayWalletsDetails(wallet, dbManager);
                     }
                 }
@@ -387,7 +387,7 @@ public class MainPageController {
         inputColumn.setPrefWidth(240);
         grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
         // Row 1: Resource
-        TextField resourceField = new TextField(account.getResource());
+        TextField resourceField = new TextField(account.getResourceDecrypted());
         resourceField.setPrefColumnCount(24);
         resourceField.setEditable(false);
 
@@ -411,7 +411,7 @@ public class MainPageController {
         });
         deleteBtn.getStyleClass().add("delete-button");
         // Row 2: Login
-        TextField loginField = new TextField(account.getUsername());
+        TextField loginField = new TextField(account.getUsernameDecrypted());
         loginField.setPrefColumnCount(24);
         loginField.setEditable(false);
 
@@ -420,7 +420,7 @@ public class MainPageController {
         copyLoginBtn.getStyleClass().add("copy-button");
         // Row 3: Password
         PasswordField passwordField = new PasswordField();
-        passwordField.setText(account.getPassword());
+        passwordField.setText(account.getPasswordDecrypted());
         passwordField.setPrefColumnCount(24);
         passwordField.setEditable(false);
 
@@ -473,7 +473,7 @@ public class MainPageController {
         inputColumn.setPrefWidth(240);
         grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
         // Row 1: Resource
-        TextField resourceField = new TextField(card.getResource());
+        TextField resourceField = new TextField(card.getResourceDecrypted());
         resourceField.setEditable(false);
 
         Button editBtn = new Button();
@@ -496,7 +496,7 @@ public class MainPageController {
         });
         deleteBtn.getStyleClass().add("delete-button");
         // Row 2: Card number
-        TextField cardNumberField = new TextField(card.getCardNumber());
+        TextField cardNumberField = new TextField(card.getCardNumberDecrypted());
         cardNumberField.setEditable(false);
         cardNumberField.setPrefColumnCount(18);
 
@@ -504,11 +504,11 @@ public class MainPageController {
         copyCardNumberBtn.setOnAction( e -> copyToClipboard(cardNumberField.getText()));
         copyCardNumberBtn.getStyleClass().add("copy-button");
         // Row 3: Expiry date
-        TextField cardExpiryDate = new TextField(card.getExpiryDate());
+        TextField cardExpiryDate = new TextField(card.getExpiryDateDecrypted());
         cardExpiryDate.setEditable(false);
         cardExpiryDate.setPrefColumnCount(4);
         // Row 4: Owner name
-        TextField cardOwnerNameField = new TextField(card.getOnwerName());
+        TextField cardOwnerNameField = new TextField(card.getOwnerNameDecrypted());
         cardOwnerNameField.setEditable(false);
         cardOwnerNameField.setPrefColumnCount(18);
 
@@ -517,7 +517,7 @@ public class MainPageController {
         copyNameBtn.getStyleClass().add("copy-button");
         // Row 5: CVV
         PasswordField cardCVVField = new PasswordField();
-        cardCVVField.setText(card.getCvv());
+        cardCVVField.setText(card.getCvvDecrypted());
         cardCVVField.setEditable(false);
         cardCVVField.setPrefColumnCount(4);
 
@@ -532,7 +532,7 @@ public class MainPageController {
         showCVVBtn.getStyleClass().add("show-button");
         // Row 6: Pincode
         PasswordField cardPincodeField = new PasswordField();
-        cardPincodeField.setText(card.getCardPincode());
+        cardPincodeField.setText(card.getCardPincodeDecrypted());
         cardPincodeField.setEditable(false);
         cardPincodeField.setPrefColumnCount(10);
 
@@ -546,11 +546,11 @@ public class MainPageController {
         });
         showPincodeBtn.getStyleClass().add("show-button");
         // Row 7: Network type
-        TextField cardNetworkField = new TextField(card.getCardNetworkType());
+        TextField cardNetworkField = new TextField(card.getCardNetworkTypeDecrypted());
         cardNetworkField.setEditable(false);
         cardNetworkField.setPrefColumnCount(10);
         // Row 8: Card type
-        TextField cardTypeField = new TextField(card.getCardType());
+        TextField cardTypeField = new TextField(card.getCardTypeDecrypted());
         cardTypeField.setEditable(false);
         cardTypeField.setPrefColumnCount(10);
         // Add every thing into gridpane
@@ -601,7 +601,7 @@ public class MainPageController {
         ColumnConstraints inputColunm = new ColumnConstraints();
         inputColunm.setPrefWidth(240);
         // Row 1: Resource
-        TextField resourceField = new TextField(link.getResource());
+        TextField resourceField = new TextField(link.getResourceDecrypted());
         resourceField.setEditable(false);
 
         Button editLinkBtn = new Button();
@@ -624,7 +624,7 @@ public class MainPageController {
         });
         deleteLinkBtn.getStyleClass().add("delete-button");
         // Row 2: Link
-        TextField linkField = new TextField(link.getLink());
+        TextField linkField = new TextField(link.getLinkDecrypted());
         linkField.setEditable(false);
         linkField.setPrefColumnCount(24);
 
@@ -653,7 +653,7 @@ public class MainPageController {
         ColumnConstraints inputColumn = new ColumnConstraints(240);
         grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
 
-        TextField resourceField = new TextField(wallet.getResource());
+        TextField resourceField = new TextField(wallet.getResourceDecrypted());
 
         Button editWalletBtn = new Button();
         editWalletBtn.setOnAction( e -> {
@@ -675,7 +675,7 @@ public class MainPageController {
         });
         deleteWalletBtn.getStyleClass().add("delete-button");
 
-        TextField addressField = new TextField(wallet.getAddress());
+        TextField addressField = new TextField(wallet.getAddressDecrypted());
         addressField.setEditable(false);
         addressField.setPrefColumnCount(24);
 
@@ -684,7 +684,7 @@ public class MainPageController {
         copyAddressBtn.getStyleClass().add("copy-button");
 
         PasswordField passwordField = new PasswordField();
-        passwordField.setText(wallet.getPassword());
+        passwordField.setText(wallet.getPasswordDecrypted());
         passwordField.setEditable(false);
         passwordField.setPrefColumnCount(24);
 
@@ -710,7 +710,7 @@ public class MainPageController {
 
         FlowPane twelveWordsBox = new FlowPane(6,3);
         // The cycle that adds words to a page
-        for (String word : wallet.getTwelveWords()){
+        for (String word : wallet.getTwelveWordsDecrypted()){
             Label wordLabel = new Label(word);
             twelveWordsBox.getChildren().add(wordLabel);
         }
@@ -736,6 +736,9 @@ public class MainPageController {
     private void openEditLoginDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit login info");
+        String oldUsername = PreferencesManager.getUsername();
+        String oldPassword = PreferencesManager.getPassword();
+        System.out.printf("the old username: %s the old password: %s\n",oldUsername, oldPassword);
 
         TextField usernameField = new TextField(PreferencesManager.getUsername());
         TextField passwordField = new TextField(PreferencesManager.getPassword());
@@ -755,9 +758,17 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK) {
+                System.out.println("I am here");
+                boolean DC = PreferencesManager.isDoubleConfirmationEnabled();
+                boolean SL = PreferencesManager.isStoreLogsEnabled();
+                System.out.println("Status: " + DC + " " + SL );
+                EncryptionUtils.reencryptAllData(oldUsername, oldPassword, usernameField.getText(), passwordField.getText());
+
                 PreferencesManager.setUsername(usernameField.getText());
                 PreferencesManager.setPassword(passwordField.getText());
                 PreferencesManager.setPincode(pincodeField.getText());
+                PreferencesManager.setDoubleConfirmation(DC);
+                PreferencesManager.setStoreLogsEnabled(SL);
                 onAccountInfoButtonClick();
             }
         });
@@ -779,14 +790,14 @@ public class MainPageController {
         inputColumn.setPrefWidth(240);
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit account: " + account.getResource());
+        dialog.setTitle("Edit account: " + account.getResourceDecrypted());
         dialog.getDialogPane().setPrefSize(350, 220);
 
-        TextField resourceField = new TextField(account.getResource());
+        TextField resourceField = new TextField(account.getResourceDecrypted());
         resourceField.setPrefColumnCount(20);
-        TextField loginField = new TextField(account.getUsername());
+        TextField loginField = new TextField(account.getUsernameDecrypted());
         loginField.setPrefColumnCount(20);
-        TextField passwordField = new TextField(account.getPassword());
+        TextField passwordField = new TextField(account.getPasswordDecrypted());
         passwordField.setPrefColumnCount(20);
 
         ThemeManager.applyThemeToDialog(dialog);
@@ -806,12 +817,12 @@ public class MainPageController {
         dialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
                 // Save updated values
-                account.setResource(resourceField.getText());
-                account.setUsername(loginField.getText());
-                account.setPassword(passwordField.getText());
+                account.setResourceEncrypted(resourceField.getText());
+                account.setUsernameEncrypted(loginField.getText());
+                account.setPasswordEncrypted(passwordField.getText());
                 new DatabaseManager().updateAccount(account, oldResource, oldUsername);
                 if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Account", account.getResource());
+                    LogsManager.logEdit("Account", account.getResourceDecrypted());
                 }
                 onShowAccounts(); // Refresh
             }
@@ -838,15 +849,15 @@ public class MainPageController {
         dialog.setTitle("Edit card: " + card.getResource());
         dialog.getDialogPane().setPrefSize(550, 220);
 
-        TextField resourceField = new TextField(card.getResource());
-        TextField cardNumberField = new TextField(card.getCardNumber());
-        TextField expiryDateField = new TextField(card.getExpiryDate());
-        TextField ownerNameField = new TextField(card.getOnwerName());
+        TextField resourceField = new TextField(card.getResourceDecrypted());
+        TextField cardNumberField = new TextField(card.getCardNumberDecrypted());
+        TextField expiryDateField = new TextField(card.getExpiryDateDecrypted());
+        TextField ownerNameField = new TextField(card.getOwnerNameDecrypted());
 
-        TextField cvvField = new TextField(card.getCvv());
-        TextField pinField = new TextField(card.getCardPincode());
-        TextField networkField = new TextField(card.getCardNetworkType());
-        TextField typeField = new TextField(card.getCardType());
+        TextField cvvField = new TextField(card.getCvvDecrypted());
+        TextField pinField = new TextField(card.getCardPincodeDecrypted());
+        TextField networkField = new TextField(card.getCardNetworkTypeDecrypted());
+        TextField typeField = new TextField(card.getCardTypeDecrypted());
 
         ThemeManager.applyThemeToDialog(dialog);
 
@@ -876,14 +887,14 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                card.setResource(resourceField.getText());
-                card.setCardNumber(cardNumberField.getText());
-                card.setExpiryDate(expiryDateField.getText());
-                card.setOnwerName(ownerNameField.getText());
-                card.setCvv(cvvField.getText());
-                card.setCardPincode(pinField.getText());
-                card.setCardNetworkType(networkField.getText());
-                card.setCardType(typeField.getText());
+                card.setResourceEncrypted(resourceField.getText());
+                card.setCardNumberEncrypted(cardNumberField.getText());
+                card.setExpiryDateEncrypted(expiryDateField.getText());
+                card.setOwnerNameEncrypted(ownerNameField.getText());
+                card.setCvvEncrypted(cvvField.getText());
+                card.setCardPincodeEncrypted(pinField.getText());
+                card.setCardNetworkTypeEncrypted(networkField.getText());
+                card.setCardTypeEncrypted(typeField.getText());
                 new DatabaseManager().updateCard(card, oldResource, oldCardNumber, oldCardName, oldExpiryDate);
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Card", card.getResource());
@@ -908,11 +919,11 @@ public class MainPageController {
         grid.getColumnConstraints().addAll(labelColumn, inputColumn);
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit link " + link.getResource());
+        dialog.setTitle("Edit link " + link.getResourceDecrypted());
         dialog.getDialogPane().setPrefSize(350, 220);
 
-        TextField resourceField = new TextField(link.getResource());
-        TextField linkField = new TextField(link.getLink());
+        TextField resourceField = new TextField(link.getResourceDecrypted());
+        TextField linkField = new TextField(link.getLinkDecrypted());
 
         ThemeManager.applyThemeToDialog(dialog);
 
@@ -927,8 +938,8 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK){
-                link.setResource(resourceField.getText());
-                link.setLink(linkField.getText());
+                link.setResourceEncrypted(resourceField.getText());
+                link.setLinkEncrypted(linkField.getText());
                 new DatabaseManager().updateLink(link, oldResource, oldLink);
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Link", link.getResource());
@@ -942,16 +953,16 @@ public class MainPageController {
         String oldAddress = wallet.getAddress();
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit wallet " + wallet.getResource());
+        dialog.setTitle("Edit wallet " + wallet.getResourceDecrypted());
         dialog.getDialogPane().setPrefSize(450, 220);
 
-        TextField resourceField = new TextField(wallet.getResource());
-        TextField addressField = new TextField(wallet.getAddress());
-        TextField pinField = new TextField(wallet.getPassword());
+        TextField resourceField = new TextField(wallet.getResourceDecrypted());
+        TextField addressField = new TextField(wallet.getAddressDecrypted());
+        TextField pinField = new TextField(wallet.getPasswordDecrypted());
 
         List<TextField> wordFields = new ArrayList<>();
         FlowPane fp = new FlowPane(6,3);
-        for(String word : wallet.getTwelveWords()){
+        for(String word : wallet.getTwelveWordsDecrypted()){
             TextField wordField = new TextField(word);
             wordFields.add(wordField);
             fp.getChildren().add(wordField);
@@ -972,14 +983,14 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK){
-                wallet.setResource(resourceField.getText());
-                wallet.setAddress(addressField.getText());
-                wallet.setPassword(pinField.getText());
+                wallet.setResourceEncrypted(resourceField.getText());
+                wallet.setAddressEncrypted(addressField.getText());
+                wallet.setPasswordEncrypted(pinField.getText());
                 String [] updateWords = new String[wordFields.size()];
                 for( int i = 0; i < updateWords.length; i++) {
                     updateWords[i] = wordFields.get(i).getText().trim();
                 }
-                wallet.setTwelveWords(updateWords);
+                wallet.setTwelveWordsEncrypted(updateWords);
                 new DatabaseManager().updateWallet(wallet, oldResource, oldAddress);
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Wallet", wallet.getResource());
@@ -991,7 +1002,7 @@ public class MainPageController {
     private void openDeleteAccountDialog(Account account){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete account");
-        alert.setHeaderText("Are you sure you want to delete \"" + account.getResource() + "\"?");
+        alert.setHeaderText("Are you sure you want to delete \"" + account.getResourceDecrypted() + "\"?");
         alert.setContentText("This action cannot be undone.");
 
         ThemeManager.applyThemeToDialog(alert);
@@ -1000,7 +1011,7 @@ public class MainPageController {
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteAccount(account);
             if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logDelete("Account", account.getResource());
+                LogsManager.logDelete("Account", account.getResourceDecrypted());
             }
             onShowAccounts();
         }
@@ -1009,7 +1020,7 @@ public class MainPageController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete card");
         alert.setHeaderText("Are you sure you want to delete this card?");
-        alert.setContentText("Resource: " + card.getResource());
+        alert.setContentText("Resource: " + card.getResourceDecrypted());
 
         ThemeManager.applyThemeToDialog(alert);
 
@@ -1017,7 +1028,7 @@ public class MainPageController {
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteCard(card);
             if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logDelete("Card", card.getResource());
+                LogsManager.logDelete("Card", card.getResourceDecrypted());
             }
             onShowCards();
         }
@@ -1026,7 +1037,7 @@ public class MainPageController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete link");
         alert.setHeaderText("Are you sure you want to delete this resource?");
-        alert.setContentText("Resource: " + link.getResource());
+        alert.setContentText("Resource: " + link.getResourceDecrypted());
 
         ThemeManager.applyThemeToDialog(alert);
 
@@ -1034,7 +1045,7 @@ public class MainPageController {
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteLink(link);
             if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logDelete("Link", link.getResource());
+                LogsManager.logDelete("Link", link.getResourceDecrypted());
             }
             onShowLinks();
         }
@@ -1043,7 +1054,7 @@ public class MainPageController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete wallet");
         alert.setHeaderText("Are you sure you want to delete this wallet?");
-        alert.setContentText("Resource: " + wallet.getResource());
+        alert.setContentText("Resource: " + wallet.getResourceDecrypted());
 
         ThemeManager.applyThemeToDialog(alert);
 
@@ -1051,7 +1062,7 @@ public class MainPageController {
         if(result.isPresent() && result.get() == ButtonType.OK){
             new DatabaseManager().deleteWallet(wallet);
             if(SecurityManager.isStoreLogsEnabled()) {
-                LogsManager.logDelete("Wallet", wallet.getResource());
+                LogsManager.logDelete("Wallet", wallet.getResourceDecrypted());
             }
             onShowWallets();
         }

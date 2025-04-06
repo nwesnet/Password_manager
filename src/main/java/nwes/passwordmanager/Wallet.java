@@ -54,6 +54,88 @@ public class Wallet {
         this.password = password;
     }
 
+    // 🔐 Decrypted Getters
+    public String getResourceDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(resource);
+        } catch (Exception e) {
+            System.out.println("❌ Wallet decryption failed: " + e.getMessage());
+            System.out.println("🔐 Current appKey: " + EncryptionUtils.getAppKey());
+            System.out.println("🔐 Resource Encrypted Value: " + resource);
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public String[] getTwelveWordsDecrypted() {
+        try {
+            String[] decrypted = new String[twelveWords.length];
+            for (int i = 0; i < twelveWords.length; i++) {
+                decrypted[i] = EncryptionUtils.decrypt(twelveWords[i]);
+            }
+            return decrypted;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getAddressDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(address);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getPasswordDecrypted() {
+        try {
+            return EncryptionUtils.decrypt(password);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 🔐 Encrypted Setters
+    public void setResourceEncrypted(String resource) {
+        try {
+            this.resource = EncryptionUtils.encrypt(resource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setTwelveWordsEncrypted(String[] twelveWords) {
+        try {
+            String[] encrypted = new String[twelveWords.length];
+            for (int i = 0; i < twelveWords.length; i++) {
+                encrypted[i] = EncryptionUtils.encrypt(twelveWords[i]);
+            }
+            this.twelveWords = encrypted;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setAddressEncrypted(String address) {
+        try {
+            this.address = EncryptionUtils.encrypt(address);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setPasswordEncrypted(String password) {
+        try {
+            this.password = EncryptionUtils.encrypt(password);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getTwelveWordsRaw() {
+        return String.join(",", twelveWords);
+    }
+
     public void setDateAdded(LocalDateTime dateAdded) {
         this.dateAdded = dateAdded;
     }

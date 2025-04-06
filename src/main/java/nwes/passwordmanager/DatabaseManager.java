@@ -1,7 +1,6 @@
 package nwes.passwordmanager;
 
-import javafx.scene.control.Dialog;
-
+import javax.crypto.SecretKey;
 import java.sql.*;
 
 import java.time.LocalDateTime;
@@ -127,7 +126,7 @@ public class DatabaseManager {
         }
     }
 
-    public void writeWalletTodb(String resource, String words, String address, String password, LocalDateTime date){
+    public void writeWalletTodb(String resource, String words, String address, String password, LocalDateTime date) {
         String sql = "INSERT INTO Wallets (resource, twelve_words, address, password, date_added) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -137,7 +136,7 @@ public class DatabaseManager {
             pstmt.setString(2, words);
             pstmt.setString(3, address);
             pstmt.setString(4, password);
-            pstmt.setTimestamp(4, Timestamp.valueOf(date));
+            pstmt.setTimestamp(5, Timestamp.valueOf(date));
 
             pstmt.executeUpdate();
             System.out.println("✅ Wallet successfully inserted: " + resource + " on " + date);
@@ -372,7 +371,124 @@ public class DatabaseManager {
         }
 
     }
+    public static void reencryptDatabase(SecretKey oldKey, SecretKey newKey) {
+        DatabaseManager db = new DatabaseManager();
 
+        // Reencrypt Accounts
+        List<Account> accounts = db.getAllAccounts();
+        for (Account acc : accounts) {
+            try {
+                // Save old encrypted values before modifying
+                String oldEncryptedResource = acc.getResource();
+                String oldEncryptedUsername = acc.getUsername();
+
+                // 🔓 Decrypt fields using old key
+                String resource = EncryptionUtils.decrypt(oldEncryptedResource, oldKey);
+                String username = EncryptionUtils.decrypt(oldEncryptedUsername, oldKey);
+                String password = EncryptionUtils.decrypt(acc.getPassword(), oldKey);
+
+                // 🔐 Encrypt fields using the new key
+                acc.setResource(EncryptionUtils.encrypt(resource, newKey));
+                acc.setUsername(EncryptionUtils.encrypt(username, newKey));
+                acc.setPassword(EncryptionUtils.encrypt(password, newKey));
+
+                // ✅ Pass original encrypted identifiers to update
+                db.updateAccount(acc, oldEncryptedResource, oldEncryptedUsername);
+
+            } catch (Exception e) {
+                System.out.println("❌ Error re-encrypting account: " + e.getMessage());
+            }
+        }
+
+        List<Card> cards = db.getAllCards();
+        for(Card card : cards) {
+            try {
+                String oldResource = card.getResource();
+                String oldNumber = card.getCardNumber();
+                String oldName = card.getOnwerName();
+                String oldDate = card.getExpiryDate();
+                String resource = EncryptionUtils.decrypt(card.getResource(), oldKey);
+                String cardNumber = EncryptionUtils.decrypt(card.getCardNumber(), oldKey);
+                String cardDate = EncryptionUtils.decrypt(card.getExpiryDate(), oldKey);
+                String cardCvv = EncryptionUtils.decrypt(card.getCvv(), oldKey);
+                String cardOwnerName = EncryptionUtils.decrypt(card.getOnwerName(), oldKey);
+                String cardPin = EncryptionUtils.decrypt(card.getCardPincode(), oldKey);
+                String cardNetworkType = EncryptionUtils.decrypt(card.getCardNetworkType(), oldKey);
+                String cardType = EncryptionUtils.decrypt(card.getCardType(), oldKey);
+
+                card.setResource(EncryptionUtils.encrypt(resource, newKey));
+                card.setCardNumber(EncryptionUtils.encrypt(cardNumber, newKey));
+                card.setExpiryDate(EncryptionUtils.encrypt(cardDate, newKey));
+                card.setCvv(EncryptionUtils.encrypt(cardCvv, newKey));
+                card.setOnwerName(EncryptionUtils.encrypt(cardOwnerName, newKey));
+                card.setCardPincode(EncryptionUtils.encrypt(cardPin, newKey));
+                card.setCardNetworkType(EncryptionUtils.encrypt(cardNetworkType, newKey));
+                card.setCardType(EncryptionUtils.encrypt(cardType, newKey));
+
+                db.updateCard(card, oldResource, oldNumber, oldName, oldDate);
+            } catch (Exception e) {
+                System.out.println("❌ Error re-encrypting card: " + e.getMessage());
+            }
+        }
+        List<Link> links = db.getAllLinks();
+        for(Link link : links) {
+            try {
+                String oldResource = link.getResource();
+                String oldLink = link.getLink();
+
+                String resource = EncryptionUtils.decrypt(link.getResource(), oldKey);
+                String linkData = EncryptionUtils.decrypt(link.getLink(), oldKey);
+
+                link.setResource(EncryptionUtils.encrypt(resource, newKey));
+                link.setLink(EncryptionUtils.encrypt(linkData, newKey));
+
+                db.updateLink(link, oldResource, oldLink);
+            } catch (Exception e) {
+                System.out.println("❌ Error re-encrypting link: " + e.getMessage());
+            }
+        }
+        List<Wallet> wallets = db.getAllWallets();
+        for (Wallet wallet : wallets) {
+            try {
+                String oldResource = wallet.getResource();
+                String oldAddress = wallet.getAddress();
+
+                // Decrypt with old key
+                String resource = EncryptionUtils.decrypt(wallet.getResource(), oldKey);
+                String address = EncryptionUtils.decrypt(wallet.getAddress(), oldKey);
+                String password = EncryptionUtils.decrypt(wallet.getPassword(), oldKey);
+
+                // Decrypt each twelve word individually
+                String[] decryptedWords = new String[wallet.getTwelveWords().length];
+                for (int i = 0; i < wallet.getTwelveWords().length; i++) {
+                    decryptedWords[i] = EncryptionUtils.decrypt(wallet.getTwelveWords()[i], oldKey);
+                }
+
+                // Re-encrypt with new key
+                String newEncryptedResource = EncryptionUtils.encrypt(resource, newKey);
+                String newEncryptedAddress = EncryptionUtils.encrypt(address, newKey);
+                String newEncryptedPassword = EncryptionUtils.encrypt(password, newKey);
+                String[] reencryptedWords = new String[decryptedWords.length];
+                for (int i = 0; i < decryptedWords.length; i++) {
+                    reencryptedWords[i] = EncryptionUtils.encrypt(decryptedWords[i], newKey);
+                }
+
+                // Build new Wallet and update
+                Wallet newWallet = new Wallet(
+                        newEncryptedResource,
+                        reencryptedWords,
+                        newEncryptedAddress,
+                        newEncryptedPassword,
+                        wallet.getDateAdded()
+                );
+
+                db.updateWallet(newWallet, oldResource, oldAddress);
+            } catch (Exception e) {
+                System.out.println("❌ Error re-encrypting wallet: " + e.getMessage());
+            }
+        }
+
+    }
 }
 
 
