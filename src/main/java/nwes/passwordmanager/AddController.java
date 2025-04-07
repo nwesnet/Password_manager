@@ -391,13 +391,13 @@ public class AddController {
     private boolean onSaveButtonClick(String resource, String link) {
         try {
             DatabaseManager dm = new DatabaseManager();
-
+            LocalDateTime date = LocalDateTime.now();
             if (!resource.isEmpty() || !link.isEmpty()) {
                 // 🔐 Encrypt both fields
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedLink = EncryptionUtils.encrypt(link);
 
-                dm.writeLinkTodb(encryptedResource, encryptedLink);
+                dm.writeLinkTodb(encryptedResource, encryptedLink, date);
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Link", resource); // log original name

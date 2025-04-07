@@ -10,7 +10,7 @@ import java.util.List;
 
 public class LogsManager {
     private static final String LOG_FILE = "history.txt";
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd.MM.yyyy");
 
     public static void initialize() {
         try {

@@ -3,7 +3,9 @@ package nwes.passwordmanager;
 import javax.crypto.SecretKey;
 import java.sql.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -61,7 +63,8 @@ public class DatabaseManager {
         stmt.execute("CREATE TABLE IF NOT EXISTS Links ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "resource TEXT NOT NULL, "
-                + "link TEXT NOT NULL);");
+                + "link TEXT NOT NULL, "
+                + "date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
     }
 
     /**
@@ -110,14 +113,15 @@ public class DatabaseManager {
             System.out.println("❌ Database Write Error: " + e.getMessage());
         }
     }
-    public void writeLinkTodb(String resource, String link) {
-        String sql = "INSERT INTO Links (resource, link) VALUES (?,?)";
+    public void writeLinkTodb(String resource, String link, LocalDateTime date) {
+        String sql = "INSERT INTO Links (resource, link, date_added) VALUES (?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, resource);
             pstmt.setString(2, link);
+            pstmt.setTimestamp(3, Timestamp.valueOf(date));
             pstmt.executeUpdate();
             // System.out.println("✅ Link successfully inserted: " + resource + " and " + link);
 
@@ -159,8 +163,12 @@ public class DatabaseManager {
                 String username = rs.getString("username");
                 String password = rs.getString("password");
 //                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added"));
+                long timestampMillis = rs.getLong("date_added");
+                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
+                                                .atZone(ZoneId.systemDefault())
+                                                .toLocalDateTime();
 
-                accounts.add(new Account(resource, username, password, LocalDateTime.now()));
+                accounts.add(new Account(resource, username, password, dateAdded));
             }
 
         } catch (Exception e) {
@@ -188,8 +196,12 @@ public class DatabaseManager {
                 String networkType = rs.getString("network_type");
                 String cardType = rs.getString("card_type");
 //                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added").replace(" ", "T"));
+                long timestampMillis = rs.getLong("date_added");
+                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
 
-                cards.add(new Card(resource, cardNumber, expiryDate, cvv, ownerName, cardPin, networkType, cardType, LocalDateTime.now()));
+                cards.add(new Card(resource, cardNumber, expiryDate, cvv, ownerName, cardPin, networkType, cardType, dateAdded));
             }
         } catch (Exception e) {
             System.out.println("❌ Database Read Error (Cards): " + e.getMessage());
@@ -198,14 +210,18 @@ public class DatabaseManager {
     }
     public List<Link> getAllLinks(){
         List<Link> links = new ArrayList<>();
-        String sql = "SELECT resource, link FROM Links";
+        String sql = "SELECT resource, link, date_added FROM Links";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()){
 
             while(rs.next()){
-                links.add(new Link(rs.getString("resource"), rs.getString("link")));
+                long timestampMillis = rs.getLong("date_added");
+                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+                links.add(new Link(rs.getString("resource"), rs.getString("link"), dateAdded));
             }
 
         } catch (Exception e) {
@@ -227,10 +243,14 @@ public class DatabaseManager {
                 String address = rs.getString("address");
                 String password = rs.getString("password");
 //                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added").replace(" ", "T"));
+                long timestampMillis = rs.getLong("date_added");
+                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
 
                 String[] wordsArray = wordsString.split(",");
 
-                wallets.add(new Wallet(resource, wordsArray, address, password, LocalDateTime.now()));
+                wallets.add(new Wallet(resource, wordsArray, address, password, dateAdded));
             }
         } catch (Exception e) {
             System.out.println("❌ Database Read Error (Wallets): " + e.getMessage());
@@ -238,15 +258,16 @@ public class DatabaseManager {
         return wallets;
     }
     public void updateAccount(Account account, String oldResource, String oldUsername) {
-        String sql = "UPDATE Accounts SET resource = ?, username = ?, password = ? WHERE resource = ? AND username = ?";
+        String sql = "UPDATE Accounts SET resource = ?, username = ?, password = ?, date_added = ? WHERE resource = ? AND username = ?";
 
         try(Connection conn = DriverManager.getConnection(DB_URL);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account.getResource());
             pstmt.setString(2, account.getUsername());
             pstmt.setString(3, account.getPassword());
-            pstmt.setString(4, oldResource);
-            pstmt.setString(5, oldUsername);
+            pstmt.setTimestamp(4, Timestamp.valueOf(account.getDate()));
+            pstmt.setString(5, oldResource);
+            pstmt.setString(6, oldUsername);
             pstmt.executeUpdate();
 
         } catch (SQLException e){
@@ -254,7 +275,7 @@ public class DatabaseManager {
         }
     }
     public void updateCard(Card card, String oldResource, String oldCardNumber, String oldCardName, String oldCardDate) {
-        String sql = "UPDATE Cards SET resource = ?, card_number = ?, expiry_date = ?, cvv = ?, owner_name = ?, card_pin = ?, network_type = ?, card_type =? WHERE resource = ? AND card_number = ? AND owner_name = ? AND expiry_date = ?";
+        String sql = "UPDATE Cards SET resource = ?, card_number = ?, expiry_date = ?, cvv = ?, owner_name = ?, card_pin = ?, network_type = ?, card_type = ?, date_added = ? WHERE resource = ? AND card_number = ? AND owner_name = ? AND expiry_date = ?";
 
         try(Connection conn = DriverManager.getConnection(DB_URL);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -267,10 +288,11 @@ public class DatabaseManager {
             pstmt.setString(6, card.getCardPincode());
             pstmt.setString(7, card.getCardNetworkType());
             pstmt.setString(8, card.getCardType());
-            pstmt.setString(9, oldResource);
-            pstmt.setString(10, oldCardNumber);
-            pstmt.setString(11, oldCardName);
-            pstmt.setString(12, oldCardDate);
+            pstmt.setTimestamp(9, Timestamp.valueOf(card.getDateAdded()));
+            pstmt.setString(10, oldResource);
+            pstmt.setString(11, oldCardNumber);
+            pstmt.setString(12, oldCardName);
+            pstmt.setString(13, oldCardDate);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -278,15 +300,16 @@ public class DatabaseManager {
         }
     }
     public void updateLink(Link link, String oldResource, String oldLink) {
-        String sql = "UPDATE Links SET resource = ?, link = ? WHERE resource = ? AND link = ?";
+        String sql = "UPDATE Links SET resource = ?, link = ?, date_added = ? WHERE resource = ? AND link = ?";
 
         try(Connection conn = DriverManager.getConnection(DB_URL);
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, link.getResource());
             pstmt.setString(2, link.getLink());
-            pstmt.setString(3, oldResource);
-            pstmt.setString(4, oldLink);
+            pstmt.setTimestamp(3, Timestamp.valueOf(link.getDate()));
+            pstmt.setString(4, oldResource);
+            pstmt.setString(5, oldLink);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -294,7 +317,7 @@ public class DatabaseManager {
         }
     }
     public void updateWallet(Wallet wallet, String oldResource, String oldAddress) {
-        String sql = "UPDATE Wallets SET resource = ?, twelve_words = ?, address = ?, password = ? WHERE resource = ? AND address = ?";
+        String sql = "UPDATE Wallets SET resource = ?, twelve_words = ?, address = ?, password = ?, date_added = ? WHERE resource = ? AND address = ?";
         String wordText = String.join(",", wallet.getTwelveWords());
 
         try(Connection conn = DriverManager.getConnection(DB_URL);
@@ -304,8 +327,9 @@ public class DatabaseManager {
             pstmt.setString(2, wordText);
             pstmt.setString(3, wallet.getAddress());
             pstmt.setString(4, wallet.getPassword());
-            pstmt.setString(5, oldResource);
-            pstmt.setString(6, oldAddress);
+            pstmt.setTimestamp(5, Timestamp.valueOf(wallet.getDateAdded()));
+            pstmt.setString(6, oldResource);
+            pstmt.setString(7, oldAddress);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
