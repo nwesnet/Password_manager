@@ -55,7 +55,7 @@ public class PreferencesManager {
         Gson gson = new Gson();
         try (FileReader reader = new FileReader(PREFS_FILE)) {
             preferences = gson.fromJson(reader, Preferences.class);
-            System.out.println("✅ Preferences loaded: " + gson.toJson(preferences));
+            // System.out.println("✅ Preferences loaded: " + gson.toJson(preferences));
         } catch (IOException e) {
             System.out.println("⚠ Preferences file not found. Using default settings.");
             preferences = new Preferences();
@@ -67,7 +67,7 @@ public class PreferencesManager {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(PREFS_FILE)) {
             gson.toJson(preferences, writer);
-            System.out.println("✅ Preferences saved: " + gson.toJson(preferences));
+            // System.out.println("✅ Preferences saved: " + gson.toJson(preferences));
         } catch (IOException e) {
             System.out.println("❌ Error saving preferences: " + e.getMessage());
         }

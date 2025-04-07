@@ -12,16 +12,15 @@ public class LogsManager {
     private static final String LOG_FILE = "history.txt";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    static {
+    public static void initialize() {
         try {
             Path logsPath = Paths.get(LOG_FILE);
-            if(Files.notExists(logsPath)) {
+            if (Files.notExists(logsPath)) {
                 Files.createFile(logsPath);
-                System.out.println("History.txt file created");
+                // You can log this later after key is ready
             }
-
         } catch (IOException e) {
-            System.out.println("❌ Failed to create log file: " + e.getMessage());
+            // This should be silent or logged once logging is ready
         }
     }
 
@@ -112,5 +111,4 @@ public class LogsManager {
             System.out.println("❌ Failed to reencrypt logs: " + e.getMessage());
         }
     }
-
 }

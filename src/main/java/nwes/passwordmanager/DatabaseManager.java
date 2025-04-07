@@ -20,7 +20,7 @@ public class DatabaseManager {
             // ✅ Create tables inside the SQLite database
             createTables(stmt);
 
-            System.out.println("✅ Database initialized successfully!");
+            // System.out.println("✅ Database initialized successfully!");
 
         } catch (SQLException e) {
             System.out.println("❌ SQLite Error: " + e.getMessage());
@@ -81,7 +81,7 @@ public class DatabaseManager {
 
             // ✅ Execute the insert query
             pstmt.executeUpdate();
-            System.out.println("✅ Account successfully inserted: " + username + "on" + date);
+            // System.out.println("✅ Account successfully inserted: " + username + "on" + date);
 
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
@@ -104,7 +104,7 @@ public class DatabaseManager {
             pstmt.setTimestamp(9, Timestamp.valueOf(date));
 
             pstmt.executeUpdate();
-            System.out.println("✅ Card successfully inserted: " + resource + " on " + date);
+            // System.out.println("✅ Card successfully inserted: " + resource + " on " + date);
 
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
@@ -119,7 +119,7 @@ public class DatabaseManager {
             pstmt.setString(1, resource);
             pstmt.setString(2, link);
             pstmt.executeUpdate();
-            System.out.println("✅ Link successfully inserted: " + resource + " and " + link);
+            // System.out.println("✅ Link successfully inserted: " + resource + " and " + link);
 
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
@@ -139,7 +139,7 @@ public class DatabaseManager {
             pstmt.setTimestamp(5, Timestamp.valueOf(date));
 
             pstmt.executeUpdate();
-            System.out.println("✅ Wallet successfully inserted: " + resource + " on " + date);
+            // System.out.println("✅ Wallet successfully inserted: " + resource + " on " + date);
 
         } catch (SQLException e) {
             System.out.println("❌ Database Write Error: " + e.getMessage());
@@ -381,17 +381,14 @@ public class DatabaseManager {
                 // Save old encrypted values before modifying
                 String oldEncryptedResource = acc.getResource();
                 String oldEncryptedUsername = acc.getUsername();
-
                 // 🔓 Decrypt fields using old key
                 String resource = EncryptionUtils.decrypt(oldEncryptedResource, oldKey);
                 String username = EncryptionUtils.decrypt(oldEncryptedUsername, oldKey);
                 String password = EncryptionUtils.decrypt(acc.getPassword(), oldKey);
-
                 // 🔐 Encrypt fields using the new key
                 acc.setResource(EncryptionUtils.encrypt(resource, newKey));
                 acc.setUsername(EncryptionUtils.encrypt(username, newKey));
                 acc.setPassword(EncryptionUtils.encrypt(password, newKey));
-
                 // ✅ Pass original encrypted identifiers to update
                 db.updateAccount(acc, oldEncryptedResource, oldEncryptedUsername);
 
@@ -399,14 +396,16 @@ public class DatabaseManager {
                 System.out.println("❌ Error re-encrypting account: " + e.getMessage());
             }
         }
-
+        // Reenrypt cards
         List<Card> cards = db.getAllCards();
         for(Card card : cards) {
             try {
+                // Save old encrypted values before modify
                 String oldResource = card.getResource();
                 String oldNumber = card.getCardNumber();
                 String oldName = card.getOnwerName();
                 String oldDate = card.getExpiryDate();
+                // 🔓 Decrypt fields using old key
                 String resource = EncryptionUtils.decrypt(card.getResource(), oldKey);
                 String cardNumber = EncryptionUtils.decrypt(card.getCardNumber(), oldKey);
                 String cardDate = EncryptionUtils.decrypt(card.getExpiryDate(), oldKey);
@@ -415,7 +414,7 @@ public class DatabaseManager {
                 String cardPin = EncryptionUtils.decrypt(card.getCardPincode(), oldKey);
                 String cardNetworkType = EncryptionUtils.decrypt(card.getCardNetworkType(), oldKey);
                 String cardType = EncryptionUtils.decrypt(card.getCardType(), oldKey);
-
+                // 🔐 Encrypt fields using the new key
                 card.setResource(EncryptionUtils.encrypt(resource, newKey));
                 card.setCardNumber(EncryptionUtils.encrypt(cardNumber, newKey));
                 card.setExpiryDate(EncryptionUtils.encrypt(cardDate, newKey));
@@ -424,46 +423,47 @@ public class DatabaseManager {
                 card.setCardPincode(EncryptionUtils.encrypt(cardPin, newKey));
                 card.setCardNetworkType(EncryptionUtils.encrypt(cardNetworkType, newKey));
                 card.setCardType(EncryptionUtils.encrypt(cardType, newKey));
-
+                // ✅ Pass original encrypted identifiers to update
                 db.updateCard(card, oldResource, oldNumber, oldName, oldDate);
             } catch (Exception e) {
                 System.out.println("❌ Error re-encrypting card: " + e.getMessage());
             }
         }
+        // Reencrypt links
         List<Link> links = db.getAllLinks();
         for(Link link : links) {
             try {
+                // Save old encrypted values before modify
                 String oldResource = link.getResource();
                 String oldLink = link.getLink();
-
+                // 🔓 Decrypt fields using old key
                 String resource = EncryptionUtils.decrypt(link.getResource(), oldKey);
                 String linkData = EncryptionUtils.decrypt(link.getLink(), oldKey);
-
+                // 🔐 Encrypt fields using the new key
                 link.setResource(EncryptionUtils.encrypt(resource, newKey));
                 link.setLink(EncryptionUtils.encrypt(linkData, newKey));
-
+                // ✅ Pass original encrypted identifiers to update
                 db.updateLink(link, oldResource, oldLink);
             } catch (Exception e) {
                 System.out.println("❌ Error re-encrypting link: " + e.getMessage());
             }
         }
+        // Reencrypt wallets
         List<Wallet> wallets = db.getAllWallets();
         for (Wallet wallet : wallets) {
             try {
+                // Save old encrypted values before modify
                 String oldResource = wallet.getResource();
                 String oldAddress = wallet.getAddress();
-
                 // Decrypt with old key
                 String resource = EncryptionUtils.decrypt(wallet.getResource(), oldKey);
                 String address = EncryptionUtils.decrypt(wallet.getAddress(), oldKey);
                 String password = EncryptionUtils.decrypt(wallet.getPassword(), oldKey);
-
                 // Decrypt each twelve word individually
                 String[] decryptedWords = new String[wallet.getTwelveWords().length];
                 for (int i = 0; i < wallet.getTwelveWords().length; i++) {
                     decryptedWords[i] = EncryptionUtils.decrypt(wallet.getTwelveWords()[i], oldKey);
                 }
-
                 // Re-encrypt with new key
                 String newEncryptedResource = EncryptionUtils.encrypt(resource, newKey);
                 String newEncryptedAddress = EncryptionUtils.encrypt(address, newKey);
@@ -472,7 +472,6 @@ public class DatabaseManager {
                 for (int i = 0; i < decryptedWords.length; i++) {
                     reencryptedWords[i] = EncryptionUtils.encrypt(decryptedWords[i], newKey);
                 }
-
                 // Build new Wallet and update
                 Wallet newWallet = new Wallet(
                         newEncryptedResource,
@@ -481,7 +480,7 @@ public class DatabaseManager {
                         newEncryptedPassword,
                         wallet.getDateAdded()
                 );
-
+                // ✅ Pass original encrypted identifiers to update
                 db.updateWallet(newWallet, oldResource, oldAddress);
             } catch (Exception e) {
                 System.out.println("❌ Error re-encrypting wallet: " + e.getMessage());

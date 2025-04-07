@@ -69,15 +69,15 @@
                     >
                         <GridPane hgap="1" vgap="5">
                             <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                            <Button fx:id="editLoginBtn" text="Edit" onAction="#onEditLoginDialogClick"
+                            <Button fx:id="editLoginBtn" styleClass="edit-button" onAction="#onEditLoginDialogClick"
                                     GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                             <PasswordField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                            <Button fx:id="showPsswdBtn" text="show" onAction="#onShowPsswdBtnClick"
+                            <Button fx:id="showPsswdBtn" styleClass="show-button" onAction="#onShowPsswdBtnClick"
                                     GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                             <PasswordField fx:id="pinField" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                            <Button fx:id="showPinBtn" text="show" onAction="#onShowPinBtnClick"
+                            <Button fx:id="showPinBtn" styleClass="show-button" onAction="#onShowPinBtnClick"
                                     GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                         </GridPane>
                     </VBox>

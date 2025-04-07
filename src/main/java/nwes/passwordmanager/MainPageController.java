@@ -272,7 +272,7 @@ public class MainPageController {
     }
     @FXML
     protected void onDoubleConfirmationClick() {
-        boolean current = SecurityManager.isDoubleConfirmationEnabled();
+        boolean current = PreferencesManager.isDoubleConfirmationEnabled();
         boolean updated = !current;
 
         SecurityManager.setDoubleConfirmationEnabled(updated);
@@ -736,44 +736,60 @@ public class MainPageController {
     private void openEditLoginDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit login info");
+
         String oldUsername = PreferencesManager.getUsername();
         String oldPassword = PreferencesManager.getPassword();
-        System.out.printf("the old username: %s the old password: %s\n",oldUsername, oldPassword);
 
         TextField usernameField = new TextField(PreferencesManager.getUsername());
         TextField passwordField = new TextField(PreferencesManager.getPassword());
         TextField pincodeField = new TextField(PreferencesManager.getPincode());
+        // Create and configure GridPane
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(1);
+        grid.setVgap(5);
+        grid.setPadding(new Insets(20));
 
-        VBox vb = new VBox(5,
-                new HBox(5, new Label("Username: "), usernameField),
-                new HBox(5, new Label("Password: "), passwordField),
-                new HBox(5, new Label("Pin code: "), pincodeField)
-        );
-        vb.setPadding(new Insets(10));
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setPrefWidth(80);
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setPrefWidth(240);
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn);
+        // Add labels and fields to the grid
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(usernameField, 1, 0);
+
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(passwordField, 1, 1);
+
+        grid.add(new Label("Pin code:"), 0, 2);
+        grid.add(pincodeField, 1, 2);
 
         ThemeManager.applyThemeToDialog(dialog);
 
-        dialog.getDialogPane().setContent(vb);
+        dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK) {
-                System.out.println("I am here");
                 boolean DC = PreferencesManager.isDoubleConfirmationEnabled();
                 boolean SL = PreferencesManager.isStoreLogsEnabled();
-                System.out.println("Status: " + DC + " " + SL );
-                EncryptionUtils.reencryptAllData(oldUsername, oldPassword, usernameField.getText(), passwordField.getText());
+                EncryptionUtils.reencryptAllData(
+                        oldUsername,
+                        oldPassword,
+                        usernameField.getText(),
+                        passwordField.getText()
+                );
 
                 PreferencesManager.setUsername(usernameField.getText());
                 PreferencesManager.setPassword(passwordField.getText());
                 PreferencesManager.setPincode(pincodeField.getText());
                 PreferencesManager.setDoubleConfirmation(DC);
                 PreferencesManager.setStoreLogsEnabled(SL);
-                onAccountInfoButtonClick();
             }
         });
     }
-    // Change it when will be ready: ( mb grid.. ) All edit and delete windows
+
     private void openEditAccountDialog(Account account){
         String oldResource = account.getResource();
         String oldUsername = account.getUsername();
@@ -791,7 +807,6 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit account: " + account.getResourceDecrypted());
-        dialog.getDialogPane().setPrefSize(350, 220);
 
         TextField resourceField = new TextField(account.getResourceDecrypted());
         resourceField.setPrefColumnCount(20);
@@ -846,8 +861,7 @@ public class MainPageController {
         grid.getColumnConstraints().addAll(labelColumn, inputColumn);
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit card: " + card.getResource());
-        dialog.getDialogPane().setPrefSize(550, 220);
+        dialog.setTitle("Edit card: " + card.getResourceDecrypted());
 
         TextField resourceField = new TextField(card.getResourceDecrypted());
         TextField cardNumberField = new TextField(card.getCardNumberDecrypted());
@@ -897,7 +911,7 @@ public class MainPageController {
                 card.setCardTypeEncrypted(typeField.getText());
                 new DatabaseManager().updateCard(card, oldResource, oldCardNumber, oldCardName, oldExpiryDate);
                 if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Card", card.getResource());
+                    LogsManager.logEdit("Card", card.getResourceDecrypted());
                 }
                 onShowCards(); // Refresh
             }
@@ -920,7 +934,6 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit link " + link.getResourceDecrypted());
-        dialog.getDialogPane().setPrefSize(350, 220);
 
         TextField resourceField = new TextField(link.getResourceDecrypted());
         TextField linkField = new TextField(link.getLinkDecrypted());
@@ -942,7 +955,7 @@ public class MainPageController {
                 link.setLinkEncrypted(linkField.getText());
                 new DatabaseManager().updateLink(link, oldResource, oldLink);
                 if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Link", link.getResource());
+                    LogsManager.logEdit("Link", link.getResourceDecrypted());
                 }
                 onShowLinks();
             }
@@ -954,7 +967,6 @@ public class MainPageController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit wallet " + wallet.getResourceDecrypted());
-        dialog.getDialogPane().setPrefSize(450, 220);
 
         TextField resourceField = new TextField(wallet.getResourceDecrypted());
         TextField addressField = new TextField(wallet.getAddressDecrypted());
@@ -974,7 +986,7 @@ public class MainPageController {
                 new HBox(new Label("Resource: "), resourceField),
                 new VBox(new Label("Key words: "), fp),
                 new VBox(new HBox(new Label("Address:"), addressField),
-                        new HBox(new Label("Pincode:"), pinField))
+                new HBox(new Label("Pincode:"), pinField))
         );
         vb.setPadding(new Insets(10));
 
@@ -993,7 +1005,7 @@ public class MainPageController {
                 wallet.setTwelveWordsEncrypted(updateWords);
                 new DatabaseManager().updateWallet(wallet, oldResource, oldAddress);
                 if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Wallet", wallet.getResource());
+                    LogsManager.logEdit("Wallet", wallet.getResourceDecrypted());
                 }
                 onShowWallets();
             }
@@ -1138,6 +1150,7 @@ public class MainPageController {
             String inputPin = pinField.getText();
 
             if (SecurityManager.validatePin(inputPin)) {
+                SecurityManager.temporarilyDisableDoubleConfirmation(3);
                 onSuccess.run();
                 dialog.setResult(null); // Close the dialog
             } else {

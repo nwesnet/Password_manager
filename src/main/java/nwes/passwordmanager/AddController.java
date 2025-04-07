@@ -1,11 +1,13 @@
 package nwes.passwordmanager;
 
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.time.LocalDateTime;
 
@@ -88,11 +90,24 @@ public class AddController {
         accountPasswordField.setPrefColumnCount(24);
 
         saveButton = new Button("Save");
-        saveButton.setOnAction(e -> onSaveButtonClick(
-                accountResourceField.getText(),
-                accountUsernameField.getText(),
-                accountPasswordField.getText()
-        ));
+        saveButton.setOnAction(e -> {
+            boolean saved = onSaveButtonClick(
+                    accountResourceField.getText(),
+                    accountUsernameField.getText(),
+                    accountPasswordField.getText()
+            );
+            if(saved) {
+                accountResourceField.clear();
+                accountUsernameField.clear();
+                accountPasswordField.clear();
+                saveButton.setStyle("-fx-border-color: green; -fx-border-width: 2px;");
+            } else {
+                saveButton.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            }
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(event -> saveButton.setStyle(null));
+            pause.play();
+        });
         cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
@@ -151,16 +166,34 @@ public class AddController {
         cardTypeField.setPrefColumnCount(10);
 
         saveButton = new Button("save");
-        saveButton.setOnAction(e -> onSaveButtonClick(
-                cardResourceField.getText(),
-                cardNumberField.getText(),
-                cardDateField.getText(),
-                cardCVVField.getText(),
-                cardNameField.getText(),
-                cardPinField.getText(),
-                cardTypePayField.getText(),
-                cardTypeField.getText()
-        ));
+        saveButton.setOnAction(e -> {
+            boolean saved = onSaveButtonClick(
+                    cardResourceField.getText(),
+                    cardNumberField.getText(),
+                    cardDateField.getText(),
+                    cardCVVField.getText(),
+                    cardNameField.getText(),
+                    cardPinField.getText(),
+                    cardTypePayField.getText(),
+                    cardTypeField.getText()
+            );
+            if (saved) {
+                cardResourceField.clear();
+                cardNumberField.clear();
+                cardDateField.clear();
+                cardCVVField.clear();
+                cardNameField.clear();
+                cardPinField.clear();
+                cardTypePayField.clear();
+                cardTypeField.clear();
+                saveButton.setStyle("-fx-border-color: green; -fx-border-width: 2px;");
+            } else {
+                saveButton.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            }
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(event -> saveButton.setStyle(null));
+            pause.play();
+        });
         cancelButton = new Button("cancel");
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
@@ -208,12 +241,20 @@ public class AddController {
         cancelButton = new Button("Cancel");
 
         saveButton.setOnAction(e -> {
-            String resource = resourceField.getText();
-            String url = linkField.getText();
-            if (!resource.isEmpty() || !url.isEmpty()) {
-                onSaveButtonClick(resource, url);
-                onCancelButtonClick(); // or clear fields
+            boolean saved = onSaveButtonClick(
+                    resourceField.getText(),
+                    linkField.getText()
+            );
+            if (saved) {
+                resourceField.clear();
+                linkField.clear();
+                saveButton.setStyle("-fx-border-color: green; -fx-border-width: 2px;");
+            } else {
+                saveButton.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
             }
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(event -> saveButton.setStyle(null));
+            pause.play();
         });
 
         cancelButton.setOnAction(e -> onCancelButtonClick());
@@ -239,18 +280,33 @@ public class AddController {
         walletWordsField = new TextArea();
         walletWordsField.setPrefColumnCount(23);
         walletWordsField.setPrefRowCount(4);
+        walletWordsField.setWrapText(true);
         walletAddressField = new TextField();
         walletAddressField.setPrefColumnCount(24);
         walletPasswordField = new PasswordField();
         walletPasswordField.setPrefColumnCount(24);
 
         saveButton = new Button("save");
-        saveButton.setOnAction(e -> onSaveButtonClick(
-                walletResourceField.getText(),
-                walletWordsField,
-                walletAddressField.getText(),
-                walletPasswordField.getText()
-        ));
+        saveButton.setOnAction(e -> {
+            boolean saved = onSaveButtonClick(
+                    walletResourceField.getText(),
+                    walletWordsField,
+                    walletAddressField.getText(),
+                    walletPasswordField.getText()
+            );
+            if (saved) {
+                walletResourceField.clear();
+                walletWordsField.clear();
+                walletAddressField.clear();
+                walletPasswordField.clear();
+                saveButton.setStyle("-fx-border-color: green; -fx-border-width: 2px;");
+            } else {
+                saveButton.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            }
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(event -> saveButton.setStyle(null));
+            pause.play();
+        });
         cancelButton = new Button("cancel");
         cancelButton.setOnAction(e -> onCancelButtonClick());
 
@@ -269,27 +325,32 @@ public class AddController {
         Label label = new Label("text");
         vbAdd.getChildren().addAll(label);
     }
-    private void onSaveButtonClick(String resource, String username, String password) {
+    private boolean onSaveButtonClick(String resource, String username, String password) {
         try {
-            DatabaseManager dm = new DatabaseManager();
-            LocalDateTime date = LocalDateTime.now();
-            if (!resource.isEmpty() || !username.isEmpty() || !password.isEmpty()) {
+            if (!resource.isEmpty() && !username.isEmpty() && !password.isEmpty()) {
+                DatabaseManager dm = new DatabaseManager();
+                LocalDateTime date = LocalDateTime.now();
 
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedUsernmae = EncryptionUtils.encrypt(username);
                 String encryptedPassword = EncryptionUtils.encrypt(password);
 
                 dm.writeAccountTodb(encryptedResource, encryptedUsernmae, encryptedPassword, date);
+
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Account", resource);
                 }
+
+                return true;
             }
         } catch (Exception e) {
             System.out.println("❌ Error encrypting data: " + e.getMessage());
         }
+        return false;
     }
 
-    private void onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String pincode, String networkType, String cardType) {
+
+    private boolean onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String pincode, String networkType, String cardType) {
         try {
             DatabaseManager dm = new DatabaseManager();
             LocalDateTime date = LocalDateTime.now();
@@ -320,12 +381,14 @@ public class AddController {
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Card", resource); // resource in log stays plaintext
                 }
+                return true;
             }
         } catch (Exception e) {
             System.out.println("❌ Error encrypting card data: " + e.getMessage());
         }
+        return false;
     }
-    private void onSaveButtonClick(String resource, String link) {
+    private boolean onSaveButtonClick(String resource, String link) {
         try {
             DatabaseManager dm = new DatabaseManager();
 
@@ -339,12 +402,15 @@ public class AddController {
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Link", resource); // log original name
                 }
+                return true;
             }
+
         } catch (Exception e) {
             System.out.println("❌ Error encrypting link: " + e.getMessage());
         }
+        return false;
     }
-    private void onSaveButtonClick(String resource, TextArea words, String address, String password) {
+    private boolean onSaveButtonClick(String resource, TextArea words, String address, String password) {
         try {
             DatabaseManager dm = new DatabaseManager();
             LocalDateTime date = LocalDateTime.now();
@@ -354,7 +420,7 @@ public class AddController {
 
             if (wordsArray.length < 12 || wordsArray.length > 24) {
                 System.out.println("❌ Invalid number of words. Must be between 12 and 24.");
-                return;
+                return false;
             }
 
             // 🔐 Encrypt words individually
@@ -372,10 +438,12 @@ public class AddController {
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Wallet", resource); // log plain resource
                 }
+                return true;
             }
         } catch (Exception e) {
             System.out.println("❌ Error encrypting wallet data: " + e.getMessage());
         }
+        return false;
     }
     private void onCancelButtonClick(){
         Stage addStage = (Stage) cancelButton.getScene().getWindow();

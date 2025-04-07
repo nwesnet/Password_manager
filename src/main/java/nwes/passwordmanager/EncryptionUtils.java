@@ -56,7 +56,7 @@ public class EncryptionUtils {
     }
     public static void reencryptAllData(String oldUsername, String oldPassword, String newUsername, String newPassword) {
         try {
-            System.out.printf("The old username: %s The old password: %s The new username: %s The new password: %s", oldUsername, oldPassword, newUsername, newPassword);
+
             SecretKey oldKey = getKeyFromString(oldUsername + oldPassword);
             SecretKey newKey = getKeyFromString(newUsername + newPassword);
 
