@@ -2,17 +2,18 @@ package nwes.passwordmanager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import javax.crypto.SecretKey;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class PreferencesManager {
-    private static final String PREFS_FILE = "preferences.json";
+    private static final Path USER_DATA_DIR = Paths.get(System.getProperty("user.home"), ".local", "share", "PasswordManager");
+    private static final String PREFS_FILE = USER_DATA_DIR.resolve("preferences.json").toString();
+
     private static Preferences preferences;
     // Load preferences when the app starts
     static {
@@ -55,7 +56,6 @@ public class PreferencesManager {
         Gson gson = new Gson();
         try (FileReader reader = new FileReader(PREFS_FILE)) {
             preferences = gson.fromJson(reader, Preferences.class);
-            // System.out.println("✅ Preferences loaded: " + gson.toJson(preferences));
         } catch (IOException e) {
             System.out.println("⚠ Preferences file not found. Using default settings.");
             preferences = new Preferences();
@@ -67,7 +67,6 @@ public class PreferencesManager {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(PREFS_FILE)) {
             gson.toJson(preferences, writer);
-            // System.out.println("✅ Preferences saved: " + gson.toJson(preferences));
         } catch (IOException e) {
             System.out.println("❌ Error saving preferences: " + e.getMessage());
         }

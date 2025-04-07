@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogsManager {
-    private static final String LOG_FILE = "history.txt";
+    private static final Path USER_DATA_DIR = Paths.get(System.getProperty("user.home"), ".local", "share", "PasswordManager");
+    private static final String LOG_FILE = USER_DATA_DIR.resolve("history.txt").toString();
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd.MM.yyyy");
 
     public static void initialize() {

@@ -1,6 +1,8 @@
 package nwes.passwordmanager;
 
 import javax.crypto.SecretKey;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 
 import java.time.Instant;
@@ -10,7 +12,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class DatabaseManager {
-    private static final String DB_URL = "jdbc:sqlite:passwords.db";  // Standard SQLite database
+    private static final Path USER_DATA_DIR = Paths.get(System.getProperty("user.home"), ".local", "share", "PasswordManager");
+    private static final String DB_URL = "jdbc:sqlite:" + USER_DATA_DIR.resolve("passwords.db");
+    // Standard SQLite database
 
     /**
      * Creates a new SQLite database and initializes tables.
