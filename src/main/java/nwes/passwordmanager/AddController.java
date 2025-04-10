@@ -418,8 +418,8 @@ public class AddController {
             String wordsText = words.getText().trim();
             String[] wordsArray = wordsText.split("\\s+");
 
-            if (wordsArray.length < 12 || wordsArray.length > 24) {
-                System.out.println("❌ Invalid number of words. Must be between 12 and 24.");
+            if (wordsArray.length < 8 || wordsArray.length > 32) {
+                System.out.println("❌ Invalid number of words. Must be between 8 and 32.");
                 return false;
             }
 

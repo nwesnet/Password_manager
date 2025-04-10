@@ -1,5 +1,6 @@
 package nwes.passwordmanager;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -52,6 +53,12 @@ public class LoginController {
                 mainStage.setTitle("Password manager");
                 mainStage.setOnCloseRequest(e -> ThemeManager.unregisterScene(mainScene));
                 mainStage.show();
+                Platform.runLater(() -> {
+                    mainStage.setMinWidth(650);
+                    mainStage.setMinHeight(550);
+                    mainStage.setWidth(850);
+                    mainStage.setHeight(750);
+                });
                 // Set login action to logs
                 LogsManager.logLogin();
                 // Close login stage
