@@ -23,6 +23,7 @@ public class PreferencesManager {
         public LoginInfo login_info = new LoginInfo();
         public Security security = new Security();
         public String theme = "light";
+        public String sync = "false";
     }
     public static class LoginInfo {
         public String username = "default_user";
@@ -33,7 +34,7 @@ public class PreferencesManager {
         public String double_confirmation = "true";
         public String store_logs = "true";
     }
-    public static void createNewPreferences(String username, String password, String pincode) {
+    public static void createNewPreferences(String username, String password, String pincode, String sync) {
         try {
             SecretKey key = EncryptionUtils.getKeyFromString(username + password);
 
@@ -43,6 +44,7 @@ public class PreferencesManager {
             preferences.login_info.pincode = EncryptionUtils.encrypt(pincode, key);
             preferences.security.double_confirmation = EncryptionUtils.encrypt("true" , key);
             preferences.security.store_logs = EncryptionUtils.encrypt("true" , key);
+            preferences.sync = EncryptionUtils.encrypt(sync, key);
 
             savePreferences();
 
@@ -166,6 +168,23 @@ public class PreferencesManager {
     public static String getThemeCssPath() {
         String theme = getTheme();
         return "/css/" + theme + "-theme.css";
+    }
+
+    public static boolean isSyncEnabled() {
+        try {
+            return Boolean.parseBoolean(EncryptionUtils.decrypt(preferences.sync));
+        } catch (Exception e) {
+            System.out.println("Sync decyrpt failed:" + e.getMessage());
+            return false;
+        }
+    }
+    public static void setSyncEnabled(boolean enabled) {
+        try {
+            preferences.sync = EncryptionUtils.encrypt(String.valueOf(enabled));
+            savePreferences();
+        } catch (Exception e) {
+            System.out.println("Sync encrypt failed: " + e.getMessage());
+        }
     }
 }
 

@@ -9,22 +9,38 @@ import javafx.stage.Stage;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class LoginController {
 
     @FXML private VBox loginVBox;
     @FXML private VBox createAccountVBox;
+    @FXML private VBox dynamicalFieldsVBox;
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private Label welcomeText;
 
+    @FXML private TextField emailField;
     @FXML private TextField newUsernameField;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
     @FXML private Label createText;
 
     @FXML private Button loginButton;
+
+    @FXML
+    private CheckBox connectToServerCheckbox;
+
+    @FXML
+    public void initialize() {
+        connectToServerCheckbox.selectedProperty().addListener((observer, oldValue, newValue) -> {
+            emailField.setVisible(newValue);
+        });
+    }
 
     @FXML
     protected void onLoginButtonClick() throws Exception{
@@ -82,25 +98,89 @@ public class LoginController {
     // Crete account logic
     @FXML
     protected void onCreateNewAccount() {
+        boolean connectToServer = connectToServerCheckbox.isSelected();
         // Get input data
-        String newUser = newUsernameField.getText().trim();
-        String newPass = newPasswordField.getText().trim();
-        String confirmPass = confirmPasswordField.getText().trim();
-        // Check if isn't empty
-        if (newUser.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
-            createText.setText("All fields are required.");
-            return;
+        if (connectToServer) {
+            String newEmail = emailField.getText().trim();
+            String newUser = newUsernameField.getText().trim();
+            String newPass = newPasswordField.getText().trim();
+            String confirmPass = confirmPasswordField.getText().trim();
+            if (newEmail.isEmpty() || newUser.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
+                createText.setText("All fields should be required.");
+                return;
+            }
+            if (!isValidEmail(newEmail)) {
+                createText.setText("Invalid email format.");
+                return;
+            }
+            if (newPass.equals(confirmPass)) {
+                createText.setText("Passwords matches");
+                return;
+            }
+            String error = registerOnServer(newEmail, newUser, newPass, confirmPass);
+            if (error == null) {
+                // Create new account
+                PreferencesManager.createNewPreferences(newUser, newPass, confirmPass, String.valueOf(connectToServer));
+                createText.setText("Account created");
+                createAccountVBox.setVisible(false);
+                loginVBox.setVisible(true);
+            } else {
+                createText.setText("Server Error: " + error);
+            }
+
+        } else {
+            String newUser = newUsernameField.getText().trim();
+            String newPass = newPasswordField.getText().trim();
+            String confirmPass = confirmPasswordField.getText().trim();
+            // Check if isn't empty
+            if (newUser.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
+                createText.setText("All fields are required.");
+                return;
+            }
+
+            if (newPass.equals(confirmPass)) {
+                createText.setText("Passwords matches.");
+                return;
+            }
+            // Create new account
+            PreferencesManager.createNewPreferences(newUser, newPass, confirmPass, String.valueOf(connectToServer));
+            createText.setText("Account created");
+            createAccountVBox.setVisible(false);
+            loginVBox.setVisible(true);
         }
 
-        if (newPass.equals(confirmPass)) {
-            createText.setText("Passwords matches.");
-            return;
-        }
-        // Create new account
-        PreferencesManager.createNewPreferences(newUser, newPass, confirmPass);
-        createText.setText("Account created");
-        createAccountVBox.setVisible(false);
-        loginVBox.setVisible(true);
     }
+    public boolean isValidEmail(String email) {
+        return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    }
+    public static String registerOnServer(String email, String username, String password, String confirmPass) {
+        try {
+            URL url = new URL("http://localhost:8080/api/register");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            String json = String.format(
+                    "{\"email\":\"%s\", \"username\":\"%s\", \"password\":\"%s\", \"additionalPassword\":\"%s\"}",
+                    email, username, password, confirmPass
+            );
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = json.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+            int code = conn.getResponseCode();
+            if (code == 200) {
+                return null;
+            } else {
+                try (InputStream err = conn.getErrorStream()) {
+                    return new String(err.readAllBytes());
+                }
+            }
+        } catch(Exception e) {
+            return "Connection error: " + e.getMessage();
+        }
+    }
+
 }
 
