@@ -6,8 +6,10 @@ import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:passwords.db";  // Standard SQLite database
@@ -150,8 +152,8 @@ public class DatabaseManager {
         }
     }
 
-    public List<Account> getAllAccounts(){
-        List<Account> accounts = new ArrayList<>();
+    public Set<Account> getAllAccounts(){
+        Set<Account> accounts = new HashSet<>();
         String sql = "SELECT resource, username, password, date_added FROM Accounts";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -265,7 +267,7 @@ public class DatabaseManager {
             pstmt.setString(1, account.getResource());
             pstmt.setString(2, account.getUsername());
             pstmt.setString(3, account.getPassword());
-            pstmt.setTimestamp(4, Timestamp.valueOf(account.getDate()));
+            pstmt.setTimestamp(4, Timestamp.valueOf(account.getDateAdded()));
             pstmt.setString(5, oldResource);
             pstmt.setString(6, oldUsername);
             pstmt.executeUpdate();
@@ -399,7 +401,7 @@ public class DatabaseManager {
         DatabaseManager db = new DatabaseManager();
 
         // Reencrypt Accounts
-        List<Account> accounts = db.getAllAccounts();
+        Set<Account> accounts = db.getAllAccounts();
         for (Account acc : accounts) {
             try {
                 // Save old encrypted values before modifying
@@ -512,6 +514,15 @@ public class DatabaseManager {
         }
 
     }
+    public void mergeServerAccounts(Set<Account> serverAccounts) {
+        Set<Account> localAccounts = new HashSet<>(getAllAccounts());
+        for (Account account : serverAccounts) {
+            if (!localAccounts.contains(account)) {
+                writeAccountTodb(account.getResource(), account.getUsername(), account.getPassword(), account.getDateAdded());
+            }
+        }
+    }
+
 }
 
 

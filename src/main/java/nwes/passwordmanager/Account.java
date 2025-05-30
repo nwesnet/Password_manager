@@ -6,13 +6,13 @@ public class Account {
     private String resource;
     private String username;
     private String password;
-    private LocalDateTime date;
+    private LocalDateTime dateAdded;
 
-    public Account(String resource, String username, String password, LocalDateTime date){
+    public Account(String resource, String username, String password, LocalDateTime dateAdded){
         this.resource = resource;
         this.username = username;
         this.password = password;
-        this.date = date;
+        this.dateAdded = dateAdded;
     }
 
     public String getResource() {
@@ -30,8 +30,8 @@ public class Account {
     }
     public void setPassword(String password) { this.password = password; }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getDateAdded() {
+        return dateAdded;
     }
 
     public String getResourceDecrypted() {
@@ -78,12 +78,22 @@ public class Account {
     }
 
     @Override
-    public String toString() {
-        return "Account{" +
-                "resource='" + resource + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", date=" + date +
-                '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Account account = (Account) o;
+
+        return resource.equals(account.resource) &&
+                username.equals(account.username) &&
+                password.equals(account.password);
+    }
+    @Override
+    public int hashCode() {
+        int result = resource.hashCode();
+        result = 31 * result + username.hashCode();
+        result = 31 * result + password.hashCode();
+
+        return result;
     }
 }

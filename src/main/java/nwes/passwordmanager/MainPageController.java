@@ -12,10 +12,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class MainPageController {
     @FXML
@@ -77,7 +74,7 @@ public class MainPageController {
     @FXML
     private VBox showListContentVBox;
 
-    private List<Account> allAccounts = new ArrayList<>();
+    private Set<Account> allAccounts = new HashSet<>();
     private List<Card> allCards = new ArrayList<>();
     private List<Link> allLinks = new ArrayList<>();
     private List<Wallet> allWallets = new ArrayList<>();

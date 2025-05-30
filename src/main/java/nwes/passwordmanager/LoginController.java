@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Set;
 
 public class LoginController {
 
@@ -73,6 +75,15 @@ public class LoginController {
                 // Close login stage
                 Stage loginStage = (Stage) loginButton.getScene().getWindow();
                 loginStage.close();
+                // Sync with website
+                if (PreferencesManager.isSyncEnabled()) {
+                    DatabaseManager dm = new DatabaseManager();
+                    Set<Account> localAccounts = dm.getAllAccounts();
+                    Set<Account> serverAccounts = SyncManager.syncAccounts(localAccounts, username, password);
+                    if (serverAccounts != null) {
+                        dm.mergeServerAccounts(serverAccounts);
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 welcomeText.setText("Failed to load main page.");
@@ -80,7 +91,6 @@ public class LoginController {
         } else {
             welcomeText.setText("Incorrect username or password.");
         }
-
     }
     // Hide login vbox and show create account vbox
     @FXML
