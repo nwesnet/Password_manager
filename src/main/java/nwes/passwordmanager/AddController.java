@@ -329,13 +329,17 @@ public class AddController {
         try {
             if (!resource.isEmpty() && !username.isEmpty() && !password.isEmpty()) {
                 DatabaseManager dm = new DatabaseManager();
-                LocalDateTime date = LocalDateTime.now();
-
+                LocalDateTime now = LocalDateTime.now();
+                String id = java.util.UUID.randomUUID().toString();
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedUsernmae = EncryptionUtils.encrypt(username);
                 String encryptedPassword = EncryptionUtils.encrypt(password);
+                String ownerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
+                String deleted = "false";
+                String sync = String.valueOf(PreferencesManager.isSyncEnabled());
 
-                dm.writeAccountTodb(encryptedResource, encryptedUsernmae, encryptedPassword, date);
+
+                dm.writeAccountTodb(id, encryptedResource, encryptedUsernmae, encryptedPassword, ownerUsername, now, now, deleted, sync);
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Account", resource);
@@ -350,13 +354,17 @@ public class AddController {
     }
 
 
-    private boolean onSaveButtonClick(String resource, String cardNumber, String expiryDate, String cvv, String ownerName, String pincode, String networkType, String cardType) {
+    private boolean onSaveButtonClick(
+            String resource, String cardNumber, String expiryDate, String cvv, String ownerName,
+            String pincode,
+            String networkType, String cardType
+    ) {
         try {
-            DatabaseManager dm = new DatabaseManager();
-            LocalDateTime date = LocalDateTime.now();
-
             if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()) {
+                DatabaseManager dm = new DatabaseManager();
+                LocalDateTime now = LocalDateTime.now();
                 // 🔐 Encrypt all card data before saving
+                String id = java.util.UUID.randomUUID().toString();
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedCardNumber = EncryptionUtils.encrypt(cardNumber);
                 String encryptedExpiryDate = EncryptionUtils.encrypt(expiryDate);
@@ -365,8 +373,12 @@ public class AddController {
                 String encryptedPincode = EncryptionUtils.encrypt(pincode);
                 String encryptedNetworkType = EncryptionUtils.encrypt(networkType);
                 String encryptedCardType = EncryptionUtils.encrypt(cardType);
+                String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
+                String deleted = "false";
+                String sync = String.valueOf(PreferencesManager.isSyncEnabled());
 
                 dm.writeCardTodb(
+                        id,
                         encryptedResource,
                         encryptedCardNumber,
                         encryptedExpiryDate,
@@ -375,7 +387,11 @@ public class AddController {
                         encryptedPincode,
                         encryptedNetworkType,
                         encryptedCardType,
-                        date
+                        encryptedOwnerUsername,
+                        now,
+                        now,
+                        deleted,
+                        sync
                 );
 
                 if (SecurityManager.isStoreLogsEnabled()) {
@@ -390,14 +406,17 @@ public class AddController {
     }
     private boolean onSaveButtonClick(String resource, String link) {
         try {
-            DatabaseManager dm = new DatabaseManager();
-            LocalDateTime date = LocalDateTime.now();
             if (!resource.isEmpty() || !link.isEmpty()) {
+                DatabaseManager dm = new DatabaseManager();
+                LocalDateTime now = LocalDateTime.now();
                 // 🔐 Encrypt both fields
+                String id = java.util.UUID.randomUUID().toString();
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedLink = EncryptionUtils.encrypt(link);
-
-                dm.writeLinkTodb(encryptedResource, encryptedLink, date);
+                String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
+                String deleted = "false";
+                String sync = String.valueOf(PreferencesManager.isSyncEnabled());
+                dm.writeLinkTodb(id, encryptedResource, encryptedLink, encryptedOwnerUsername, now, now, deleted, sync);
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Link", resource); // log original name
@@ -412,9 +431,6 @@ public class AddController {
     }
     private boolean onSaveButtonClick(String resource, TextArea words, String address, String password) {
         try {
-            DatabaseManager dm = new DatabaseManager();
-            LocalDateTime date = LocalDateTime.now();
-
             String wordsText = words.getText().trim();
             String[] wordsArray = wordsText.split("\\s+");
 
@@ -427,13 +443,20 @@ public class AddController {
             for (int i = 0; i < wordsArray.length; i++) {
                 wordsArray[i] = EncryptionUtils.encrypt(wordsArray[i]);
             }
+            DatabaseManager dm = new DatabaseManager();
+            LocalDateTime now = LocalDateTime.now();
+
             String encryptedWordsString = String.join(",", wordsArray);
+
+            String id = java.util.UUID.randomUUID().toString();
             String encryptedResource = EncryptionUtils.encrypt(resource);
             String encryptedAddress = EncryptionUtils.encrypt(address);
             String encryptedPassword = EncryptionUtils.encrypt(password);
-
+            String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
+            String deleted = "false";
+            String sync = String.valueOf(PreferencesManager.isSyncEnabled());
             if (!resource.isEmpty() || !encryptedWordsString.isEmpty() || !password.isEmpty()) {
-                dm.writeWalletTodb(encryptedResource, encryptedWordsString, encryptedAddress, encryptedPassword, date);
+                dm.writeWalletTodb(id, encryptedResource, encryptedWordsString, encryptedAddress, encryptedPassword, encryptedOwnerUsername, now, now, deleted, sync);
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Wallet", resource); // log plain resource

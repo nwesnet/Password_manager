@@ -12,6 +12,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class MainPageController {
@@ -75,9 +76,9 @@ public class MainPageController {
     private VBox showListContentVBox;
 
     private Set<Account> allAccounts = new HashSet<>();
-    private List<Card> allCards = new ArrayList<>();
-    private List<Link> allLinks = new ArrayList<>();
-    private List<Wallet> allWallets = new ArrayList<>();
+    private Set<Card> allCards = new HashSet<>();
+    private Set<Link> allLinks = new HashSet<>();
+    private Set<Wallet> allWallets = new HashSet<>();
     private List<String> allLogLines = new ArrayList<>();
 
     private Category currentCategory;
@@ -788,9 +789,6 @@ public class MainPageController {
     }
 
     private void openEditAccountDialog(Account account){
-        String oldResource = account.getResource();
-        String oldUsername = account.getUsername();
-
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(1);
@@ -832,7 +830,8 @@ public class MainPageController {
                 account.setResourceEncrypted(resourceField.getText());
                 account.setUsernameEncrypted(loginField.getText());
                 account.setPasswordEncrypted(passwordField.getText());
-                new DatabaseManager().updateAccount(account, oldResource, oldUsername);
+                account.setLastModified(LocalDateTime.now());
+                new DatabaseManager().updateAccount(account, account.getOwnerUsername());
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Account", account.getResourceDecrypted());
                 }
@@ -841,11 +840,6 @@ public class MainPageController {
         });
     }
     private void openEditCardDialog(Card card){
-        String oldResource = card.getResource();
-        String oldCardNumber = card.getCardNumber();
-        String oldCardName = card.getOnwerName();
-        String oldExpiryDate = card.getExpiryDate();
-
         GridPane grid = new GridPane();
         grid.setHgap(1);
         grid.setVgap(1);
@@ -906,7 +900,7 @@ public class MainPageController {
                 card.setCardPincodeEncrypted(pinField.getText());
                 card.setCardNetworkTypeEncrypted(networkField.getText());
                 card.setCardTypeEncrypted(typeField.getText());
-                new DatabaseManager().updateCard(card, oldResource, oldCardNumber, oldCardName, oldExpiryDate);
+                new DatabaseManager().updateCard(card, card.getOwnerUsername());
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Card", card.getResourceDecrypted());
                 }
@@ -915,9 +909,6 @@ public class MainPageController {
         });
     }
     private void openEditLinkDialog(Link link){
-        String oldResource = link.getResource();
-        String oldLink = link.getLink();
-
         GridPane grid = new GridPane();
         grid.setHgap(1);
         grid.setVgap(1);
@@ -950,7 +941,7 @@ public class MainPageController {
             if(result == ButtonType.OK){
                 link.setResourceEncrypted(resourceField.getText());
                 link.setLinkEncrypted(linkField.getText());
-                new DatabaseManager().updateLink(link, oldResource, oldLink);
+                new DatabaseManager().updateLink(link, link.getOwnerUsername());
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Link", link.getResourceDecrypted());
                 }
@@ -959,8 +950,6 @@ public class MainPageController {
         });
     }
     private void openEditWalletDialog(Wallet wallet){
-        String oldResource = wallet.getResource();
-        String oldAddress = wallet.getAddress();
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit wallet " + wallet.getResourceDecrypted());
@@ -1000,7 +989,7 @@ public class MainPageController {
                     updateWords[i] = wordFields.get(i).getText().trim();
                 }
                 wallet.setTwelveWordsEncrypted(updateWords);
-                new DatabaseManager().updateWallet(wallet, oldResource, oldAddress);
+                new DatabaseManager().updateWallet(wallet, wallet.getOwnerUsername());
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Wallet", wallet.getResourceDecrypted());
                 }
