@@ -332,14 +332,14 @@ public class AddController {
                 LocalDateTime now = LocalDateTime.now();
                 String id = java.util.UUID.randomUUID().toString();
                 String encryptedResource = EncryptionUtils.encrypt(resource);
-                String encryptedUsernmae = EncryptionUtils.encrypt(username);
+                String encryptedUsername = EncryptionUtils.encrypt(username);
                 String encryptedPassword = EncryptionUtils.encrypt(password);
                 String ownerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
                 String deleted = "false";
                 String sync = String.valueOf(PreferencesManager.isSyncEnabled());
 
 
-                dm.writeAccountTodb(id, encryptedResource, encryptedUsernmae, encryptedPassword, ownerUsername, now, now, deleted, sync);
+                dm.writeAccountTodb(id, encryptedResource, encryptedUsername, encryptedPassword, ownerUsername, now, now, deleted, sync);
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Account", resource);

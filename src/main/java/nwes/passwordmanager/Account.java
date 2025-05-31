@@ -2,7 +2,7 @@ package nwes.passwordmanager;
 
 import java.time.LocalDateTime;
 
-public class Account {
+public class Account implements ItemEntity{
     private String id; // UUID
     private String resource;
     private String username;
@@ -87,14 +87,14 @@ public class Account {
         this.lastModified = lastModified;
     }
     // Deleted status
-    public String isDeleted() {
+    public String getDeleted() {
         return deleted;
     }
     public void setDeleted(String deleted) {
         this.deleted = deleted;
     }
     // Sync status
-    public String isSync() {
+    public String getSync() {
         return sync;
     }
     public void setSync(String sync) {

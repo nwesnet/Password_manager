@@ -165,7 +165,7 @@ public class MainPageController {
         showListContentVBox.getChildren().clear();
 
         DatabaseManager dbManager = new DatabaseManager();
-        allAccounts = dbManager.getAllAccounts();
+        allAccounts = dbManager.getAllAccounts(true, false);
 
         for (Account account : allAccounts){
             DisplayAccountsDetails(account, dbManager);
@@ -383,7 +383,7 @@ public class MainPageController {
         labelColumn.setPrefWidth(70);
         ColumnConstraints inputColumn = new ColumnConstraints();
         inputColumn.setPrefWidth(240);
-        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints(), new ColumnConstraints());
         // Row 1: Resource
         TextField resourceField = new TextField(account.getResourceDecrypted());
         resourceField.setPrefColumnCount(24);
@@ -408,6 +408,21 @@ public class MainPageController {
             }
         });
         deleteBtn.getStyleClass().add("delete-button");
+
+        Button syncBtn = new Button();
+        syncBtn.setOnAction(e -> {
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> onSyncAccountButtonClick(account, dbManager));
+            } else {
+                onSyncAccountButtonClick(account, dbManager);
+            }
+        });
+        syncBtn.getStyleClass().add("sync-button");
+        if (Boolean.parseBoolean(account.getSync())) {
+            syncBtn.getStyleClass().add("synced");
+        } else {
+            syncBtn.getStyleClass().add("unsynced");
+        }
         // Row 2: Login
         TextField loginField = new TextField(account.getUsernameDecrypted());
         loginField.setPrefColumnCount(24);
@@ -446,6 +461,7 @@ public class MainPageController {
         grid.add(resourceField, 1, 0);
         grid.add(editBtn, 2, 0);
         grid.add(deleteBtn, 3, 0);
+        grid.add(syncBtn, 4, 0);
 
         grid.add(new Label("Login:"), 0, 1);
         grid.add(loginField, 1, 1);
@@ -469,7 +485,7 @@ public class MainPageController {
         labelColumn.setPrefWidth(80);
         ColumnConstraints inputColumn = new ColumnConstraints();
         inputColumn.setPrefWidth(240);
-        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints(), new ColumnConstraints());
         // Row 1: Resource
         TextField resourceField = new TextField(card.getResourceDecrypted());
         resourceField.setEditable(false);
@@ -493,6 +509,17 @@ public class MainPageController {
             }
         });
         deleteBtn.getStyleClass().add("delete-button");
+
+        Button syncBtn = new Button();
+        syncBtn.setOnAction(e -> {
+
+        });
+        syncBtn.getStyleClass().add("sync-button");
+        if (Boolean.parseBoolean(card.getSync())) {
+            syncBtn.getStyleClass().add("synced");
+        } else {
+            syncBtn.getStyleClass().add("unsynced");
+        }
         // Row 2: Card number
         TextField cardNumberField = new TextField(card.getCardNumberDecrypted());
         cardNumberField.setEditable(false);
@@ -556,6 +583,7 @@ public class MainPageController {
         grid.add(resourceField, 1, 0);
         grid.add(editBtn, 2, 0);
         grid.add(deleteBtn, 3, 0);
+        grid.add(syncBtn, 4, 0);
 
         grid.add(new Label("Number:"), 0, 1);
         grid.add(cardNumberField, 1, 1);
@@ -621,6 +649,17 @@ public class MainPageController {
             }
         });
         deleteLinkBtn.getStyleClass().add("delete-button");
+
+        Button syncBtn = new Button();
+        syncBtn.setOnAction(e -> {
+
+        });
+        syncBtn.getStyleClass().add("sync-button");
+        if (Boolean.parseBoolean(link.getSync())) {
+            syncBtn.getStyleClass().add("synced");
+        } else {
+            syncBtn.getStyleClass().add("unsynced");
+        }
         // Row 2: Link
         TextField linkField = new TextField(link.getLinkDecrypted());
         linkField.setEditable(false);
@@ -634,6 +673,7 @@ public class MainPageController {
         grid.add(resourceField, 1, 0);
         grid.add(editLinkBtn, 2, 0);
         grid.add(deleteLinkBtn, 3, 0);
+        grid.add(syncBtn, 4, 0);
 
         grid.add(new Label("Link:"), 0, 1);
         grid.add(linkField, 1, 1);
@@ -649,7 +689,7 @@ public class MainPageController {
 
         ColumnConstraints labelColumn = new ColumnConstraints(80);
         ColumnConstraints inputColumn = new ColumnConstraints(240);
-        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints());
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn, new ColumnConstraints(), new ColumnConstraints(), new ColumnConstraints());
 
         TextField resourceField = new TextField(wallet.getResourceDecrypted());
 
@@ -672,6 +712,17 @@ public class MainPageController {
             }
         });
         deleteWalletBtn.getStyleClass().add("delete-button");
+
+        Button syncBtn = new Button();
+        syncBtn.setOnAction(e -> {
+
+        });
+        syncBtn.getStyleClass().add("sync-button");
+        if (Boolean.parseBoolean(wallet.getSync())) {
+            syncBtn.getStyleClass().add("synced");
+        } else {
+            syncBtn.getStyleClass().add("unsynced");
+        }
 
         TextField addressField = new TextField(wallet.getAddressDecrypted());
         addressField.setEditable(false);
@@ -723,7 +774,7 @@ public class MainPageController {
         grid.add(copyPsswdBtn, 3, 1);
 
         VBox formBox = new VBox(5,
-                new HBox(5, new Label("Resource: "), resourceField, editWalletBtn, deleteWalletBtn),
+                new HBox(5, new Label("Resource: "), resourceField, editWalletBtn, deleteWalletBtn, syncBtn),
                 new Label("key words: "),
                 twelveWordsBox,
                 grid
@@ -900,6 +951,7 @@ public class MainPageController {
                 card.setCardPincodeEncrypted(pinField.getText());
                 card.setCardNetworkTypeEncrypted(networkField.getText());
                 card.setCardTypeEncrypted(typeField.getText());
+                card.setLastModified(LocalDateTime.now());
                 new DatabaseManager().updateCard(card, card.getOwnerUsername());
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Card", card.getResourceDecrypted());
@@ -941,6 +993,7 @@ public class MainPageController {
             if(result == ButtonType.OK){
                 link.setResourceEncrypted(resourceField.getText());
                 link.setLinkEncrypted(linkField.getText());
+                link.setLastModified(LocalDateTime.now());
                 new DatabaseManager().updateLink(link, link.getOwnerUsername());
                 if(SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logEdit("Link", link.getResourceDecrypted());
@@ -984,6 +1037,7 @@ public class MainPageController {
                 wallet.setResourceEncrypted(resourceField.getText());
                 wallet.setAddressEncrypted(addressField.getText());
                 wallet.setPasswordEncrypted(pinField.getText());
+                wallet.setLastModified(LocalDateTime.now());
                 String [] updateWords = new String[wordFields.size()];
                 for( int i = 0; i < updateWords.length; i++) {
                     updateWords[i] = wordFields.get(i).getText().trim();
@@ -1007,7 +1061,11 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            new DatabaseManager().deleteAccount(account);
+            if (Boolean.parseBoolean(account.getSync())) {
+                new DatabaseManager().softDelete(account, "Accounts");
+            } else if (!Boolean.parseBoolean(account.getSync())) {
+                new DatabaseManager().deleteAccount(account);
+            }
             if(SecurityManager.isStoreLogsEnabled()) {
                 LogsManager.logDelete("Account", account.getResourceDecrypted());
             }
@@ -1064,6 +1122,11 @@ public class MainPageController {
             }
             onShowWallets();
         }
+    }
+    private void onSyncAccountButtonClick(Account account, DatabaseManager dbmanager) {
+        account.setSync(account.getSync().equals("true") ? "false" : "true");
+        dbmanager.syncStatus(account, "Accounts");
+        onShowAccounts();
     }
     private void copyToClipboard(String text){
         Clipboard clipboard = Clipboard.getSystemClipboard();

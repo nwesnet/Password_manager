@@ -78,7 +78,7 @@ public class LoginController {
                 // Sync with website
                 if (PreferencesManager.isSyncEnabled()) {
                     DatabaseManager dm = new DatabaseManager();
-                    Set<Account> localAccounts = dm.getAllAccounts();
+                    Set<Account> localAccounts = dm.getAllAccounts(false, true);
                     Set<Account> serverAccounts = SyncManager.syncAccounts(localAccounts, username, password);
                     if (serverAccounts != null) {
                         dm.mergeServerAccounts(serverAccounts);

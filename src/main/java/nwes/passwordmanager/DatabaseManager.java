@@ -3,12 +3,8 @@ package nwes.passwordmanager;
 import javax.crypto.SecretKey;
 import java.sql.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 
 public class DatabaseManager {
@@ -221,7 +217,7 @@ public class DatabaseManager {
         }
     }
 
-    public Set<Account> getAllAccounts(){
+    public Set<Account> getAllAccounts(boolean excludeDeleted, boolean onlySync){
         Set<Account> accounts = new HashSet<>();
         String sql = "SELECT id, resource, username, password, owner_username, date_added, last_modified, deleted, sync FROM Accounts";
 
@@ -235,14 +231,17 @@ public class DatabaseManager {
                 String username = rs.getString("username");
                 String password = rs.getString("password");
                 String ownerUsername = rs.getString("owner_username");
-//                long timestampMillis = rs.getLong("date_added");
-//                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
-//                                                .atZone(ZoneId.systemDefault())
-//                                                .toLocalDateTime();
                 LocalDateTime dateAdded = rs.getTimestamp("date_added").toLocalDateTime();
                 LocalDateTime lastModified = rs.getTimestamp("last_modified").toLocalDateTime();
                 String deleted = rs.getString("deleted");
                 String sync = rs.getString("sync");
+
+                if (excludeDeleted && Boolean.parseBoolean(deleted)) {
+                    continue;
+                }
+                if (onlySync && !Boolean.parseBoolean(sync)) {
+                    continue;
+                }
 
                 accounts.add(new Account(
                         id, resource, username, password, ownerUsername, dateAdded, lastModified, deleted, sync
@@ -276,11 +275,6 @@ public class DatabaseManager {
                 String networkType = rs.getString("network_type");
                 String cardType = rs.getString("card_type");
                 String ownerUsername = rs.getString("owner_username");
-//                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added").replace(" ", "T"));
-//                long timestampMillis = rs.getLong("date_added");
-//                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
-//                        .atZone(ZoneId.systemDefault())
-//                        .toLocalDateTime();
                 LocalDateTime dateAdded = rs.getTimestamp("date_added").toLocalDateTime();
                 LocalDateTime lastModified = rs.getTimestamp("last_modified").toLocalDateTime();
                 String deleted = rs.getString("deleted");
@@ -318,11 +312,7 @@ public class DatabaseManager {
                 links.add(new Link(
                         id, resource, link, ownerUsername, dateAdded, lastModified, deleted, sync
                 ));
-//                long timestampMillis = rs.getLong("date_added");
-//                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
-//                        .atZone(ZoneId.systemDefault())
-//                        .toLocalDateTime();
-//                links.add(new Link(rs.getString("resource"), rs.getString("link"), dateAdded));
+
             }
 
         } catch (Exception e) {
@@ -350,11 +340,7 @@ public class DatabaseManager {
                 LocalDateTime lastModified = rs.getTimestamp("last_modified").toLocalDateTime();
                 String deleted = rs.getString("deleted");
                 String sync = rs.getString("sync");
-//                LocalDateTime dateAdded = LocalDateTime.parse(rs.getString("date_added").replace(" ", "T"));
-//                long timestampMillis = rs.getLong("date_added");
-//                LocalDateTime dateAdded = Instant.ofEpochMilli(timestampMillis)
-//                        .atZone(ZoneId.systemDefault())
-//                        .toLocalDateTime();
+
                 String[] wordsArray = wordsString.split(",");
 
                 wallets.add(new Wallet(
@@ -464,6 +450,7 @@ public class DatabaseManager {
 
             pstmt.setString(1, account.getId());
             pstmt.setString(2, account.getOwnerUsername());
+
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -493,6 +480,7 @@ public class DatabaseManager {
 
             pstmt.setString(1, link.getId());
             pstmt.setString(2, link.getOwnerUsername());
+
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -507,6 +495,7 @@ public class DatabaseManager {
 
             pstmt.setString(1, wallet.getResource());
             pstmt.setString(2, wallet.getAddress());
+
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -518,7 +507,7 @@ public class DatabaseManager {
         DatabaseManager db = new DatabaseManager();
 
         // Reencrypt Accounts
-        Set<Account> accounts = db.getAllAccounts();
+        Set<Account> accounts = db.getAllAccounts(false, false );
         for (Account acc : accounts) {
             try {
                 String oldOwnerUsername = acc.getOwnerUsername();
@@ -639,32 +628,57 @@ public class DatabaseManager {
 
     }
     public void mergeServerAccounts(Set<Account> serverAccounts) {
-        Set<Account> localAccounts = new HashSet<>(getAllAccounts());
+        Set<Account> localAccounts = new HashSet<>(getAllAccounts(false, true));
         for (Account account : serverAccounts) {
+            if (Boolean.parseBoolean(account.getDeleted())){
+                deleteAccount(account);
+            }
             if (!localAccounts.contains(account)) {
                 writeAccountTodb(
                         account.getId(),
                         account.getResource(), account.getUsername(), account.getPassword(),
                         account.getOwnerUsername(),
                         account.getDateAdded(), account.getLastModified(),
-                        account.isDeleted(), account.isSync()
+                        account.getDeleted(), account.getSync()
                 );
             }
         }
     }
-    public static void sofrDelete(Object object, String name) {
-        String sql = "UPDATE " + name + " SET deleted = 'true', last_modified = ? " +
+    public <T extends ItemEntity> void softDelete(T item, String tableName) {
+        String sql = "UPDATE " + tableName + " SET deleted = 'true', last_modified = ? " +
                 "WHERE id = ? AND owner_username = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-//            pstmt.setString(2, object.getId());
+
+            pstmt.setString(2, item.getId());
+            pstmt.setString(3, item.getOwnerUsername());
+
+            pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println("Failed to soft-delete item: " + e.getMessage());
-        }
 
+            System.out.println("Failed to set delete status: " + e.getMessage());
+        }
+    }
+    public <T extends ItemEntity> void syncStatus(T item, String tableName) {
+        String sql = "UPDATE " + tableName + " SET sync = ?, last_modified = ? " +
+                "WHERE id = ? AND owner_username = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, item.getSync());
+            pstmt.setTimestamp(2, Timestamp.valueOf(item.getLastModified()));
+
+            pstmt.setString(3, item.getId());
+            pstmt.setString(4, item.getOwnerUsername());
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("Failed to set sync status: " + e.getMessage());
+        }
     }
 
 }

@@ -291,6 +291,35 @@
     -fx-border-color: transparent;
 }
 
+.sync-button {
+    -fx-background-image: url("../img/sync_24_White.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: 28px 28px;
+    -fx-padding: 2 8 2 24;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Synced state */
+.sync-button.synced {
+    -fx-background-color: #4caf50;
+}
+
+/* Unsynced state */
+.sync-button.unsynced {
+    -fx-background-color: #ffc107;
+}
+
+/* Hover effect to turn into rounded square */
+.sync-button:hover {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-background-color: #505050;
+}
+
+
+
 
 
 
