@@ -729,7 +729,6 @@ public class DatabaseManager {
 
         // Reencrypt Accounts
         Set<Account> accounts = db.getAllAccounts(false, false, PreferencesManager.getUsernameEncrypted());
-        System.out.println("oldUsername" + PreferencesManager.getUsername());
         for (Account acc : accounts) {
             try {
                 String oldOwnerUsername = acc.getOwnerUsername();
@@ -837,7 +836,7 @@ public class DatabaseManager {
                     .findFirst();
             if (Boolean.parseBoolean(serverAcc.getDeleted())) {
                 if (localOpt.isPresent()) {
-                    System.out.println("Hard deleting account " + serverAcc.getId() + " (was deleted on server)");
+//                    System.out.println("Hard deleting account " + serverAcc.getId() + " (was deleted on server)");
                     deleteAccount(serverAcc);
                 }
                 continue;
@@ -846,13 +845,13 @@ public class DatabaseManager {
                 Account localAcc = localOpt.get();
 
                 if (serverAcc.getLastModified().isAfter(localAcc.getLastModified())) {
-                    System.out.println("Updating local account " + serverAcc.getId() + " from server (server newer)");
+//                    System.out.println("Updating local account " + serverAcc.getId() + " from server (server newer)");
                     updateAccount(serverAcc, serverAcc.getOwnerUsername());
                 } else {
-                    System.out.println("Keeping local account " + localAcc.getId() + " (local newer)");
+//                    System.out.println("Keeping local account " + localAcc.getId() + " (local newer)");
                 }
             } else {
-                System.out.println("Inserting new account " + serverAcc.getId() + " from server");
+//                System.out.println("Inserting new account " + serverAcc.getId() + " from server");
                 writeAccountTodb(
                         serverAcc.getId(),
                         serverAcc.getResource(), serverAcc.getUsername(), serverAcc.getPassword(),
@@ -872,7 +871,7 @@ public class DatabaseManager {
 
             if (Boolean.parseBoolean(serverCard.getDeleted())) {
                 if (localOpt.isPresent()) {
-                    System.out.println("Hard deleting card " + serverCard.getId() + " (was deleted on server)");
+//                    System.out.println("Hard deleting card " + serverCard.getId() + " (was deleted on server)");
                     deleteCard(serverCard);
                 }
                 continue;
@@ -881,13 +880,13 @@ public class DatabaseManager {
             if (localOpt.isPresent()) {
                 Card localCard = localOpt.get();
                 if (serverCard.getLastModified().isAfter(localCard.getLastModified())) {
-                    System.out.println("Updating local card " + serverCard.getId() + " from server (server newer)");
+//                    System.out.println("Updating local card " + serverCard.getId() + " from server (server newer)");
                     updateCard(serverCard, serverCard.getOwnerUsername());
                 } else {
-                    System.out.println("Keeping local card " + localCard.getId() + " (local newer)");
+//                    System.out.println("Keeping local card " + localCard.getId() + " (local newer)");
                 }
             } else {
-                System.out.println("Inserting new card " + serverCard.getId() + " from server");
+//                System.out.println("Inserting new card " + serverCard.getId() + " from server");
                 writeCardTodb(
                         serverCard.getId(),
                         serverCard.getResource(), serverCard.getCardNumber(), serverCard.getExpiryDate(),
@@ -909,7 +908,7 @@ public class DatabaseManager {
                     .findFirst();
             if (Boolean.parseBoolean(serverLink.getDeleted())) {
                 if (localOpt.isPresent()) {
-                    System.out.println("Hard deleting link " + serverLink.getId() + " (was deleted on server)");
+//                    System.out.println("Hard deleting link " + serverLink.getId() + " (was deleted on server)");
                     deleteLink(serverLink);
                 }
                 continue;
@@ -918,13 +917,13 @@ public class DatabaseManager {
                 Link localLink = localOpt.get();
 
                 if (serverLink.getLastModified().isAfter(localLink.getLastModified())) {
-                    System.out.println("Updating local link " + serverLink.getId() + " from server (server newer)");
+//                    System.out.println("Updating local link " + serverLink.getId() + " from server (server newer)");
                     updateLink(serverLink, serverLink.getOwnerUsername());
                 } else {
-                    System.out.println("Keeping local link " + localLink.getId() + " (local newer)");
+//                    System.out.println("Keeping local link " + localLink.getId() + " (local newer)");
                 }
             } else {
-                System.out.println("Inserting new link " + serverLink.getId() + " from server");
+//                System.out.println("Inserting new link " + serverLink.getId() + " from server");
                 writeLinkTodb(
                         serverLink.getId(),
                         serverLink.getResource(), serverLink.getLink(),
@@ -944,7 +943,7 @@ public class DatabaseManager {
                     .findFirst();
             if (Boolean.parseBoolean(serverWallet.getDeleted())) {
                 if (localOpt.isPresent()) {
-                    System.out.println("Hard deleting wallet " + serverWallet.getId() + " (was deleted on server)");
+//                    System.out.println("Hard deleting wallet " + serverWallet.getId() + " (was deleted on server)");
                     deleteWallet(serverWallet);
                 }
                 continue;
@@ -953,13 +952,13 @@ public class DatabaseManager {
                 Wallet localWallet = localOpt.get();
 
                 if (serverWallet.getLastModified().isAfter(localWallet.getLastModified())) {
-                    System.out.println("Updating local wallet " + serverWallet.getId() + " from server (server newer)");
+//                    System.out.println("Updating local wallet " + serverWallet.getId() + " from server (server newer)");
                     updateWallet(serverWallet, serverWallet.getOwnerUsername());
                 } else {
-                    System.out.println("Keeping local wallet " + localWallet.getId() + " (local newer)");
+//                    System.out.println("Keeping local wallet " + localWallet.getId() + " (local newer)");
                 }
             } else {
-                System.out.println("Inserting new wallet " + serverWallet.getId() + " from server");
+//                System.out.println("Inserting new wallet " + serverWallet.getId() + " from server");
                 writeWalletTodb(
                         serverWallet.getId(),
                         serverWallet.getResource(), serverWallet.getKeyWords(), serverWallet.getAddress(), serverWallet.getPassword(),

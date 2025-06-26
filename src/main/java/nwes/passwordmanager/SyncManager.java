@@ -17,10 +17,11 @@ import java.util.Base64;
 import java.util.Set;
 
 public class SyncManager {
+    private static final String BASE_URL = "http://localhost:8080/api/";
 
     public static String registerOnServer(String email, String username, String password, String confirmPass) {
         try {
-            URL url = new URL("http://localhost:8080/api/register");
+            URL url = new URL(BASE_URL + "register");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-type", "application/json; utf-8");
@@ -49,7 +50,7 @@ public class SyncManager {
 
     public static PreferencesManager.Preferences loginOnServer(String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/login");
+            URL url = new URL(BASE_URL + "login");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             String basicAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
@@ -70,7 +71,6 @@ public class SyncManager {
 
                     String newUsername = EncryptionUtils.decrypt(current.get("username").getAsString(), migrationKey);
                     String newPassword = EncryptionUtils.decrypt(current.get("password").getAsString(), migrationKey);
-                    String newAdditionalPassword = EncryptionUtils.decrypt(current.get("additionalPassword").getAsString(), migrationKey);
 
                     String oldUsername = EncryptionUtils.decrypt(old.get("username").getAsString(), migrationKey);
                     String oldPassword = EncryptionUtils.decrypt(old.get("password").getAsString(), migrationKey);
@@ -88,13 +88,6 @@ public class SyncManager {
                     return gson.fromJson(obj, PreferencesManager.Preferences.class);
                 }
 
-//                // Read the response
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-//                Gson gson = new Gson();
-//                // Parse directly into PreferencesManager.Preferences!
-//                PreferencesManager.Preferences prefs = gson.fromJson(reader, PreferencesManager.Preferences.class);
-//                reader.close();
-//                return prefs;
             } else {
                 System.out.println("Login failed, code: " + code);
                 return null;
@@ -106,7 +99,7 @@ public class SyncManager {
     }
 
     public static Set<Account> syncAccounts(Set<Account> localAccounts, String username, String password) throws IOException {
-        URL url = new URL("http://localhost:8080/api/sync-accounts");
+        URL url = new URL(BASE_URL + "sync-accounts");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-type", "application/json; utf-8");
@@ -149,11 +142,7 @@ public class SyncManager {
         return accountsFromServer;
     }
     public static Set<Card> syncCards(Set<Card> localCards, String username, String password) throws IOException {
-//        for (Card card : localCards) {
-//            System.out.println("id = " + card.getId() + "\nresource = " + card.getResource() + "\nnumber = " + card.getCardNumber() + "\ndate = " + card.getExpiryDate() + "\ncvv = " + card.getCvv() + "\nowner = " + card.getOwnerName() + "\npin = " + card.getCardPin() + "\ntype = " + card.getCardNetwork() + "\ntype = " + card.getCardType() + "\nusername = " + card.getOwnerUsername());
-//
-//        }
-        URL url = new URL("http://localhost:8080/api/sync-cards");
+        URL url = new URL(BASE_URL + "sync-cards");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-type", "application/json; utf-8");
@@ -195,7 +184,7 @@ public class SyncManager {
     }
 
     public static Set<Link> syncLinks(Set<Link> localLinks, String username, String password) throws IOException {
-        URL url = new URL("http://localhost:8080/api/sync-links");
+        URL url = new URL(BASE_URL + "sync-links");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
 
@@ -236,7 +225,7 @@ public class SyncManager {
         return linksFromServer;
     }
     public static Set<Wallet> syncWallets(Set<Wallet> localWallets, String username, String password) throws IOException {
-        URL url = new URL("http://localhost:8080/api/sync-wallets");
+        URL url = new URL(BASE_URL + "sync-wallets");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
 
@@ -277,7 +266,7 @@ public class SyncManager {
         return walletsFromServer;
     }
     public static String reencryptOnServer(String username, String password, String newUsername, String newPassword, String newAdditionalPassword) throws IOException{
-        URL url = new URL("http://localhost:8080/api/sync-reencrypt");
+        URL url = new URL(BASE_URL + "sync-reencrypt");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
@@ -311,7 +300,7 @@ public class SyncManager {
     }
     public static String addAccountOnServer(Account account, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/add-account");
+            URL url = new URL(BASE_URL + "add-account");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -344,7 +333,7 @@ public class SyncManager {
     }
     public static String updateAccountOnServer(Account account, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/update-account");
+            URL url = new URL(BASE_URL + "update-account");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -375,7 +364,7 @@ public class SyncManager {
     }
     public static String deleteAccountOnServer(Account account, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/delete-account?id=" + URLEncoder.encode(account.getId(), "UTF-8"));
+            URL url = new URL(BASE_URL + "delete-account?id=" + URLEncoder.encode(account.getId(), "UTF-8"));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
@@ -397,7 +386,7 @@ public class SyncManager {
 
     public static String addCardOnServer(Card card, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/add-card");
+            URL url = new URL(BASE_URL + "add-card");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -430,7 +419,7 @@ public class SyncManager {
     }
     public static String updateCardOnServer(Card card, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/update-card");
+            URL url = new URL(BASE_URL + "update-card");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -461,7 +450,7 @@ public class SyncManager {
     }
     public static String deleteCardOnServer(Card card, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/delete-card?id=" + URLEncoder.encode(card.getId(), "UTF-8"));
+            URL url = new URL(BASE_URL + "delete-card?id=" + URLEncoder.encode(card.getId(), "UTF-8"));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
@@ -484,7 +473,7 @@ public class SyncManager {
 
     public static String addLinkOnServer(Link link, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/add-link");
+            URL url = new URL(BASE_URL + "add-link");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-type", "application/json; charset=UTF-8");
@@ -520,7 +509,7 @@ public class SyncManager {
     }
     public static String updateLinkOnServer(Link link, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/update-link");
+            URL url = new URL(BASE_URL + "update-link");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-type", "application/json; charset=UTF-8");
@@ -553,7 +542,7 @@ public class SyncManager {
     }
     public static String deleteLinkOnServer(Link link, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/delete-link?id=" + URLEncoder.encode(link.getId(), "UTF-8"));
+            URL url = new URL(BASE_URL + "delete-link?id=" + URLEncoder.encode(link.getId(), "UTF-8"));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
@@ -575,7 +564,7 @@ public class SyncManager {
 
     public static String addWalletOnServer(Wallet wallet, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/add-wallet");
+            URL url = new URL(BASE_URL + "add-wallet");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -608,7 +597,7 @@ public class SyncManager {
 
     public static String updateWalletOnServer(Wallet wallet, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/update-wallet");
+            URL url = new URL(BASE_URL + "update-wallet");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -641,7 +630,7 @@ public class SyncManager {
 
     public static String deleteWalletOnServer(Wallet wallet, String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/delete-wallet?id=" + URLEncoder.encode(wallet.getId(), "UTF-8"));
+            URL url = new URL(BASE_URL + "delete-wallet?id=" + URLEncoder.encode(wallet.getId(), "UTF-8"));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
 
@@ -663,7 +652,7 @@ public class SyncManager {
 
     public static void finishMigrationOnServer(String username, String password) {
         try {
-            URL url = new URL("http://localhost:8080/api/finish-migration");
+            URL url = new URL(BASE_URL + "finish-migration");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             String basichAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));

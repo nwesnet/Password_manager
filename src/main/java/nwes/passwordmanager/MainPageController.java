@@ -178,9 +178,6 @@ public class MainPageController {
                 );
 
                 if (syncedAccounts != null) {
-                    for (Account serverTest : syncedAccounts) {
-                        System.out.println("id: " + serverTest.getId() + "deleted: " + serverTest.getDeleted() + "owener_username: " + serverTest.getOwnerUsername());
-                    }
                     dbManager.mergeServerAccounts(syncedAccounts);
                     allAccounts = dbManager.getAllAccounts(true, false, PreferencesManager.getUsernameEncrypted());
                 } else {

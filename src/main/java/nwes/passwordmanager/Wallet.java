@@ -110,9 +110,9 @@ public class Wallet implements ItemEntity {
         try {
             return EncryptionUtils.decrypt(resource);
         } catch (Exception e) {
-            System.out.println("❌ Wallet decryption failed: " + e.getMessage());
-            System.out.println("🔐 Current appKey: " + EncryptionUtils.getAppKey());
-            System.out.println("🔐 Resource Encrypted Value: " + resource);
+//            System.out.println("❌ Wallet decryption failed: " + e.getMessage());
+//            System.out.println("🔐 Current appKey: " + EncryptionUtils.getAppKey());
+//            System.out.println("🔐 Resource Encrypted Value: " + resource);
             throw new RuntimeException(e);
         }
     }
