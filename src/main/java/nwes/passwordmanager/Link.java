@@ -2,7 +2,7 @@ package nwes.passwordmanager;
 
 import java.time.LocalDateTime;
 
-public class Link {
+public class Link implements ItemEntity {
     private String id;
     private String resource;
     private String link;

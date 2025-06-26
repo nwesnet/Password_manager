@@ -13,6 +13,7 @@
     <!-- Login VBox -->
     <VBox fx:id="loginVBox" spacing="20" alignment="CENTER" visible="true">
         <Label fx:id="welcomeText" text="Welcome"/>
+        <CheckBox fx:id="connectToServerCheckboxL" text="Connect to server" />
         <TextField fx:id="usernameField" promptText="User name"/>
         <PasswordField fx:id="passwordField" promptText="Password"/>
         <Button fx:id="loginButton" text="Login" onAction="#onLoginButtonClick"/>
@@ -22,8 +23,8 @@
 
     <!-- Create Account VBox -->
     <VBox fx:id="createAccountVBox" spacing="20" alignment="CENTER" visible="false">
-        <CheckBox fx:id="connectToServerCheckbox" text="Connect to server"/>
         <Label fx:id="createText" text="Create Account"/>
+        <CheckBox fx:id="connectToServerCheckboxC" text="Connect to server" />
         <VBox fx:id="dynamicalFieldsVBox" spacing="20" alignment="CENTER">
             <TextField fx:id="emailField" promptText="Email" visible="false"/>
             <TextField fx:id="newUsernameField" promptText="Username"/>

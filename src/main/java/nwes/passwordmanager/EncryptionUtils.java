@@ -60,7 +60,7 @@ public class EncryptionUtils {
             SecretKey oldKey = getKeyFromString(oldUsername + oldPassword);
             SecretKey newKey = getKeyFromString(newUsername + newPassword);
 
-            DatabaseManager.reencryptDatabase(oldKey, newKey);
+            DatabaseManager.reencryptDatabase(oldKey, newKey, newUsername);
 
             LogsManager.reencryptLogs(oldKey, newKey);
             chabgeEncryptionKey(newUsername, newPassword);

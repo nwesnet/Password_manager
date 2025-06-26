@@ -3,10 +3,10 @@ package nwes.passwordmanager;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
-public class Wallet {
+public class Wallet implements ItemEntity {
     private String id;
     private String resource;
-    private String[] twelveWords;
+    private String keyWords;
     private String address;
     private String password;
     private String ownerUsername;
@@ -16,14 +16,14 @@ public class Wallet {
     private String sync;
 
     public Wallet(String id,
-                  String resource, String[] twelveWords, String address, String password,
+                  String resource, String keyWords, String address, String password,
                   String ownerUsername,
                   LocalDateTime dateAdded, LocalDateTime lastModified,
                   String deleted, String sync
     ) {
         this.id = id;
         this.resource = resource;
-        this.twelveWords = twelveWords;
+        this.keyWords = keyWords;
         this.address = address;
         this.password = password;
         this.ownerUsername = ownerUsername;
@@ -48,11 +48,11 @@ public class Wallet {
         this.resource = resource;
     }
     // Keywords array
-    public String[] getTwelveWords() {
-        return twelveWords;
+    public String getKeyWords() {
+        return keyWords;
     }
-    public void setTwelveWords(String[] twelveWords) {
-        this.twelveWords = twelveWords;
+    public void setKeyWords(String keyWords) {
+        this.keyWords = keyWords;
     }
     // Address
     public String getAddress() {
@@ -124,24 +124,16 @@ public class Wallet {
         }
     }
     // keywords array
-    public String[] getTwelveWordsDecrypted() {
+    public String getKeyWordsDecrypted() {
         try {
-            String[] decrypted = new String[twelveWords.length];
-            for (int i = 0; i < twelveWords.length; i++) {
-                decrypted[i] = EncryptionUtils.decrypt(twelveWords[i]);
-            }
-            return decrypted;
+            return EncryptionUtils.decrypt(keyWords);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    public void setTwelveWordsEncrypted(String[] twelveWords) {
+    public void setKeyWordsEncrypted(String keyWords) {
         try {
-            String[] encrypted = new String[twelveWords.length];
-            for (int i = 0; i < twelveWords.length; i++) {
-                encrypted[i] = EncryptionUtils.encrypt(twelveWords[i]);
-            }
-            this.twelveWords = encrypted;
+            this.keyWords = EncryptionUtils.encrypt(keyWords);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -192,10 +184,6 @@ public class Wallet {
         }
     }
 
-    public String getTwelveWordsRaw() {
-        return String.join(",", twelveWords);
-    }
-
     // equals & hashcode redirect
     @Override
     public boolean equals(Object o) {
@@ -205,7 +193,7 @@ public class Wallet {
         Wallet wallet = (Wallet) o;
 
         return resource.equals(wallet.resource) &&
-                Arrays.equals(twelveWords, wallet.twelveWords) &&
+                keyWords.equals(wallet.keyWords) &&
                 address.equals(wallet.address) &&
                 password.equals(wallet.password);
     }
@@ -213,7 +201,7 @@ public class Wallet {
     @Override
     public int hashCode() {
         int result = resource.hashCode();
-        result = 31 * result + Arrays.hashCode(twelveWords);
+        result = 31 * result + keyWords.hashCode();
         result = 31 * result + address.hashCode();
         result = 31 * result + password.hashCode();
         return result;

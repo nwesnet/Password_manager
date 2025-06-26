@@ -14,9 +14,10 @@ import java.nio.file.Paths;
 public class PreferencesManager {
     private static final String PREFS_FILE = "preferences.json";
     private static Preferences preferences;
+    private static boolean usingServerPreferences = false;
     // Load preferences when the app starts
     static {
-        loadPreferences();
+        loadPreferences(true);
     }
     // Class to hold settings
     public static class Preferences {
@@ -53,15 +54,19 @@ public class PreferencesManager {
         }
     }
     // Load JSON preferences from file
-    public static void loadPreferences() {
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(PREFS_FILE)) {
-            preferences = gson.fromJson(reader, Preferences.class);
-            // System.out.println("✅ Preferences loaded: " + gson.toJson(preferences));
-        } catch (IOException e) {
-            System.out.println("⚠ Preferences file not found. Using default settings.");
+    public static void loadPreferences(boolean loadFromFile) {
+        if (loadFromFile) {
+            Gson gson = new Gson();
+            try (FileReader reader = new FileReader(PREFS_FILE)) {
+                preferences = gson.fromJson(reader, Preferences.class);
+                // System.out.println("✅ Preferences loaded: " + gson.toJson(preferences));
+            } catch (IOException e) {
+                System.out.println("⚠ Preferences file not found. Using default settings.");
+                preferences = new Preferences();
+                savePreferences();
+            }
+        } else {
             preferences = new Preferences();
-            savePreferences();
         }
     }
     // Save JSON preferences to file
@@ -74,6 +79,11 @@ public class PreferencesManager {
             System.out.println("❌ Error saving preferences: " + e.getMessage());
         }
     }
+    public static void setPreferencesInMemory(Preferences prefs) {
+        preferences = prefs; // Just sets the static variable in memory
+        usingServerPreferences = true;
+    }
+
     // Getters & Setters
     public static String getUsername() {
         try {
@@ -83,10 +93,16 @@ public class PreferencesManager {
             return "";
         }
     }
+    // get username encrypted
+    public static String getUsernameEncrypted() {
+        return preferences.login_info.username;
+    }
     public static void setUsername(String username) {
         try {
             preferences.login_info.username = EncryptionUtils.encrypt(username);
-            savePreferences();
+            if (!usingServerPreferences){
+                savePreferences();
+            }
         } catch (Exception e) {
             System.out.println("❌ Username encrypt failed: " + e.getMessage());
         }
@@ -102,7 +118,9 @@ public class PreferencesManager {
     public static void setPassword(String password) {
         try {
             preferences.login_info.password = EncryptionUtils.encrypt(password);
-            savePreferences();
+            if (!usingServerPreferences) {
+                savePreferences();
+            }
         } catch (Exception e) {
             System.out.println("❌ Password encrypt failed: " + e.getMessage());
         }
@@ -118,7 +136,9 @@ public class PreferencesManager {
     public static void setPincode(String pincode){
         try {
             preferences.login_info.pincode = EncryptionUtils.encrypt(pincode);
-            savePreferences();
+            if (!usingServerPreferences) {
+                savePreferences();
+            }
         } catch (Exception e) {
             System.out.println("❌ Pincode encrypt failed: " + e.getMessage());
         }
@@ -128,7 +148,9 @@ public class PreferencesManager {
     }
     public static void setTheme(String theme) {
         preferences.theme = theme;
-        savePreferences();
+        if (!usingServerPreferences) {
+            savePreferences();
+        }
     }
 
     public static boolean isDoubleConfirmationEnabled() {
@@ -142,7 +164,9 @@ public class PreferencesManager {
     public static void setDoubleConfirmation(boolean enabled) {
         try {
             preferences.security.double_confirmation = EncryptionUtils.encrypt(String.valueOf(enabled));
-            savePreferences();
+            if (!usingServerPreferences) {
+                savePreferences();
+            }
         } catch (Exception e) {
             System.out.println("❌ Double confirm encrypt failed: " + e.getMessage());
         }
@@ -159,7 +183,9 @@ public class PreferencesManager {
     public static void setStoreLogsEnabled(boolean enabled) {
         try {
             preferences.security.store_logs = EncryptionUtils.encrypt(String.valueOf(enabled));
-            savePreferences();
+            if (!usingServerPreferences) {
+                savePreferences();
+            }
         } catch (Exception e) {
             System.out.println("❌ Store logs encrypt failed: " + e.getMessage());
         }
@@ -181,7 +207,9 @@ public class PreferencesManager {
     public static void setSyncEnabled(boolean enabled) {
         try {
             preferences.sync = EncryptionUtils.encrypt(String.valueOf(enabled));
-            savePreferences();
+            if (!usingServerPreferences) {
+                savePreferences();
+            }
         } catch (Exception e) {
             System.out.println("Sync encrypt failed: " + e.getMessage());
         }

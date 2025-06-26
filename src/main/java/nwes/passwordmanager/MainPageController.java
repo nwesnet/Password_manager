@@ -12,6 +12,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -160,13 +161,39 @@ public class MainPageController {
         }
     }
     @FXML
-    protected void onShowAccounts(){
+    protected void onShowAccounts() {
         currentCategory = Category.ACCOUNTS;
         showListContentVBox.getChildren().clear();
 
         DatabaseManager dbManager = new DatabaseManager();
-        allAccounts = dbManager.getAllAccounts(true, false);
+        if (PreferencesManager.isSyncEnabled()) {
+            Set<Account> localAccounts = dbManager.getAllAccounts(false, true, PreferencesManager.getUsernameEncrypted());
 
+            Set<Account> syncedAccounts = null;
+            try {
+                syncedAccounts = SyncManager.syncAccounts(
+                        localAccounts,
+                        PreferencesManager.getUsername(),
+                        PreferencesManager.getPassword()
+                );
+
+                if (syncedAccounts != null) {
+                    for (Account serverTest : syncedAccounts) {
+                        System.out.println("id: " + serverTest.getId() + "deleted: " + serverTest.getDeleted() + "owener_username: " + serverTest.getOwnerUsername());
+                    }
+                    dbManager.mergeServerAccounts(syncedAccounts);
+                    allAccounts = dbManager.getAllAccounts(true, false, PreferencesManager.getUsernameEncrypted());
+                } else {
+                    System.out.println("Load just local accounts");
+                    allAccounts = dbManager.getAllAccounts(true, false, PreferencesManager.getUsernameEncrypted());
+                }
+            } catch (Exception e) {
+                System.out.println("Sync error: " + e.getMessage());
+                allAccounts = dbManager.getAllAccounts(true, false, PreferencesManager.getUsernameEncrypted());
+            }
+        } else {
+            allAccounts = dbManager.getAllAccounts(true, false, PreferencesManager.getUsernameEncrypted());
+        }
         for (Account account : allAccounts){
             DisplayAccountsDetails(account, dbManager);
         }
@@ -177,7 +204,31 @@ public class MainPageController {
         showListContentVBox.getChildren().clear();
 
         DatabaseManager dbManager = new DatabaseManager();
-        allCards = dbManager.getAllCards();
+        if (PreferencesManager.isSyncEnabled()) {
+            Set<Card> localCard = dbManager.getAllCards(false, true, PreferencesManager.getUsernameEncrypted());
+
+            Set<Card> syncedCards = null;
+            try {
+                syncedCards = SyncManager.syncCards(
+                        localCard,
+                        PreferencesManager.getUsername(),
+                        PreferencesManager.getPassword()
+                );
+
+                if (syncedCards != null) {
+                    dbManager.mergeServerCards(syncedCards);
+                    allCards = dbManager.getAllCards(true, false, PreferencesManager.getUsernameEncrypted());
+                } else {
+                    System.out.println("Load just local cards");
+                    allCards = dbManager.getAllCards(true, false, PreferencesManager.getUsernameEncrypted());
+                }
+            } catch (Exception e) {
+                System.out.println("Sync error: " + e.getMessage());
+                allCards = dbManager.getAllCards(true, false, PreferencesManager.getUsernameEncrypted());
+            }
+        } else {
+            allCards = dbManager.getAllCards(true, false, PreferencesManager.getUsernameEncrypted());
+        }
 
         for(Card card : allCards){
             DisplayCardsDetails(card, dbManager);
@@ -189,7 +240,30 @@ public class MainPageController {
         showListContentVBox.getChildren().clear();
 
         DatabaseManager dbManager = new DatabaseManager();
-        allLinks = dbManager.getAllLinks();
+        if (PreferencesManager.isSyncEnabled()) {
+            Set<Link> localLinks = dbManager.getAllLinks(false, true, PreferencesManager.getUsernameEncrypted());
+
+            Set<Link> syncedLinks = null;
+            try {
+                syncedLinks = SyncManager.syncLinks(
+                        localLinks,
+                        PreferencesManager.getUsername(),
+                        PreferencesManager.getPassword()
+                );
+                if (syncedLinks != null) {
+                    dbManager.mergeServerLinks(syncedLinks);
+                    allLinks = dbManager.getAllLinks(true, false, PreferencesManager.getUsernameEncrypted());
+                } else {
+                    System.out.println("Load just local links");
+                    allLinks = dbManager.getAllLinks(true, false, PreferencesManager.getUsernameEncrypted());
+                }
+            } catch (Exception e) {
+                System.out.println("Sync error: " + e.getMessage());
+                allLinks = dbManager.getAllLinks(true, false, PreferencesManager.getUsernameEncrypted());
+            }
+        } else {
+            allLinks = dbManager.getAllLinks(true, false, PreferencesManager.getUsernameEncrypted());
+        }
 
         for(Link link : allLinks){
             DisplayLinksDetails(link, dbManager);
@@ -201,8 +275,30 @@ public class MainPageController {
         showListContentVBox.getChildren().clear();
 
         DatabaseManager dbManager = new DatabaseManager();
-        allWallets = dbManager.getAllWallets();
+        if (PreferencesManager.isSyncEnabled()) {
+            Set<Wallet> localWallets = dbManager.getAllWallets(false, true, PreferencesManager.getUsernameEncrypted());
 
+            Set<Wallet> syncedWallets = null;
+            try {
+                syncedWallets = SyncManager.syncWallets(
+                        localWallets,
+                        PreferencesManager.getUsername(),
+                        PreferencesManager.getPassword()
+                );
+                if (syncedWallets != null) {
+                    dbManager.mergeServerWallets(syncedWallets);
+                    allWallets = dbManager.getAllWallets(true, false, PreferencesManager.getUsernameEncrypted());
+                } else {
+                    System.out.println("Load just local wallets");
+                    allWallets = dbManager.getAllWallets(true, false, PreferencesManager.getUsernameEncrypted());
+                }
+            } catch (Exception e) {
+                System.out.println("Sync error: " + e.getMessage());
+                allWallets = dbManager.getAllWallets(true, false, PreferencesManager.getUsernameEncrypted());
+            }
+        } else {
+            allWallets = dbManager.getAllWallets(true, false, PreferencesManager.getUsernameEncrypted());
+        }
         for(Wallet wallet : allWallets){
             DisplayWalletsDetails(wallet, dbManager);
         }
@@ -512,7 +608,11 @@ public class MainPageController {
 
         Button syncBtn = new Button();
         syncBtn.setOnAction(e -> {
-
+            if(SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> onSyncCardButtonClick(card, dbManager));
+            } else {
+                onSyncCardButtonClick(card, dbManager);
+            }
         });
         syncBtn.getStyleClass().add("sync-button");
         if (Boolean.parseBoolean(card.getSync())) {
@@ -652,7 +752,11 @@ public class MainPageController {
 
         Button syncBtn = new Button();
         syncBtn.setOnAction(e -> {
-
+            if (SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> onSyncLinkButtonClick(link, dbManager));
+            } else {
+                onSyncLinkButtonClick(link, dbManager);
+            }
         });
         syncBtn.getStyleClass().add("sync-button");
         if (Boolean.parseBoolean(link.getSync())) {
@@ -715,7 +819,11 @@ public class MainPageController {
 
         Button syncBtn = new Button();
         syncBtn.setOnAction(e -> {
-
+            if (SecurityManager.isDoubleConfirmationEnabled()) {
+                showDoubleConfirmDialog(() -> onSyncWalletButtonClick(wallet, dbManager));
+            } else {
+                onSyncWalletButtonClick(wallet, dbManager);
+            }
         });
         syncBtn.getStyleClass().add("sync-button");
         if (Boolean.parseBoolean(wallet.getSync())) {
@@ -757,12 +865,11 @@ public class MainPageController {
         });
         copyPsswdBtn.getStyleClass().add("copy-button");
 
-        FlowPane twelveWordsBox = new FlowPane(6,3);
+        FlowPane keyWordsFP = new FlowPane(6,3);
         // The cycle that adds words to a page
-        for (String word : wallet.getTwelveWordsDecrypted()){
-            Label wordLabel = new Label(word);
-            twelveWordsBox.getChildren().add(wordLabel);
-        }
+        String words = wallet.getKeyWordsDecrypted();
+        Label keyWordsLabel = new Label(words);
+        keyWordsFP.getChildren().add(keyWordsLabel);
 
         grid.add(new Label("Address:"), 0, 0);
         grid.add(addressField, 1, 0);
@@ -776,7 +883,7 @@ public class MainPageController {
         VBox formBox = new VBox(5,
                 new HBox(5, new Label("Resource: "), resourceField, editWalletBtn, deleteWalletBtn, syncBtn),
                 new Label("key words: "),
-                twelveWordsBox,
+                keyWordsFP,
                 grid
         );
         formBox.setPadding(new Insets(20));
@@ -823,18 +930,46 @@ public class MainPageController {
             if(result == ButtonType.OK) {
                 boolean DC = PreferencesManager.isDoubleConfirmationEnabled();
                 boolean SL = PreferencesManager.isStoreLogsEnabled();
-                EncryptionUtils.reencryptAllData(
-                        oldUsername,
-                        oldPassword,
-                        usernameField.getText(),
-                        passwordField.getText()
-                );
+                if (PreferencesManager.isSyncEnabled()) {
+                    String serverResult = "";
+                    try {
+                        serverResult = SyncManager.reencryptOnServer(oldUsername, oldPassword, usernameField.getText(), passwordField.getText(), pincodeField.getText());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    if ("OK".equals(serverResult)) {
+                        EncryptionUtils.reencryptAllData(
+                                oldUsername,
+                                oldPassword,
+                                usernameField.getText(),
+                                passwordField.getText()
+                        );
 
-                PreferencesManager.setUsername(usernameField.getText());
-                PreferencesManager.setPassword(passwordField.getText());
-                PreferencesManager.setPincode(pincodeField.getText());
-                PreferencesManager.setDoubleConfirmation(DC);
-                PreferencesManager.setStoreLogsEnabled(SL);
+                        PreferencesManager.setUsername(usernameField.getText());
+                        PreferencesManager.setPassword(passwordField.getText());
+                        PreferencesManager.setPincode(pincodeField.getText());
+                        PreferencesManager.setDoubleConfirmation(DC);
+                        PreferencesManager.setStoreLogsEnabled(SL);
+                        PreferencesManager.setSyncEnabled(true);
+                    } else {
+                        System.out.println("SERVER REENCRYPT ERROR");
+                    }
+                } else {
+                    EncryptionUtils.reencryptAllData(
+                            oldUsername,
+                            oldPassword,
+                            usernameField.getText(),
+                            passwordField.getText()
+                    );
+
+                    PreferencesManager.setUsername(usernameField.getText());
+                    PreferencesManager.setPassword(passwordField.getText());
+                    PreferencesManager.setPincode(pincodeField.getText());
+                    PreferencesManager.setDoubleConfirmation(DC);
+                    PreferencesManager.setStoreLogsEnabled(SL);
+                    PreferencesManager.setSyncEnabled(false);
+                }
             }
         });
     }
@@ -877,16 +1012,44 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                // Save updated values
-                account.setResourceEncrypted(resourceField.getText());
-                account.setUsernameEncrypted(loginField.getText());
-                account.setPasswordEncrypted(passwordField.getText());
-                account.setLastModified(LocalDateTime.now());
-                new DatabaseManager().updateAccount(account, account.getOwnerUsername());
-                if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Account", account.getResourceDecrypted());
+                try {
+                    // Encrypt new data for comparison
+                    String newResource = resourceField.getText();
+                    String newUsername = loginField.getText();
+                    String newPassword = passwordField.getText();
+
+                    String encryptedResource = EncryptionUtils.encrypt(newResource);
+                    String encryptedUsername = EncryptionUtils.encrypt(newUsername);
+                    String encryptedPassword = EncryptionUtils.encrypt(newPassword);
+                    String ownerUsername = account.getOwnerUsername();
+
+                    DatabaseManager dbManager = new DatabaseManager();
+
+                    if (dbManager.accountExistsExceptId(
+                            encryptedResource, encryptedUsername, encryptedPassword, ownerUsername, account.getId()
+                    )) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING, "An account with these details already exists. Changes were not saved.", ButtonType.OK);
+                        alert.showAndWait();
+                        return;
+                    }
+                    // Save updated values
+                    account.setResourceEncrypted(newResource);
+                    account.setUsernameEncrypted(newUsername);
+                    account.setPasswordEncrypted(newPassword);
+                    account.setLastModified(LocalDateTime.now());
+                    dbManager.updateAccount(account, account.getOwnerUsername());
+                    String err = SyncManager.updateAccountOnServer(account, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                    if (err != null) {
+                        System.out.println("Server update failed: " + err);
+                    }
+                    if (SecurityManager.isStoreLogsEnabled()) {
+                        LogsManager.logEdit("Account", account.getResourceDecrypted());
+                    }
+                    onShowAccounts(); // Refresh
+                } catch (Exception e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Encryption error: " + e.getMessage(), ButtonType.OK);
+                    alert.showAndWait();
                 }
-                onShowAccounts(); // Refresh
             }
         });
     }
@@ -943,20 +1106,57 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
-                card.setResourceEncrypted(resourceField.getText());
-                card.setCardNumberEncrypted(cardNumberField.getText());
-                card.setExpiryDateEncrypted(expiryDateField.getText());
-                card.setOwnerNameEncrypted(ownerNameField.getText());
-                card.setCvvEncrypted(cvvField.getText());
-                card.setCardPincodeEncrypted(pinField.getText());
-                card.setCardNetworkTypeEncrypted(networkField.getText());
-                card.setCardTypeEncrypted(typeField.getText());
-                card.setLastModified(LocalDateTime.now());
-                new DatabaseManager().updateCard(card, card.getOwnerUsername());
-                if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Card", card.getResourceDecrypted());
+                try {
+                    String newResource = resourceField.getText();
+                    String newCardNumber = cardNumberField.getText();
+                    String newExpiryDate = expiryDateField.getText();
+                    String newOwnerName = ownerNameField.getText();
+                    String newCVV = cvvField.getText();
+
+                    String encryptedResource = EncryptionUtils.encrypt(newResource);
+                    String encryptedCardNumber = EncryptionUtils.encrypt(newCardNumber);
+                    String encryptedExpiryDate = EncryptionUtils.encrypt(newExpiryDate);
+                    String encryptedOwnerName = EncryptionUtils.encrypt(newOwnerName);
+                    String encryptedCVV = EncryptionUtils.encrypt(newCVV);
+                    String ownerUsername = card.getOwnerUsername();
+
+                    DatabaseManager dbManager = new DatabaseManager();
+
+                    if (dbManager.cardExistsExceptId(
+                            encryptedResource, encryptedCardNumber, encryptedExpiryDate, encryptedOwnerName, encryptedCVV, ownerUsername, card.getId()
+                    )) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING, "A card with these details already exists. Changes were not saved.", ButtonType.OK);
+                        alert.showAndWait();
+                        return;
+                    }
+                    // Save new values to the card
+                    card.setResourceEncrypted(newResource);
+                    card.setCardNumberEncrypted(newCardNumber);
+                    card.setExpiryDateEncrypted(newExpiryDate);
+                    card.setOwnerNameEncrypted(newOwnerName);
+                    card.setCvvEncrypted(newCVV);
+                    card.setCardPincodeEncrypted(pinField.getText());
+                    card.setCardNetworkTypeEncrypted(networkField.getText());
+                    card.setCardTypeEncrypted(typeField.getText());
+                    card.setLastModified(LocalDateTime.now());
+
+                    dbManager.updateCard(card, card.getOwnerUsername());
+
+                    // Sync to server
+                    String err = SyncManager.updateCardOnServer(card, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                    if (err != null) {
+                        System.out.println("Server update failed: " + err);
+                    }
+
+                    if(SecurityManager.isStoreLogsEnabled()) {
+                        LogsManager.logEdit("Card", card.getResourceDecrypted());
+                    }
+                    onShowCards(); // Refresh
+
+                } catch (Exception e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Encryption error: " + e.getMessage(), ButtonType.OK);
+                    alert.showAndWait();
                 }
-                onShowCards(); // Refresh
             }
         });
     }
@@ -990,15 +1190,50 @@ public class MainPageController {
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dialog.showAndWait().ifPresent( result -> {
-            if(result == ButtonType.OK){
-                link.setResourceEncrypted(resourceField.getText());
-                link.setLinkEncrypted(linkField.getText());
-                link.setLastModified(LocalDateTime.now());
-                new DatabaseManager().updateLink(link, link.getOwnerUsername());
-                if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Link", link.getResourceDecrypted());
+            if(result == ButtonType.OK) {
+                try {
+                    String newResource = resourceField.getText();
+                    String newLink = linkField.getText();
+
+                    // Encrypt values for duplicate check and save
+                    String encryptedResource = EncryptionUtils.encrypt(newResource);
+                    String encryptedLink = EncryptionUtils.encrypt(newLink);
+                    String ownerUsername = link.getOwnerUsername();
+
+                    DatabaseManager dbManager = new DatabaseManager();
+
+                    // Duplicate check (except current id)
+                    if (dbManager.linkExistsExceptId(
+                            encryptedResource, encryptedLink, ownerUsername, link.getId())) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING,
+                                "A link with these details already exists. Changes were not saved.",
+                                ButtonType.OK);
+                        alert.showAndWait();
+                        return;
+                    }
+
+                    // Set new (encrypted) values and update
+                    link.setResourceEncrypted(newResource);
+                    link.setLinkEncrypted(newLink);
+                    link.setLastModified(LocalDateTime.now());
+                    dbManager.updateLink(link, ownerUsername);
+
+                    // Optionally: sync with server if your app does this
+                    String err = SyncManager.updateLinkOnServer(
+                            link, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                    if (err != null) {
+                        System.out.println("Server update failed: " + err);
+                    }
+
+                    // Logging
+                    if (SecurityManager.isStoreLogsEnabled()) {
+                        LogsManager.logEdit("Link", link.getResourceDecrypted());
+                    }
+                    onShowLinks();
+                } catch (Exception e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Encryption error: " + e.getMessage(), ButtonType.OK);
+                    alert.showAndWait();
                 }
-                onShowLinks();
             }
         });
     }
@@ -1008,24 +1243,22 @@ public class MainPageController {
         dialog.setTitle("Edit wallet " + wallet.getResourceDecrypted());
 
         TextField resourceField = new TextField(wallet.getResourceDecrypted());
+        TextArea keyWordsField = new TextArea(wallet.getKeyWordsDecrypted());
+        keyWordsField.setPrefColumnCount(23);
+        keyWordsField.setPrefRowCount(4);
+        keyWordsField.setWrapText(true);
         TextField addressField = new TextField(wallet.getAddressDecrypted());
         TextField pinField = new TextField(wallet.getPasswordDecrypted());
 
-        List<TextField> wordFields = new ArrayList<>();
-        FlowPane fp = new FlowPane(6,3);
-        for(String word : wallet.getTwelveWordsDecrypted()){
-            TextField wordField = new TextField(word);
-            wordFields.add(wordField);
-            fp.getChildren().add(wordField);
-        }
+
 
         ThemeManager.applyThemeToDialog(dialog);
 
         VBox vb = new VBox(5,
                 new HBox(new Label("Resource: "), resourceField),
-                new VBox(new Label("Key words: "), fp),
-                new VBox(new HBox(new Label("Address:"), addressField),
-                new HBox(new Label("Pincode:"), pinField))
+                new VBox(new Label("Key words: "), keyWordsField),
+                new HBox(new Label("Address:"), addressField),
+                new HBox(new Label("Pincode:"), pinField)
         );
         vb.setPadding(new Insets(10));
 
@@ -1034,20 +1267,55 @@ public class MainPageController {
 
         dialog.showAndWait().ifPresent( result -> {
             if(result == ButtonType.OK){
-                wallet.setResourceEncrypted(resourceField.getText());
-                wallet.setAddressEncrypted(addressField.getText());
-                wallet.setPasswordEncrypted(pinField.getText());
-                wallet.setLastModified(LocalDateTime.now());
-                String [] updateWords = new String[wordFields.size()];
-                for( int i = 0; i < updateWords.length; i++) {
-                    updateWords[i] = wordFields.get(i).getText().trim();
+                try {
+                    String newResource = resourceField.getText();
+                    String newKeyWords = keyWordsField.getText();
+                    String newAddress = addressField.getText();
+                    String newPassword = pinField.getText();
+
+                    // Encrypt values for duplicate check and save
+                    String encryptedResource = EncryptionUtils.encrypt(newResource);
+                    String encryptedKeyWords = EncryptionUtils.encrypt(newKeyWords);
+                    String encryptedAddress = EncryptionUtils.encrypt(newAddress);
+                    String encryptedPassword = EncryptionUtils.encrypt(newPassword);
+                    String ownerUsername = wallet.getOwnerUsername();
+
+                    DatabaseManager dbManager = new DatabaseManager();
+
+                    // Duplicate check (except current id)
+                    if (dbManager.walletExistsExceptId(
+                            encryptedResource, encryptedKeyWords, encryptedAddress, encryptedPassword, ownerUsername, wallet.getId())) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING,
+                                "A wallet with these details already exists. Changes were not saved.",
+                                ButtonType.OK);
+                        alert.showAndWait();
+                        return;
+                    }
+
+                    // Set new (encrypted) values and update
+                    wallet.setResourceEncrypted(newResource);
+                    wallet.setKeyWordsEncrypted(newKeyWords);
+                    wallet.setAddressEncrypted(newAddress);
+                    wallet.setPasswordEncrypted(newPassword);
+                    wallet.setLastModified(LocalDateTime.now());
+                    dbManager.updateWallet(wallet, ownerUsername);
+
+                    // Optionally: sync with server if your app does this
+                    String err = SyncManager.updateWalletOnServer(
+                            wallet, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                    if (err != null) {
+                        System.out.println("Server update failed: " + err);
+                    }
+
+                    // Logging
+                    if (SecurityManager.isStoreLogsEnabled()) {
+                        LogsManager.logEdit("Wallet", wallet.getResourceDecrypted());
+                    }
+                    onShowWallets();
+                } catch (Exception e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Encryption error: " + e.getMessage(), ButtonType.OK);
+                    alert.showAndWait();
                 }
-                wallet.setTwelveWordsEncrypted(updateWords);
-                new DatabaseManager().updateWallet(wallet, wallet.getOwnerUsername());
-                if(SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logEdit("Wallet", wallet.getResourceDecrypted());
-                }
-                onShowWallets();
             }
         });
     }
@@ -1062,7 +1330,13 @@ public class MainPageController {
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
             if (Boolean.parseBoolean(account.getSync())) {
-                new DatabaseManager().softDelete(account, "Accounts");
+                String err = SyncManager.deleteAccountOnServer(account, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                if (err == null) {
+                    new DatabaseManager().deleteAccount(account);
+                } else {
+                    System.out.println("ERROR: " + err);
+                    new DatabaseManager().softDelete(account, "Accounts");
+                }
             } else if (!Boolean.parseBoolean(account.getSync())) {
                 new DatabaseManager().deleteAccount(account);
             }
@@ -1082,7 +1356,17 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            new DatabaseManager().deleteCard(card);
+            if (Boolean.parseBoolean(card.getSync())) {
+                String err = SyncManager.deleteCardOnServer(card, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                if (err == null) {
+                    new DatabaseManager().deleteCard(card);
+                } else {
+                    System.out.println("ERROR: " + err);
+                    new DatabaseManager().softDelete(card, "Cards");
+                }
+            } else {
+                new DatabaseManager().deleteCard(card);
+            }
             if(SecurityManager.isStoreLogsEnabled()) {
                 LogsManager.logDelete("Card", card.getResourceDecrypted());
             }
@@ -1099,7 +1383,17 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            new DatabaseManager().deleteLink(link);
+            if (Boolean.parseBoolean(link.getSync())) {
+                String err = SyncManager.deleteLinkOnServer(link, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                if (err == null) {
+                    new DatabaseManager().deleteLink(link);
+                } else {
+                    System.out.println("ERROR: " + err);
+                    new DatabaseManager().softDelete(link, "Links");
+                }
+            } else if (!Boolean.parseBoolean(link.getSync())) {
+                new DatabaseManager().deleteLink(link);
+            }
             if(SecurityManager.isStoreLogsEnabled()) {
                 LogsManager.logDelete("Link", link.getResourceDecrypted());
             }
@@ -1116,18 +1410,85 @@ public class MainPageController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if(result.isPresent() && result.get() == ButtonType.OK){
-            new DatabaseManager().deleteWallet(wallet);
+            if (Boolean.parseBoolean(wallet.getSync())) {
+                String err = SyncManager.deleteWalletOnServer(wallet, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                if (err == null) {
+                    new DatabaseManager().deleteWallet(wallet);
+                } else {
+                    System.out.println("ERROR: " + err);
+                    new DatabaseManager().softDelete(wallet, "Wallets");
+                }
+            } else if (!Boolean.parseBoolean(wallet.getSync())) {
+                new DatabaseManager().deleteWallet(wallet);
+            }
             if(SecurityManager.isStoreLogsEnabled()) {
                 LogsManager.logDelete("Wallet", wallet.getResourceDecrypted());
             }
             onShowWallets();
         }
     }
-    private void onSyncAccountButtonClick(Account account, DatabaseManager dbmanager) {
-        account.setSync(account.getSync().equals("true") ? "false" : "true");
-        dbmanager.syncStatus(account, "Accounts");
+
+    private void onSyncAccountButtonClick(Account account, DatabaseManager dbManager) {
+        boolean currentlySynced = Boolean.parseBoolean(account.getSync());
+        if (currentlySynced) {
+            String error = SyncManager.deleteAccountOnServer(account, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+            if (error != null) {
+                System.out.println("Failed to delete from server: " + error);
+                return;
+            }
+            account.setSync("false");
+        } else {
+            account.setSync("true");
+        }
+        dbManager.syncStatus(account, "Accounts");
         onShowAccounts();
     }
+    private void onSyncCardButtonClick(Card card, DatabaseManager dbManager) {
+        boolean currentlySynced = Boolean.parseBoolean(card.getSync());
+        if (currentlySynced) {
+            String error = SyncManager.deleteCardOnServer(card, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+            if (error != null) {
+                System.out.println("Failed to delete from server: " + error);
+                return;
+            }
+            card.setSync("false");
+        } else {
+            card.setSync("true");
+        }
+        dbManager.syncStatus(card, "Cards");
+        onShowCards(); // Refresh the UI
+    }
+    private void onSyncLinkButtonClick(Link link, DatabaseManager dbManager) {
+        boolean currentlySynced = Boolean.parseBoolean(link.getSync());
+        if (currentlySynced) {
+            String error = SyncManager.deleteLinkOnServer(link, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+            if (error != null) {
+                System.out.println("Failed to delete on server: " + error);
+                return;
+            }
+            link.setSync("false");
+        } else {
+            link.setSync("true");
+        }
+        dbManager.syncStatus(link, "Links");
+        onShowLinks();
+    }
+    private void onSyncWalletButtonClick(Wallet wallet, DatabaseManager dbManager) {
+        boolean currentlySynced = Boolean.parseBoolean(wallet.getSync());
+        if (currentlySynced) {
+            String error = SyncManager.deleteWalletOnServer(wallet, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+            if (error != null) {
+                System.out.println("Failed to delete from server: " + error);
+                return;
+            }
+            wallet.setSync("false");
+        } else {
+            wallet.setSync("true");
+        }
+        dbManager.syncStatus(wallet, "Wallets");
+        onShowWallets();
+    }
+
     private void copyToClipboard(String text){
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();

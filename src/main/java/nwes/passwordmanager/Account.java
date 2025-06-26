@@ -54,12 +54,12 @@ public class Account implements ItemEntity{
     public String getResource() {
         return resource;
     }
-    public void setResource(String resource){ this.resource = resource; }
+    public void setResource(String resource) { this.resource = resource; }
     // Username
     public String getUsername() {
         return username;
     }
-    public void setUsername(String username){ this.username = username; }
+    public void setUsername(String username) { this.username = username; }
     // Password
     public String getPassword() {
         return password;

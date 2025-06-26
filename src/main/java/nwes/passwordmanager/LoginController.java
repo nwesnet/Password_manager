@@ -9,11 +9,6 @@ import javafx.stage.Stage;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.List;
 import java.util.Set;
 
 public class LoginController {
@@ -35,11 +30,13 @@ public class LoginController {
     @FXML private Button loginButton;
 
     @FXML
-    private CheckBox connectToServerCheckbox;
+    private CheckBox connectToServerCheckboxL;
+    @FXML
+    private CheckBox connectToServerCheckboxC;
 
     @FXML
     public void initialize() {
-        connectToServerCheckbox.selectedProperty().addListener((observer, oldValue, newValue) -> {
+        connectToServerCheckboxC.selectedProperty().addListener((observer, oldValue, newValue) -> {
             emailField.setVisible(newValue);
         });
     }
@@ -54,42 +51,88 @@ public class LoginController {
             return;
         }
 
-        SecretKey key = EncryptionUtils.getKeyFromString(username + password);
-        EncryptionUtils.setAppKey(key);
-        // Compare the input data with login
-        if (username.equals(PreferencesManager.getUsername()) &&
-                password.equals(PreferencesManager.getPassword())) {
-            try {
-                // Prepare main page scene
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
-                Scene mainScene = new Scene(fxmlLoader.load());
-                ThemeManager.registerScene(mainScene);
-                // Create the stage for main page and show it
-                Stage mainStage = new Stage();
-                mainStage.setScene(mainScene);
-                mainStage.setTitle("Password manager");
-                mainStage.setOnCloseRequest(e -> ThemeManager.unregisterScene(mainScene));
-                mainStage.show();
-                // Set login action to logs
-                LogsManager.logLogin();
-                // Close login stage
-                Stage loginStage = (Stage) loginButton.getScene().getWindow();
-                loginStage.close();
-                // Sync with website
-                if (PreferencesManager.isSyncEnabled()) {
-                    DatabaseManager dm = new DatabaseManager();
-                    Set<Account> localAccounts = dm.getAllAccounts(false, true);
-                    Set<Account> serverAccounts = SyncManager.syncAccounts(localAccounts, username, password);
-                    if (serverAccounts != null) {
-                        dm.mergeServerAccounts(serverAccounts);
+        if (connectToServerCheckboxL.isSelected()) {
+            PreferencesManager.Preferences pref = SyncManager.loginOnServer(username, password);
+            if (pref != null) {
+                PreferencesManager.setPreferencesInMemory(pref);
+                try {
+                    SecretKey key = EncryptionUtils.getKeyFromString(username + password);
+                    EncryptionUtils.setAppKey(key);
+                    // Prepare main page scene
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
+                    Scene mainScene = new Scene(fxmlLoader.load());
+                    ThemeManager.registerScene(mainScene);
+                    // Create the stage for main page and show it
+                    Stage mainStage = new Stage();
+                    mainStage.setScene(mainScene);
+                    mainStage.setTitle("Password manager");
+                    mainStage.setOnCloseRequest(e -> ThemeManager.unregisterScene(mainScene));
+                    mainStage.show();
+                    // Set login action to logs
+                    LogsManager.logLogin();
+                    // Close login stage
+                    Stage loginStage = (Stage) loginButton.getScene().getWindow();
+                    loginStage.close();
+                    // Sync with website
+                    if (PreferencesManager.isSyncEnabled()) {
+                        DatabaseManager dm = new DatabaseManager();
+                        Set<Account> localAccounts = dm.getAllAccounts(false, true, PreferencesManager.getUsernameEncrypted());
+                        Set<Account> serverAccounts = SyncManager.syncAccounts(localAccounts, username, password);
+                        if (serverAccounts != null) {
+                            dm.mergeServerAccounts(serverAccounts);
+                        }
+                        Set<Card> localCards = dm.getAllCards(false, true, PreferencesManager.getUsernameEncrypted());
+                        Set<Card> serverCards = SyncManager.syncCards(localCards, username, password);
+                        if (serverCards != null) {
+                            dm.mergeServerCards(serverCards);
+                        }
+                        Set<Link> localLinks = dm.getAllLinks(false, true, PreferencesManager.getUsernameEncrypted());
+                        Set<Link> serverLinks = SyncManager.syncLinks(localLinks, username, password);
+                        if (serverLinks != null) {
+                            dm.mergeServerLinks(serverLinks);
+                        }
+                        Set<Wallet> localWallets = dm.getAllWallets(false, true, PreferencesManager.getUsernameEncrypted());
+                        Set<Wallet> serverWallets = SyncManager.syncWallets(localWallets, username, password);
+                        if (serverWallets != null) {
+                            dm.mergeServerWallets(serverWallets);
+                        }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    welcomeText.setText("Failed to load main page.");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                welcomeText.setText("Failed to load main page.");
+
             }
         } else {
-            welcomeText.setText("Incorrect username or password.");
+            SecretKey key = EncryptionUtils.getKeyFromString(username + password);
+            EncryptionUtils.setAppKey(key);
+            // Compare the input data with login
+            if (username.equals(PreferencesManager.getUsername()) &&
+                    password.equals(PreferencesManager.getPassword())) {
+                try {
+                    // Prepare main page scene
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
+                    Scene mainScene = new Scene(fxmlLoader.load());
+                    ThemeManager.registerScene(mainScene);
+                    // Create the stage for main page and show it
+                    Stage mainStage = new Stage();
+                    mainStage.setScene(mainScene);
+                    mainStage.setTitle("Password manager");
+                    mainStage.setOnCloseRequest(e -> ThemeManager.unregisterScene(mainScene));
+                    mainStage.show();
+                    // Set login action to logs
+                    LogsManager.logLogin();
+                    // Close login stage
+                    Stage loginStage = (Stage) loginButton.getScene().getWindow();
+                    loginStage.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    welcomeText.setText("Failed to load main page.");
+                }
+            } else {
+                welcomeText.setText("Incorrect username or password.");
+            }
         }
     }
     // Hide login vbox and show create account vbox
@@ -108,7 +151,7 @@ public class LoginController {
     // Crete account logic
     @FXML
     protected void onCreateNewAccount() {
-        boolean connectToServer = connectToServerCheckbox.isSelected();
+        boolean connectToServer = connectToServerCheckboxC.isSelected();
         // Get input data
         if (connectToServer) {
             String newEmail = emailField.getText().trim();
@@ -127,10 +170,8 @@ public class LoginController {
                 createText.setText("Passwords matches");
                 return;
             }
-            String error = registerOnServer(newEmail, newUser, newPass, confirmPass);
+            String error = SyncManager.registerOnServer(newEmail, newUser, newPass, confirmPass);
             if (error == null) {
-                // Create new account
-                PreferencesManager.createNewPreferences(newUser, newPass, confirmPass, String.valueOf(connectToServer));
                 createText.setText("Account created");
                 createAccountVBox.setVisible(false);
                 loginVBox.setVisible(true);
@@ -162,34 +203,6 @@ public class LoginController {
     }
     public boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    }
-    public static String registerOnServer(String email, String username, String password, String confirmPass) {
-        try {
-            URL url = new URL("http://localhost:8080/api/register");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String json = String.format(
-                    "{\"email\":\"%s\", \"username\":\"%s\", \"password\":\"%s\", \"additionalPassword\":\"%s\"}",
-                    email, username, password, confirmPass
-            );
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = json.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-            int code = conn.getResponseCode();
-            if (code == 200) {
-                return null;
-            } else {
-                try (InputStream err = conn.getErrorStream()) {
-                    return new String(err.readAllBytes());
-                }
-            }
-        } catch(Exception e) {
-            return "Connection error: " + e.getMessage();
-        }
     }
 
 }

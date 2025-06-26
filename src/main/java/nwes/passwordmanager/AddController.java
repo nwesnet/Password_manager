@@ -15,9 +15,12 @@ public class AddController {
     @FXML
     private ComboBox<String> selectDataType;
     @FXML
+    private CheckBox cbSync;
+    @FXML
     private BorderPane BPAdd;
     @FXML
     private VBox vbAdd;
+
 
     private TextField accountResourceField;
     private TextField accountUsernameField;
@@ -43,6 +46,7 @@ public class AddController {
 
     @FXML
     public void initialize(){
+        cbSync.setSelected(PreferencesManager.isSyncEnabled());
         selectDataType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)->{
            handleSelection(newValue);
         });
@@ -290,7 +294,7 @@ public class AddController {
         saveButton.setOnAction(e -> {
             boolean saved = onSaveButtonClick(
                     walletResourceField.getText(),
-                    walletWordsField,
+                    walletWordsField.getText().trim(),
                     walletAddressField.getText(),
                     walletPasswordField.getText()
             );
@@ -329,17 +333,30 @@ public class AddController {
         try {
             if (!resource.isEmpty() && !username.isEmpty() && !password.isEmpty()) {
                 DatabaseManager dm = new DatabaseManager();
-                LocalDateTime now = LocalDateTime.now();
-                String id = java.util.UUID.randomUUID().toString();
+
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedUsername = EncryptionUtils.encrypt(username);
                 String encryptedPassword = EncryptionUtils.encrypt(password);
                 String ownerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
+
+                if (dm.accountExists(encryptedResource, encryptedUsername, encryptedPassword, ownerUsername)) {
+                    System.out.println("Account already exists, not saving");
+                    return false;
+                }
+
+                LocalDateTime now = LocalDateTime.now();
+                String id = java.util.UUID.randomUUID().toString();
                 String deleted = "false";
-                String sync = String.valueOf(PreferencesManager.isSyncEnabled());
+                String sync = String.valueOf(cbSync.isSelected());
 
 
                 dm.writeAccountTodb(id, encryptedResource, encryptedUsername, encryptedPassword, ownerUsername, now, now, deleted, sync);
+                if ("true".equals(sync)) {
+                    String err = SyncManager.addAccountOnServer(new Account(id, encryptedResource, encryptedUsername, encryptedPassword, ownerUsername, now, now, deleted, sync), PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                    if (err != null) {
+                        System.out.println("Server add failed: " + err);
+                    }
+                }
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Account", resource);
@@ -356,14 +373,17 @@ public class AddController {
 
     private boolean onSaveButtonClick(
             String resource, String cardNumber, String expiryDate, String cvv, String ownerName,
-            String pincode,
-            String networkType, String cardType
+            String pincode, String networkType, String cardType
     ) {
         try {
-            if (!resource.isEmpty() || !cardNumber.isEmpty() || !expiryDate.isEmpty() || !cvv.isEmpty() || !ownerName.isEmpty()) {
+            if (!resource.isEmpty() && !cardNumber.isEmpty() && !expiryDate.isEmpty() &&
+                    !cvv.isEmpty() && !ownerName.isEmpty() && !pincode.isEmpty() &&
+                    !networkType.isEmpty() && !cardType.isEmpty()) {
+
                 DatabaseManager dm = new DatabaseManager();
                 LocalDateTime now = LocalDateTime.now();
-                // 🔐 Encrypt all card data before saving
+
+                // Encrypt all fields
                 String id = java.util.UUID.randomUUID().toString();
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedCardNumber = EncryptionUtils.encrypt(cardNumber);
@@ -375,7 +395,15 @@ public class AddController {
                 String encryptedCardType = EncryptionUtils.encrypt(cardType);
                 String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
                 String deleted = "false";
-                String sync = String.valueOf(PreferencesManager.isSyncEnabled());
+                String sync = String.valueOf(cbSync.isSelected());
+
+                // Uniqueness check
+                if (dm.cardExists(
+                        encryptedResource, encryptedCardNumber, encryptedExpiryDate, encryptedOwnerName, encryptedCvv, encryptedOwnerUsername
+                )) {
+                    System.out.println("Card already exists, not saving");
+                    return false;
+                }
 
                 dm.writeCardTodb(
                         id,
@@ -388,15 +416,35 @@ public class AddController {
                         encryptedNetworkType,
                         encryptedCardType,
                         encryptedOwnerUsername,
-                        now,
-                        now,
+                        now, now,
                         deleted,
                         sync
                 );
 
-                if (SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logAdd("Card", resource); // resource in log stays plaintext
+                if ("true".equals(sync)) {
+                    Card card = new Card(
+                            id,
+                            encryptedResource,
+                            encryptedCardNumber,
+                            encryptedExpiryDate,
+                            encryptedCvv,
+                            encryptedOwnerName,
+                            encryptedPincode,
+                            encryptedNetworkType,
+                            encryptedCardType,
+                            encryptedOwnerUsername,
+                            now, now, deleted, sync
+                    );
+                    String err = SyncManager.addCardOnServer(card, PreferencesManager.getUsername(), PreferencesManager.getPassword());
+                    if (err != null) {
+                        System.out.println("Server add failed: " + err);
+                    }
                 }
+
+                if (SecurityManager.isStoreLogsEnabled()) {
+                    LogsManager.logAdd("Card", resource);
+                }
+
                 return true;
             }
         } catch (Exception e) {
@@ -404,19 +452,38 @@ public class AddController {
         }
         return false;
     }
+
     private boolean onSaveButtonClick(String resource, String link) {
         try {
             if (!resource.isEmpty() || !link.isEmpty()) {
                 DatabaseManager dm = new DatabaseManager();
-                LocalDateTime now = LocalDateTime.now();
+
                 // 🔐 Encrypt both fields
-                String id = java.util.UUID.randomUUID().toString();
                 String encryptedResource = EncryptionUtils.encrypt(resource);
                 String encryptedLink = EncryptionUtils.encrypt(link);
                 String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
+
+                if (dm.linkExists(encryptedResource, encryptedLink, encryptedOwnerUsername)) {
+                    System.out.println("Link already exists");
+                    return false;
+                }
+
+                String id = java.util.UUID.randomUUID().toString();
+                LocalDateTime now = LocalDateTime.now();
                 String deleted = "false";
-                String sync = String.valueOf(PreferencesManager.isSyncEnabled());
+                String sync = String.valueOf(cbSync.isSelected());
+
                 dm.writeLinkTodb(id, encryptedResource, encryptedLink, encryptedOwnerUsername, now, now, deleted, sync);
+
+                if ("true".equals(sync)) {
+                    String err = SyncManager.addLinkOnServer(
+                            new Link(id, encryptedResource, encryptedLink, encryptedOwnerUsername, now, now, deleted, sync),
+                            PreferencesManager.getUsername(), PreferencesManager.getPassword()
+                    );
+                    if (err != null) {
+                        System.out.println("Server add failed: " + err);
+                    }
+                }
 
                 if (SecurityManager.isStoreLogsEnabled()) {
                     LogsManager.logAdd("Link", resource); // log original name
@@ -429,37 +496,47 @@ public class AddController {
         }
         return false;
     }
-    private boolean onSaveButtonClick(String resource, TextArea words, String address, String password) {
+    private boolean onSaveButtonClick(String resource, String keyWords, String address, String password) {
         try {
-            String wordsText = words.getText().trim();
-            String[] wordsArray = wordsText.split("\\s+");
+            if (!resource.isEmpty() || !keyWords.isEmpty() || !address.isEmpty() || !password.isEmpty()) {
+                DatabaseManager dm = new DatabaseManager();
 
-            if (wordsArray.length < 12 || wordsArray.length > 24) {
-                System.out.println("❌ Invalid number of words. Must be between 12 and 24.");
-                return false;
-            }
+                String encryptedResource = EncryptionUtils.encrypt(resource);
+                String encryptedKeyWords = EncryptionUtils.encrypt(keyWords);
+                String encryptedAddress = EncryptionUtils.encrypt(address);
+                String encryptedPassword = EncryptionUtils.encrypt(password);
+                String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
 
-            // 🔐 Encrypt words individually
-            for (int i = 0; i < wordsArray.length; i++) {
-                wordsArray[i] = EncryptionUtils.encrypt(wordsArray[i]);
-            }
-            DatabaseManager dm = new DatabaseManager();
-            LocalDateTime now = LocalDateTime.now();
+                if (dm.walletExists(encryptedResource, encryptedKeyWords, encryptedAddress, encryptedPassword, encryptedOwnerUsername)) {
+                    System.out.println("Wallet already exists");
+                    return false;
+                }
 
-            String encryptedWordsString = String.join(",", wordsArray);
+                String id = java.util.UUID.randomUUID().toString();
+                LocalDateTime now = LocalDateTime.now();
+                String deleted = "false";
+                String sync = String.valueOf(cbSync.isSelected());
 
-            String id = java.util.UUID.randomUUID().toString();
-            String encryptedResource = EncryptionUtils.encrypt(resource);
-            String encryptedAddress = EncryptionUtils.encrypt(address);
-            String encryptedPassword = EncryptionUtils.encrypt(password);
-            String encryptedOwnerUsername = EncryptionUtils.encrypt(PreferencesManager.getUsername());
-            String deleted = "false";
-            String sync = String.valueOf(PreferencesManager.isSyncEnabled());
-            if (!resource.isEmpty() || !encryptedWordsString.isEmpty() || !password.isEmpty()) {
-                dm.writeWalletTodb(id, encryptedResource, encryptedWordsString, encryptedAddress, encryptedPassword, encryptedOwnerUsername, now, now, deleted, sync);
+                dm.writeWalletTodb(
+                        id,
+                        encryptedResource, encryptedKeyWords, encryptedAddress, encryptedPassword,
+                        encryptedOwnerUsername,
+                        now, now,
+                        deleted, sync
+                );
+
+                if ("true".equals(sync)) {
+                    String err = SyncManager.addWalletOnServer(
+                            new Wallet(id, encryptedResource, encryptedKeyWords, encryptedAddress, encryptedPassword, encryptedOwnerUsername, now, now, deleted, sync),
+                            PreferencesManager.getUsername(), PreferencesManager.getPassword()
+                    );
+                    if (err != null) {
+                        System.out.println("Server add failed: " + err);
+                    }
+                }
 
                 if (SecurityManager.isStoreLogsEnabled()) {
-                    LogsManager.logAdd("Wallet", resource); // log plain resource
+                    LogsManager.logAdd("Wallet", resource);
                 }
                 return true;
             }

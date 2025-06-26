@@ -2,15 +2,15 @@ package nwes.passwordmanager;
 
 import java.time.LocalDateTime;
 
-public class Card {
+public class Card implements ItemEntity{
     private String id;
     private String resource;
     private String cardNumber;
     private String expiryDate;
     private String cvv;
     private String ownerName;
-    private String cardPincode;
-    private String cardNetworkType;
+    private String cardPin;
+    private String cardNetwork;
     private String cardType;
     private String ownerUsername;
     private LocalDateTime dateAdded;
@@ -20,8 +20,8 @@ public class Card {
 
     public Card(String id,
                 String resource, String cardNumber, String expiryDate, String cvv, String ownerName,
-                String cardPincode,
-                String cardNetworkType, String cardType,
+                String cardPin,
+                String cardNetwork, String cardType,
                 String ownerUsername,
                 LocalDateTime dateAdded,
                 LocalDateTime lastModified,
@@ -33,8 +33,8 @@ public class Card {
         this.expiryDate = expiryDate;
         this.cvv = cvv;
         this.ownerName = ownerName;
-        this.cardPincode = cardPincode;
-        this.cardNetworkType = cardNetworkType;
+        this.cardPin = cardPin;
+        this.cardNetwork = cardNetwork;
         this.cardType = cardType;
         this.ownerUsername = ownerUsername;
         this.dateAdded = dateAdded;
@@ -87,18 +87,18 @@ public class Card {
         this.ownerName = onwerName;
     }
     // Pin code
-    public String getCardPincode() {
-        return cardPincode;
+    public String getCardPin() {
+        return cardPin;
     }
-    public void setCardPincode(String cardPincode) {
-        this.cardPincode = cardPincode;
+    public void setCardPin(String cardPin) {
+        this.cardPin = cardPin;
     }
     // Card network type
-    public String getCardNetworkType() {
-        return cardNetworkType;
+    public String getCardNetwork() {
+        return cardNetwork;
     }
-    public void setCardNetworkType(String cardNetworkType) {
-        this.cardNetworkType = cardNetworkType;
+    public void setCardNetwork(String cardNetwork) {
+        this.cardNetwork = cardNetwork;
     }
     // Card type
     public String getCardType() {
@@ -222,14 +222,14 @@ public class Card {
     // pin code
     public String getCardPincodeDecrypted() {
         try {
-            return EncryptionUtils.decrypt(cardPincode);
+            return EncryptionUtils.decrypt(cardPin);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
     public void setCardPincodeEncrypted(String cardPincode) {
         try {
-            this.cardPincode = EncryptionUtils.encrypt(cardPincode);
+            this.cardPin = EncryptionUtils.encrypt(cardPincode);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -237,14 +237,14 @@ public class Card {
     // card network type
     public String getCardNetworkTypeDecrypted() {
         try {
-            return EncryptionUtils.decrypt(cardNetworkType);
+            return EncryptionUtils.decrypt(cardNetwork);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
     public void setCardNetworkTypeEncrypted(String cardNetworkType) {
         try {
-            this.cardNetworkType = EncryptionUtils.encrypt(cardNetworkType);
+            this.cardNetwork = EncryptionUtils.encrypt(cardNetworkType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -293,7 +293,7 @@ public class Card {
                 expiryDate.equals(card.expiryDate) &&
                 cvv.equals(card.cvv) &&
                 ownerName.equals(card.ownerName) &&
-                cardNetworkType.equals(card.cardNetworkType) &&
+                cardNetwork.equals(card.cardNetwork) &&
                 cardType.equals(card.cardType);
     }
 
@@ -304,7 +304,7 @@ public class Card {
         result = 31 * result + expiryDate.hashCode();
         result = 31 * result + cvv.hashCode();
         result = 31 * result + ownerName.hashCode();
-        result = 31 * result + cardNetworkType.hashCode();
+        result = 31 * result + cardNetwork.hashCode();
         result = 31 * result + cardType.hashCode();
         return result;
     }

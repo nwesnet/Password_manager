@@ -15,22 +15,25 @@
       prefHeight="400.0" prefWidth="600.0"
       >
     <top>
-        <ComboBox fx:id="selectDataType">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <ComboBox fx:id="selectDataType">
 
-            <items>
-                <FXCollections fx:factory="observableArrayList">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Account"/>
+                        <String fx:value="Card"/>
+                        <String fx:value="Link"/>
+                        <String fx:value="Wallet"/>
+                        <String fx:value="Text"/>
+                    </FXCollections>
+                </items>
+
+                <value>
                     <String fx:value="Account"/>
-                    <String fx:value="Card"/>
-                    <String fx:value="Link"/>
-                    <String fx:value="Wallet"/>
-                    <String fx:value="Text"/>
-                </FXCollections>
-            </items>
-
-            <value>
-                <String fx:value="Account"/>
-            </value>
-        </ComboBox>
+                </value>
+            </ComboBox>
+            <CheckBox fx:id="cbSync" text="Sync with server"/>
+        </HBox>
     </top>
     <center>
         <VBox fx:id="vbAdd"
