@@ -21,12 +21,17 @@ jobs:
         run: |
           wget https://download2.gluonhq.com/openjfx/17.0.2/openjfx-17.0.2_linux-x64_bin-sdk.zip
           unzip openjfx-17.0.2_linux-x64_bin-sdk.zip
+          # Copy JavaFX libs to target/ so they get bundled in the app image
+          cp -r openjfx-17.0.2_linux-x64_bin-sdk/javafx-sdk-17.0.2 target/javafx-sdk-17.0.2
 
       - name: Build Fat JAR with Maven
         run: mvn clean package
 
+      - name: List target directory (debug)
+        run: ls -lh target/
+
       - name: List JavaFX lib files (debug)
-        run: ls -lh javafx-sdk-17.0.2/lib
+        run: ls -lh target/javafx-sdk-17.0.2/lib
 
       - name: Package app with jpackage
         run: |
@@ -37,12 +42,12 @@ jobs:
             --main-jar PasswordManager-1.0-SNAPSHOT-jar-with-dependencies.jar \
             --main-class nwes.passwordmanager.Main \
             --type app-image \
-            --module-path javafx-sdk-17.0.2/lib \
+            --module-path target/javafx-sdk-17.0.2/lib \
             --add-modules javafx.controls,javafx.fxml
 
-      - name: List files after packaging
-        run: ls -lh
-
+      - name: List files after packaging (debug)
+        run: ls -lh PasswordManager/
+        
       - name: Upload packaged app
         uses: actions/upload-artifact@v4
         with:
