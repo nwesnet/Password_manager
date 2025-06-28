@@ -33,4 +33,15 @@ jobs:
             --main-jar PasswordManager-1.0-SNAPSHOT-jar-with-dependencies.jar \
             --main-class nwes.passwordmanager.Main \
             --type app-image \
-            --module-path ${{ github.workspace }}/ope
+            --module-path ${{ github.workspace }}/openjfx-17.0.2_linux-x64_bin-sdk/javafx-sdk-17.0.2/lib \
+            --add-modules javafx.controls,javafx.fxml
+
+      - name: List files after packaging
+        run: ls -l
+
+      - name: Upload packaged app
+        uses: actions/upload-artifact@v4
+        with:
+          name: PasswordManager-linux-app
+          path: PasswordManager/
+
