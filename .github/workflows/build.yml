@@ -2,10 +2,9 @@
 name: Build Linux package
 
 on:
-  # build manually or every time you create a tag that looks like v1.2.3
   workflow_dispatch:
   push:
-    tags:    ['v*']
+    tags: ['v*']
 
 jobs:
   linux:
@@ -21,44 +20,34 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: maven  # change to “gradle” if you use Gradle
+          cache: maven        # change to “gradle” if you use Gradle
 
-      # 3) build a fat-/uber-jar that already has *your* dependencies
-      #    – adjust the command if you use Gradle or another tool
+      # 3) build your JAR
       - name: Build runnable JAR
         run: mvn -B clean package -DskipTests
 
-      # 4) grab the same JavaFX SDK you referenced locally
+      # 4) download JavaFX SDK
       - name: Download JavaFX 17 SDK
         env:
-          JFX_VERSION: 17.0.15          # keep this in sync with your script
+          JFX_VERSION: 17.0.15
         run: |
-          curl -L -o javafx.zip https://download2.gluonhq.com/openjfx/${JFX_VERSION}/openjfx-${JFX_VERSION}_linux-x64_bin-sdk.zip
+          curl -L -o javafx.zip \
+               https://download2.gluonhq.com/openjfx/${JFX_VERSION}/openjfx-${JFX_VERSION}_linux-x64_bin-sdk.zip
           unzip -q javafx.zip
           echo "JAVAFX_SDK=$PWD/javafx-sdk-${JFX_VERSION}" >>"$GITHUB_ENV"
 
-      # 5) package everything into an “app-image” (directory with
-      #    launcher + slimmed-down runtime)
+      # 5) package everything with jpackage
       - name: Create self-contained image with jpackage
         run: |
-          # copy artefacts that jpackage needs in one place
+          # find the freshly built jar
+          JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*sources.jar' | head -n1)
+          [ -n "$JAR_PATH" ] || { echo "No JAR found in target/"; exit 1; }
+          JAR_FILE=$(basename "$JAR_PATH")
+
+          # stage inputs
           mkdir -p dist/input
-          cp target/PasswordManager.jar dist/input        # <-- adjust if the jar ends up elsewhere
-          cp "$JAVAFX_SDK"/lib/*.jar dist/input
+          cp "$JAR_PATH"              dist/input/
+          cp "$JAVAFX_SDK"/lib/*.jar  dist/input/
 
+          # run jpackage
           jpackage \
-            --dest dist \
-            --type app-image \
-            --name PasswordManager \
-            --input dist/input \
-            --main-jar PasswordManager.jar \
-            --add-modules javafx.controls,javafx.fxml
-
-          # turn the directory jpackage produced into a single tarball
-          tar -C dist -czf PasswordManager-linux-x64.tgz PasswordManager
-
-      # 6) make the tarball available on the “Actions ▸ Artifacts” tab
-      - uses: actions/upload-artifact@v4
-        with:
-          name: passwordmanager-linux-x64
-          path: PasswordManager-linux-x64.tgz
