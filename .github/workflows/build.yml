@@ -2,8 +2,8 @@
 name: Build Linux package
 
 on:
-  workflow_dispatch:
-  push:
+  workflow_dispatch:          # run manually in the Actions tab
+  push:                       # or automatically for every tag “v…”
     tags: ['v*']
 
 jobs:
@@ -11,43 +11,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) checkout sources
-      - uses: actions/checkout@v4
+    # 1) Checkout sources
+    - uses: actions/checkout@v4
 
-      # 2) JDK 17 (contains jpackage)
-      - name: Set up Temurin 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: maven        # change to “gradle” if you use Gradle
+    # 2) Install JDK 17 (contains jpackage + jlink)
+    - name: Set up Temurin 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
+        cache: maven            # flip to “gradle” if you swap build tools
 
-      # 3) build your JAR
-      - name: Build runnable JAR
-        run: mvn -B clean package -DskipTests
+    # 3) Build a fat-JAR (includes every dependency)
+    #    ────────────────────────────────────────────
+    # If you already have maven-shade-plugin or similar configured,
+    # the JAR will land in target/ as usual.  If not, add the snippet
+    # shown just after this workflow.
+    - name: Build runnable JAR
+      run: mvn -B clean package -DskipTests
 
-      # 4) download JavaFX SDK
-      - name: Download JavaFX 17 SDK
-        env:
-          JFX_VERSION: 17.0.15
-        run: |
-          curl -L -o javafx.zip \
-               https://download2.gluonhq.com/openjfx/${JFX_VERSION}/openjfx-${JFX_VERSION}_linux-x64_bin-sdk.zip
-          unzip -q javafx.zip
-          echo "JAVAFX_SDK=$PWD/javafx-sdk-${JFX_VERSION}" >>"$GITHUB_ENV"
+    # 4) Download JavaFX 17 SDK (same version you use locally)
+    - name: Download JavaFX 17 SDK
+      env:
+        JFX_VERSION: 17.0.15
+      run: |
+        curl -L -o javafx.zip \
+             https://download2.gluonhq.com/openjfx/${JFX_VERSION}/openjfx-${JFX_VERSION}_linux-x64_bin-sdk.zip
+        unzip -q javafx.zip
+        echo "JAVAFX_SDK=$PWD/javafx-sdk-${JFX_VERSION}" >>"$GITHUB_ENV"
 
-      # 5) package everything with jpackage
-      - name: Create self-contained image with jpackage
-        run: |
-          # find the freshly built jar
-          JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*sources.jar' | head -n1)
-          [ -n "$JAR_PATH" ] || { echo "No JAR found in target/"; exit 1; }
-          JAR_FILE=$(basename "$JAR_PATH")
+    # 5) Build the self-contained app-image with jpackage
+    #    ────────────────────────────────────────────────
+    - name: Create app-image with jpackage
+      run: |
+        # locate the freshly built (fat) JAR
+        JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*sources.jar' | head -n1)
+        [ -n "$JAR_PATH" ] || { echo "::error ::No JAR found in target/"; exit 1; }
+        JAR_FILE=$(basename "$JAR_PATH")
 
-          # stage inputs
-          mkdir -p dist/input
-          cp "$JAR_PATH"              dist/input/
-          cp "$JAVAFX_SDK"/lib/*.jar  dist/input/
+        # stage inputs for jpackage
+        mkdir -p dist/input
+        cp "$JAR_PATH"              dist/input/
+        cp "$JAVAFX_SDK"/lib/*.jar  dist/input/
 
-          # run jpackage
-          jpackage \
+        # create the image (dir “dist/PasswordManager”)
+        jpackage \
+          --dest dist \
+          --type app-image \
+          --name PasswordManager \
+          --input dist/input \
+          --main-jar "$JAR_FILE" \
+          --add-modules javafx.controls,javafx.fxml
+
+        # turn the directory into one downloadable archive
+        tar -C dist -czf dist/PasswordManager-linux-x64.tgz PasswordManager
+
+    # 6) Upload t
