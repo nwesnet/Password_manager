@@ -25,23 +25,28 @@ jobs:
       - name: Build Fat JAR with Maven
         run: mvn clean package
 
+      - name: List target directory
+        run: ls -lh target/
+
       - name: Package app with jpackage
         run: |
           jpackage \
             --input target \
+            --dest . \
             --name PasswordManager \
             --main-jar PasswordManager-1.0-SNAPSHOT-jar-with-dependencies.jar \
             --main-class nwes.passwordmanager.Main \
             --type app-image \
-            --module-path ${{ github.workspace }}/openjfx-17.0.2_linux-x64_bin-sdk/javafx-sdk-17.0.2/lib \
+            --module-path openjfx-17.0.2_linux-x64_bin-sdk/javafx-sdk-17.0.2/lib \
             --add-modules javafx.controls,javafx.fxml
 
       - name: List files after packaging
-        run: ls -l
+        run: ls -lh
 
       - name: Upload packaged app
         uses: actions/upload-artifact@v4
         with:
           name: PasswordManager-linux-app
           path: PasswordManager/
+
 
