@@ -26,7 +26,7 @@ jobs:
         run: mvn clean package
 
       - name: List JavaFX lib files (debug)
-        run: ls -lh openjfx-17.0.2_linux-x64_bin-sdk/javafx-sdk-17.0.2/lib
+        run: ls -lh javafx-sdk-17.0.2/lib
 
       - name: Package app with jpackage
         run: |
@@ -37,7 +37,7 @@ jobs:
             --main-jar PasswordManager-1.0-SNAPSHOT-jar-with-dependencies.jar \
             --main-class nwes.passwordmanager.Main \
             --type app-image \
-            --module-path openjfx-17.0.2_linux-x64_bin-sdk/javafx-sdk-17.0.2/lib \
+            --module-path javafx-sdk-17.0.2/lib \
             --add-modules javafx.controls,javafx.fxml
 
       - name: List files after packaging
@@ -48,6 +48,3 @@ jobs:
         with:
           name: PasswordManager-linux-app
           path: PasswordManager/
-
-
-
