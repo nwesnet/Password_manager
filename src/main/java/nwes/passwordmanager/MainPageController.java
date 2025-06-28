@@ -1,5 +1,6 @@
 package nwes.passwordmanager;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -109,6 +110,12 @@ public class MainPageController {
 
             ThemeManager.registerScene(addScene);
             addStage.setOnCloseRequest( e -> ThemeManager.unregisterScene(addScene));
+            Platform.runLater(() -> {
+                addStage.setMinWidth(400);
+                addStage.setMinHeight(300);
+                addStage.setWidth(500);
+                addStage.setHeight(450);
+            });
 
             addStage.setTitle("Add information");
             addStage.setScene(addScene);
@@ -126,6 +133,12 @@ public class MainPageController {
 
             ThemeManager.registerScene(genpsswdScene);
             genpsswdStage.setOnCloseRequest( e -> ThemeManager.unregisterScene(genpsswdScene));
+            Platform.runLater(() -> {
+                genpsswdStage.setMinWidth(400);
+                genpsswdStage.setMinHeight(300);
+                genpsswdStage.setWidth(500);
+                genpsswdStage.setHeight(320);
+            });
 
             genpsswdStage.setTitle("Generate password");
             genpsswdStage.setScene(genpsswdScene);

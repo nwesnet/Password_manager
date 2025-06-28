@@ -5,16 +5,38 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import javax.crypto.SecretKey;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class PreferencesManager {
-    private static final String PREFS_FILE = "preferences.json";
+    private static final String PREFS_FILE_PATH;
+    private static final String PREFS_FILE;
     private static Preferences preferences;
     private static boolean usingServerPreferences = false;
+    static {
+        String os = System.getProperty("os.name").toLowerCase();
+        Path presPath;
+
+        if (os.contains("win")) {
+            String appData = System.getenv("LOCALAPPDATA");
+            if (appData == null) appData = System.getProperty("user.home");
+            presPath = Paths.get(appData, "PasswordManager", "preferences.json");
+        } else {
+            String userHome = System.getProperty("user.home");
+            presPath = Paths.get(userHome, ".local", "share", "PasswordManager", "preferences.json");
+        }
+        File dir = presPath.getParent().toFile();
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        PREFS_FILE_PATH = presPath.toString();
+        PREFS_FILE = PREFS_FILE_PATH;
+    }
     // Load preferences when the app starts
     static {
         loadPreferences(true);

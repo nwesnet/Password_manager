@@ -17,7 +17,7 @@ import java.util.Base64;
 import java.util.Set;
 
 public class SyncManager {
-    private static final String BASE_URL = "http://localhost:8080/api/";
+    private static final String BASE_URL = "https://[2a01:4f9:c013:c9bb::1]:8443/api/";
 
     public static String registerOnServer(String email, String username, String password, String confirmPass) {
         try {
