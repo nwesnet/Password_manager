@@ -1,61 +1,48 @@
-name: Build Linux package
+name: Build Windows .exe with JavaFX and Java 21
 
 on:
-  workflow_dispatch:
   push:
-    tags: ['v*']
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  linux:
-    runs-on: ubuntu-latest
+  build-windows:
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-    - name: Set up Temurin 17
-      uses: actions/setup-java@v4
+    - name: Set up Java 21 (Corretto)
+      uses: actions/setup-java@v3
       with:
-        distribution: temurin
-        java-version: '17'
-        cache: maven
+        distribution: 'corretto'
+        java-version: '21'
 
-    # ── 1. build fat-jar ──────────────────────────────────
-    - name: Build fat JAR
-      run: mvn -B clean package -DskipTests
-
-    # ── 2. grab JavaFX JMODs ─────────────────────────────
-    - name: Download JavaFX 17 JMODs
-      env:
-        JFX_VERSION: 17.0.15
+    - name: Download JavaFX SDK
       run: |
-        curl -L -o jfx-jmods.zip \
-             https://download2.gluonhq.com/openjfx/${JFX_VERSION}/openjfx-${JFX_VERSION}_linux-x64_bin-jmods.zip
-        unzip -q jfx-jmods.zip
-        echo "JAVAFX_JMODS=$PWD/javafx-jmods-${JFX_VERSION}" >>"$GITHUB_ENV"
+        curl -L -o javafx.zip https://download2.gluonhq.com/openjfx/21.0.2/openjfx-21.0.2_windows-x64_bin-sdk.zip
+        mkdir javafx-sdk
+        tar -xf javafx.zip -C javafx-sdk --strip-components=1
 
-    # ── 3. create self-contained image ───────────────────
-    - name: Package with jpackage (auto-detect modules)
+    - name: Create output directory
+      run: mkdir output
+
+    - name: Build native .exe with jpackage
       run: |
-        JAR_PATH=$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*sources.jar' | head -n1)
-        [ -n "$JAR_PATH" ] || { echo "::error ::No JAR found"; exit 1; }
+        jpackage ^
+          --type exe ^
+          --input . ^
+          --dest output ^
+          --name PasswordManager ^
+          --main-jar your-app.jar ^
+          --main-class com.yourpackage.Main ^
+          --runtime-image javafx-sdk ^
+          --icon your-icon.ico ^
+          --java-options "--add-modules javafx.controls,javafx.fxml"
 
-        # Ask jdeps which JDK modules the jar uses
-        MODULES=$(jdeps --print-module-deps --ignore-missing-deps "$JAR_PATH")
-        echo "Detected JDK modules: $MODULES"
-
-        jpackage \
-          --dest dist \
-          --type app-image \
-          --name PasswordManager \
-          --input target \
-          --main-jar "$(basename "$JAR_PATH")" \
-          --module-path "$JAVAFX_JMODS" \
-          --add-modules "$MODULES,javafx.controls,javafx.fxml"
-
-        tar -C dist -czf dist/PasswordManager-linux-x64.tgz PasswordManager
-
-    # ── 4. upload so you can download it ─────────────────
-    - uses: actions/upload-artifact@v4
+    - name: Upload .exe artifact
+      uses: actions/upload-artifact@v3
       with:
-        name: passwordmanager-linux-x64
-        path: dist/PasswordManager-linux-x64.tgz
+        name: PasswordManager-windows
+        path: output/*
