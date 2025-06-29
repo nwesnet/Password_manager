@@ -20,9 +20,7 @@ jobs:
         java-version: '17'
 
     - name: Set up Maven
-      uses: s4u/setup-maven-action@v1
-      with:
-        maven-version: '3.9.6'
+      uses: apache/maven-action@v1.4.0
 
     - name: Build fat JAR with Maven
       run: mvn clean package
@@ -42,8 +40,6 @@ jobs:
         --main-jar PasswordManager-1.0-SNAPSHOT-jar-with-dependencies.jar
         --main-class nwes.passwordmanager.Main --runtime-image javafx-sdk
         --java-options "--add-modules javafx.controls,javafx.fxml"
-
-
 
     - name: Upload .exe artifact
       uses: actions/upload-artifact@v4
