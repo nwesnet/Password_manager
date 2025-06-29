@@ -39,7 +39,7 @@ projects/passwordmanager
 
 
 You will get the zip archive with javafx sdk, run script for your OS, jar file, CA Certificate, and this instruction.
-To run this app you should to have java 17+ on your computer.
+To run this app you should to have java 21+ on your computer.
 
 
   
