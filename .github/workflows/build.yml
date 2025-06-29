@@ -1,4 +1,4 @@
-name: Build Windows .exe with JavaFX and Java 21
+name: Build Windows EXE with JavaFX and Maven
 
 on:
   push:
@@ -10,44 +10,44 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Upload .exe artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: PasswordManager-windows
-        path: output/*
-        compression-level: 6  # 0 (none) to 9 (max compression)
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-
-    - name: Set up Java 21 (Corretto)
+    - name: Set up Java 17 (Corretto)
       uses: actions/setup-java@v3
       with:
         distribution: 'corretto'
-        java-version: '21'
+        java-version: '17'
 
-    - name: Download JavaFX SDK
+    - name: Set up Maven
+      uses: s4u/setup-maven-action@v1
+      with:
+        maven-version: '3.9.6'
+
+    - name: Build fat JAR with Maven
+      run: mvn clean package
+
+    - name: Download JavaFX SDK 17.0.6
       run: |
-        curl -L -o javafx.zip https://download2.gluonhq.com/openjfx/21.0.2/openjfx-21.0.2_windows-x64_bin-sdk.zip
+        curl -L -o javafx.zip https://download2.gluonhq.com/openjfx/17.0.6/openjfx-17.0.6_windows-x64_bin-sdk.zip
         mkdir javafx-sdk
         tar -xf javafx.zip -C javafx-sdk --strip-components=1
 
     - name: Create output directory
       run: mkdir output
 
-    - name: Build native .exe with jpackage
-      run: |
-        jpackage ^
-          --type exe ^
-          --input . ^
-          --dest output ^
-          --name PasswordManager ^
-          --main-jar your-app.jar ^
-          --main-class com.yourpackage.Main ^
-          --runtime-image javafx-sdk ^
-          --icon your-icon.ico ^
-          --java-options "--add-modules javafx.controls,javafx.fxml"
+    - name: Package .exe with jpackage
+      run: >
+        jpackage --type exe --input target --dest output --name PasswordManager
+        --main-jar PasswordManager-1.0-SNAPSHOT-jar-with-dependencies.jar
+        --main-class nwes.passwordmanager.Main --runtime-image javafx-sdk
+        --java-options "--add-modules javafx.controls,javafx.fxml"
+
+
 
     - name: Upload .exe artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: PasswordManager-windows
         path: output/*
+        compression-level: 6
